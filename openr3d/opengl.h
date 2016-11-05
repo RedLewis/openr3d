@@ -8,7 +8,6 @@
 extern QOpenGLFunctions* GLFunctions;
 
 void GLPrintContext();
-void GLPrintError();
 void GLConfigure();
 void GLPerspectiveProjetion(GLdouble fov, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
