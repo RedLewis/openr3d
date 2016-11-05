@@ -1,6 +1,8 @@
 #include "opengl.h"
 #include <iostream>
 
+QOpenGLFunctions* GLFunctions = NULL;
+
 void GLPrintContext()
 {
     std::cout << "GPU Adapter:\t" << glGetString(GL_RENDERER) << std::endl

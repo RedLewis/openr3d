@@ -3,11 +3,13 @@
 GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
     : QOpenGLWidget(parent)
 {
-    QSurfaceFormat format;
 
     /*
-    ** OpenGL Version
+    ** Specify Surface Format
     */
+
+    QSurfaceFormat format;
+
     //QSurfaceFormat::DefaultRenderableType	: The default unspecified rendering method
     //QSurfaceFormat::OpenGL : Desktop OpenGL rendering
     //QSurfaceFormat::OpenGLES : OpenGL ES 2.0 rendering
@@ -15,10 +17,6 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
     format.setMajorVersion(3);
     format.setMinorVersion(1);
 
-    /*
-    ** OpenGL Context
-    ** https://www.opengl.org/wiki/Core_And_Compatibility_in_Contexts
-    */
     //QSurfaceFormat::CompatibilityProfile : Functionality from earlier OpenGL versions is available.
     //QSurfaceFormat::CoreProfile : Functionality deprecated in OpenGL version 3.0 is not available.
     format.setProfile(QSurfaceFormat::CoreProfile);
@@ -27,13 +25,14 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
     //Used to request a debug context with extra debugging information.
     format.setOption(QSurfaceFormat::DebugContext, false);
 
-    /*
-    ** OpenGL Buffer
-    */
+    //Set the preferred number of samples per pixel when multisampling is enabled
+    format.setSamples(4);
+
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     format.setDepthBufferSize(24);
 
     this->setFormat(format);
+
 
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()));
     this->timer.start(1000/framesPerSecond);
@@ -43,8 +42,15 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
 
 void GLWidget::initializeGL()
 {
-    std::cout << "Program compiled for " << sizeof(size_t) * 8 << "bit systems." << std::endl;
+    /*
+    ** OpenGL rendering context is made current when paintGL(), resizeGL(), or initializeGL() is called.
+    ** From this context an already initialized, ready-to-be-used QOpenGLFunctions instance is retrievable by calling QOpenGLContext::functions().
+    */
+    //Make OpenGL Context Functions available
+    GLFunctions = this->context()->functions();
 
+
+    std::cout << "Program compiled for " << sizeof(size_t) * 8 << "bit systems." << std::endl;
     GLPrintContext();
     GLConfigure();
 

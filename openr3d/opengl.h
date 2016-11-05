@@ -3,9 +3,12 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+
+extern QOpenGLFunctions* GLFunctions;
 
 void GLPrintContext();
+void GLPrintError();
 void GLConfigure();
 void GLPerspectiveProjetion(GLdouble fov, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 

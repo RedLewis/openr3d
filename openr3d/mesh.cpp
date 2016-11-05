@@ -22,7 +22,7 @@ int Mesh::load(const std::string& fileName)
         std::cerr << "Mesh::load(\"" << fileName << "\")\tFile not found." << std::endl;
         return -1;
     }
-    std::cerr << "Mesh::load(\"" << fileName << "\")\tLoading file..." << std::endl;
+    std::cout << "Mesh::load(\"" << fileName << "\")\tLoading file..." << std::endl;
 
     //Create std::list tpmVertices and tmpNormals
     std::list<Face*> faceList;
@@ -178,7 +178,7 @@ int Mesh::load(const std::string& fileName)
         this->faces[index++] = face;
     }
 
-    std::cerr << "Mesh::load(\"" << fileName << "\")\tFile loaded!" << std::endl;
+    std::cout << "Mesh::load(\"" << fileName << "\")\tFile loaded!" << std::endl;
     this->fileName = fileName;
     return 0;
 }

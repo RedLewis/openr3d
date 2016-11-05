@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui openglextensions
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     sceneobject.cpp \
     transform.cpp \
     vector3.cpp \
-    vector4.cpp
+    vector4.cpp \
+    shaderprogram.cpp
 
 HEADERS  += mainwindow.h \
     vector4.h \
@@ -59,6 +60,7 @@ HEADERS  += mainwindow.h \
     color.h \
     camera.h \
     asset.h \
-    aligned.h
+    aligned.h \
+    shaderprogram.h
 
 FORMS    += mainwindow.ui
