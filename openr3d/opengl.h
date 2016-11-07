@@ -5,13 +5,24 @@
 #include <cmath>
 #include <QOpenGLFunctions>
 
-extern QOpenGLFunctions* GLFunctions;
+class GL : public QOpenGLFunctions
+{
 
-void GLPrintContext();
-void GLConfigure();
-void GLPerspectiveProjetion(GLdouble fov, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+public:
 
-void GLDrawCube();
-void GLDrawSphere();
+    QOpenGLContext& context;
+
+    GL(QOpenGLContext& context);
+
+    void printContext();
+    void configure();
+    void perspectiveProjetion(GLdouble fov, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
+    void drawCube();
+    void drawSphere();
+
+};
+
+extern GL* gl;
 
 #endif // OPENGL_H

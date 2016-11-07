@@ -15,7 +15,8 @@ win32 {
 # -march=native selects all the SSE/AVX instructions available on the processor.
 # For a Sandy Bridge processor, the flowing flags are selected:
 # -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx
-    QMAKE_CXXFLAGS += -march=native
+    #QMAKE_CXXFLAGS += -march=native
+    QMAKE_CXXFLAGS += -msse4
 }
 
 TARGET = openr3d
@@ -64,3 +65,7 @@ HEADERS  += mainwindow.h \
     shaderprogram.h
 
 FORMS    += mainwindow.ui
+
+DISTFILES += \
+    standard_fragment_shader.fsh \
+    standard_vertex_shader.vsh

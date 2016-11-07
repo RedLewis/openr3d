@@ -18,7 +18,8 @@ void MeshRenderer::update()
 
 void MeshRenderer::draw() const
 {
-    //GLDrawSphere() must be called at every frame to keep the sphere.
+    /* DEPRECATED
+    //draw() must be called at every frame to keep the sphere.
 
     float objAmbientColor[4] = { 0.0f, 0.1f, 0.1f, 1.0f };
     float objDiffuseColor[4] = { 0.0f, 0.75f, 0.75f, 1.0f };
@@ -26,14 +27,15 @@ void MeshRenderer::draw() const
     float objEmissionColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     float objShininess = 256.0f;
 
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, objAmbientColor);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseColor);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, objSpecularColor);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, objEmissionColor);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &objShininess);
+    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, objAmbientColor);
+    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseColor);
+    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, objSpecularColor);
+    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, objEmissionColor);
+    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &objShininess);
 
 
     //glRotatef(rot1, 0, 1, 0);
     mesh->draw();
     //GLDrawCube();
+    */
 }

@@ -11,7 +11,7 @@ class ShaderProgram
 
 public:
 
-    static ShaderProgram* boundShaderProgram;
+    static const ShaderProgram* activeShaderProgram;
 
     enum ShaderType {
         VERTEX,
@@ -27,11 +27,13 @@ public:
     std::vector<GLuint> shaders;
     GLuint program;
 
+    //TODO Handle detach delete and reatach shader to program
     ShaderProgram();
+    ~ShaderProgram();
 
     int load(std::string shaderFileName, ShaderType type);
     int link();
-    void bind();
+    void bind() const;
     static void unbind();
 
 };

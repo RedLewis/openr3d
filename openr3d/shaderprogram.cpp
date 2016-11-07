@@ -2,12 +2,23 @@
 #include <fstream>
 #include <iostream>
 
-ShaderProgram* ShaderProgram::boundShaderProgram = NULL;
+const ShaderProgram* ShaderProgram::activeShaderProgram = NULL;
 
 ShaderProgram::ShaderProgram()
     : shaderFileNames(SHADERTYPE_NBR), shaders(SHADERTYPE_NBR, 0), program(0)
 {
 
+}
+
+ShaderProgram::~ShaderProgram()
+{
+    for (auto shader : this->shaders) {
+        if (shader != 0) {
+           gl->glDetachShader(this->program, shader);
+           gl->glDeleteShader(shader);
+        }
+    }
+    gl->glDeleteProgram(this->program);
 }
 
 int ShaderProgram::load(std::string shaderFileName, ShaderType type)
@@ -16,10 +27,10 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
     std::ifstream file(shaderFileName);
 
     if (!file.is_open()) {
-        std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tFile not found." << std::endl;
+        std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tShader file not found." << std::endl;
         return -1;
     }
-    std::cout << "ShaderProgram::load(\"" << shaderFileName << "\")\tLoading file..." << std::endl;
+    std::cout << "ShaderProgram::load(\"" << shaderFileName << "\")\tCompiling shader..." << std::endl;
 
     file.seekg(0, std::ios::end);
     sourceCode.reserve(file.tellg());
@@ -29,22 +40,22 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
     GLuint shader;
     switch (type) {
         case ShaderType::VERTEX:
-            shader = GLFunctions->glCreateShader(GL_VERTEX_SHADER);
+            shader = gl->glCreateShader(GL_VERTEX_SHADER);
         break;
         case ShaderType::TESSELLATION_CTRL:
-            shader = GLFunctions->glCreateShader(GL_TESS_CONTROL_SHADER);
+            shader = gl->glCreateShader(GL_TESS_CONTROL_SHADER);
         break;
         case ShaderType::TESSELLATION_EVAL:
-            shader = GLFunctions->glCreateShader(GL_TESS_EVALUATION_SHADER);
+            shader = gl->glCreateShader(GL_TESS_EVALUATION_SHADER);
         break;
         case ShaderType::GEOMETRY:
-            shader = GLFunctions->glCreateShader(GL_GEOMETRY_SHADER);
+            shader = gl->glCreateShader(GL_GEOMETRY_SHADER);
         break;
         case ShaderType::FRAGMENT:
-            shader = GLFunctions->glCreateShader(GL_FRAGMENT_SHADER);
+            shader = gl->glCreateShader(GL_FRAGMENT_SHADER);
         break;
         case ShaderType::COMPUTE:
-            shader = GLFunctions->glCreateShader(GL_COMPUTE_SHADER);
+            shader = gl->glCreateShader(GL_COMPUTE_SHADER);
         break;
         default:
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tInvalid shader type." << std::endl;
@@ -52,29 +63,29 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
     }
 
     const char *sourceCodeStr = sourceCode.c_str();
-    GLFunctions->glShaderSource(shader, 1, &sourceCodeStr, NULL);
-    GLFunctions->glCompileShader(shader);
+    gl->glShaderSource(shader, 1, &sourceCodeStr, NULL);
+    gl->glCompileShader(shader);
 
     GLint success = GL_FALSE;
-    GLFunctions->glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    gl->glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE) {
         GLint logLength;
         char* logStr;
         std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tCompilation failure." << std::endl;
-        GLFunctions->glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+        gl->glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
         if (logLength) {
             logStr = new char[logLength];
-            GLFunctions->glGetShaderInfoLog(shader, logLength, NULL, logStr);
+            gl->glGetShaderInfoLog(shader, logLength, NULL, logStr);
             std::cerr << logStr;
             delete[] logStr;
         }
-        GLFunctions->glDeleteShader(shader);
+        gl->glDeleteShader(shader);
         return -1;
     }
     std::cout << "ShaderProgram::load(\"" << shaderFileName << "\")\tCompilation success." << std::endl;
 
     if (this->shaders[type] != 0)
-        GLFunctions->glDeleteShader(this->shaders[type]);
+        gl->glDeleteShader(this->shaders[type]);
     this->shaderFileNames[type] = shaderFileName;
     this->shaders[type] = shader;
     return 0;
@@ -83,53 +94,59 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
 int ShaderProgram::link()
 {
     //Create a shader program
-    GLuint program = GLFunctions->glCreateProgram();
+    GLuint program = gl->glCreateProgram();
 
     std::cout << "ShaderProgram::link()\tLinking shaders into a program..." << std::endl;
 
     for (GLuint shader : this->shaders) {
         if (shader != 0)
-            GLFunctions->glAttachShader(program, shader);
+            gl->glAttachShader(program, shader);
     }
-    GLFunctions->glLinkProgram(program);
+
+    //TODO: Make this generic
+    //Allow sending data to these two attributes using the given indexes (here 0 and 1)
+    gl->glBindAttribLocation(program, 0, "in_position");
+    gl->glBindAttribLocation(program, 1, "in_color");
+
+    gl->glLinkProgram(program);
 
     GLint success = GL_FALSE;
-    GLFunctions->glGetProgramiv(program, GL_LINK_STATUS, &success);
+    gl->glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (success == GL_FALSE)
     {
         GLint logLength;
         char* logStr;
         std::cerr << "ShaderProgram::link()\tLinking failure." << std::endl;
-        GLFunctions->glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+        gl->glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
         if (logLength) {
             logStr = new char[logLength];
-            GLFunctions->glGetProgramInfoLog(program, logLength, NULL, logStr);
+            gl->glGetProgramInfoLog(program, logLength, NULL, logStr);
             std::cerr << logStr;
             delete[] logStr;
         }
-        GLFunctions->glDeleteProgram(program);
+        gl->glDeleteProgram(program);
         return -1;
     }
-    std::cout << "Linking success." << std::endl;
+    std::cout << "ShaderProgram::link()\tLinking success." << std::endl;
 
     if (this->program != 0)
-        GLFunctions->glDeleteProgram(this->program);
+        gl->glDeleteProgram(this->program);
     this->program = program;
     return 0;
 }
 
-void ShaderProgram::bind()
+void ShaderProgram::bind() const
 {
-    if (boundShaderProgram != this) {
-        boundShaderProgram = this;
-        GLFunctions->glUseProgram(this->program);
+    if (activeShaderProgram != this) {
+        activeShaderProgram = this;
+        gl->glUseProgram(this->program);
     }
 }
 
 void ShaderProgram::unbind()
 {
-    if (boundShaderProgram != NULL) {
-        boundShaderProgram = NULL;
-        GLFunctions->glUseProgram(0);
+    if (activeShaderProgram != NULL) {
+        activeShaderProgram = NULL;
+        gl->glUseProgram(0);
     }
 }

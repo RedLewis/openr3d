@@ -8,7 +8,7 @@
 class Camera : public Component
 {
 
-private:
+public:
     bool orthographic = false;
     // Projection controls
     Matrix4 p;          // Perspective Projection Matrix

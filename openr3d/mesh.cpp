@@ -178,40 +178,42 @@ int Mesh::load(const std::string& fileName)
         this->faces[index++] = face;
     }
 
-    std::cout << "Mesh::load(\"" << fileName << "\")\tFile loaded!" << std::endl;
+    std::cout << "Mesh::load(\"" << fileName << "\")\tFile loaded." << std::endl;
     this->fileName = fileName;
     return 0;
 }
 
 void Mesh::draw() const
 {
-    glBegin(GL_TRIANGLES);
+    /* DEPRECATED
+    gl->glBegin(GL_TRIANGLES);
 
     Vector3* tmpVertex;
     Vector3* tmpNormal;
     for (const Face* face : this->faces) {
         //Calculate normals automatically
-        /*tmpVertex[0] = this->vertices[face->vertexIndex[0]];
-        tmpVertex[1] = this->vertices[face->vertexIndex[1]];
-        tmpVertex[2] = this->vertices[face->vertexIndex[2]];
-        tmpNormal = cross(*tmpVertex[1] - *tmpVertex[0], *tmpVertex[2] - *tmpVertex[0]).normalize();
-        glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
-        glVertex3f(tmpVertex[0]->x, tmpVertex[0]->y, tmpVertex[0]->z);
-        glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
-        glVertex3f(tmpVertex[1]->x, tmpVertex[1]->y, tmpVertex[1]->z);
-        glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
-        glVertex3f(tmpVertex[2]->x, tmpVertex[2]->y, tmpVertex[2]->z);
-        */
+        //tmpVertex[0] = this->vertices[face->vertexIndex[0]];
+        //tmpVertex[1] = this->vertices[face->vertexIndex[1]];
+        //tmpVertex[2] = this->vertices[face->vertexIndex[2]];
+        //tmpNormal = cross(*tmpVertex[1] - *tmpVertex[0], *tmpVertex[2] - *tmpVertex[0]).normalize();
+        //gl->glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
+        //gl->glVertex3f(tmpVertex[0]->x, tmpVertex[0]->y, tmpVertex[0]->z);
+        //gl->glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
+        //gl->glVertex3f(tmpVertex[1]->x, tmpVertex[1]->y, tmpVertex[1]->z);
+        //gl->glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
+        //gl->glVertex3f(tmpVertex[2]->x, tmpVertex[2]->y, tmpVertex[2]->z);
+
         //Used stored normals
         for (int i = 0; i < 3; ++i) {
             tmpVertex = this->vertices[face->vertexIndex[i]];
             tmpNormal = this->normals[face->normalIndex[i]];
-            glNormal3f(tmpNormal->x, tmpNormal->y, tmpNormal->z);
-            glVertex3f(tmpVertex->x, tmpVertex->y, tmpVertex->z);
+            gl->glNormal3f(tmpNormal->x, tmpNormal->y, tmpNormal->z);
+            gl->glVertex3f(tmpVertex->x, tmpVertex->y, tmpVertex->z);
         }
     }
 
-    glEnd();
+    gl->glEnd();
+    */
 }
 
 std::ostream& operator<<(std::ostream& out, const Mesh::Face& f) {

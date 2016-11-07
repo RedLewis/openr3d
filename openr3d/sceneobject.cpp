@@ -17,9 +17,10 @@ void SceneObject::draw() const
     //Load transform matrix
     Matrix4 matrix;
     matrix.makeRigidTransformation(transform.position, transform.rotation);
-    glMultMatrixf(matrix.ptr());
+    // DEPRECATED
+    //gl->glMultMatrixf(matrix.ptr());
     matrix.makeScale(transform.scale);
-    glMultMatrixf(matrix.ptr());
+    //gl->glMultMatrixf(matrix.ptr());
 
 
     for (auto& typeComponentPair : components)

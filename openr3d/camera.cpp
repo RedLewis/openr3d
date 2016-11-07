@@ -29,14 +29,16 @@ void Camera::update()
     ci = c.rigidInversed();
 
     /*
-    ** Reload Matrices for next draw calls
+    ** DEPRECATED: Reload Matrices for next draw calls
     */
+    /*
     // Load Perspective Projection Matrix
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(p.ptr());
+    gl->glMatrixMode(GL_PROJECTION);
+    gl->glLoadMatrixf(p.ptr());
     // Load View Matrix (inverse camera matrix)
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(ci.ptr());
+    gl->glMatrixMode(GL_MODELVIEW);
+    gl->glLoadMatrixf(ci.ptr());
+    */
 }
 
 void Camera::setAspectRatio(float aspectRatio)

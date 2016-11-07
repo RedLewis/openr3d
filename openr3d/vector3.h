@@ -8,6 +8,8 @@
 #include "aligned.h"
 #include "vector4.h"
 
+//SIMD: Use SSE on x86 and NEON on ARM
+
 class Vector4;
 
 class Vector3 : public Aligned<16>

@@ -13,9 +13,9 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
     //QSurfaceFormat::DefaultRenderableType	: The default unspecified rendering method
     //QSurfaceFormat::OpenGL : Desktop OpenGL rendering
     //QSurfaceFormat::OpenGLES : OpenGL ES 2.0 rendering
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setMajorVersion(3);
-    format.setMinorVersion(1);
+    format.setRenderableType(QSurfaceFormat::OpenGLES);
+    format.setMajorVersion(2);
+    format.setMinorVersion(0);
 
     //QSurfaceFormat::CompatibilityProfile : Functionality from earlier OpenGL versions is available.
     //QSurfaceFormat::CoreProfile : Functionality deprecated in OpenGL version 3.0 is not available.
@@ -33,11 +33,8 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
 
     this->setFormat(format);
 
-
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()));
     this->timer.start(1000/framesPerSecond);
-
-    this->scene = new Scene;
 }
 
 void GLWidget::initializeGL()
@@ -47,23 +44,23 @@ void GLWidget::initializeGL()
     ** From this context an already initialized, ready-to-be-used QOpenGLFunctions instance is retrievable by calling QOpenGLContext::functions().
     */
     //Make OpenGL Context Functions available
-    GLFunctions = this->context()->functions();
-
+    gl = new GL(*this->context());
 
     std::cout << "Program compiled for " << sizeof(size_t) * 8 << "bit systems." << std::endl;
-    GLPrintContext();
-    GLConfigure();
+    gl->printContext();
+    gl->configure();
 
     //As soon as openGL is ready initialise Scene by calling a first update
     //This sets up the differemt matrices needed before the first draw call
     //(NOT IDEAL : SHOUD NOT REQUIRE OPENGL TO UPDATE SCENE)
+    this->scene = new Scene;
     this->scene->update();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
     //Set Viewport Matrix : Defines the area of the drawing context (here the whole widget)
-    glViewport(0, 0, width, height);
+    gl->glViewport(0, 0, width, height);
 
     //Update camera aspect ratio (IMPLEMENT AS EVENT)
     //scene->camera.setAspectRatio((float)width/(float)height);
@@ -72,7 +69,7 @@ void GLWidget::resizeGL(int width, int height)
 void GLWidget::paintGL()
 {
     //Clear off-screen buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //Draw Scene
     this->scene->draw();
     //Swap off-screen buffer with on-screen buffer
