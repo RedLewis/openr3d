@@ -28,6 +28,9 @@ void Camera::update()
     c.makeRigidTransformation(sceneObject->transform.position, sceneObject->transform.rotation);
     ci = c.rigidInversed();
 
+    // Update View Projection Matrix
+    pci = p * ci;
+
     /*
     ** DEPRECATED: Reload Matrices for next draw calls
     */

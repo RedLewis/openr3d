@@ -19,6 +19,8 @@ public:
     // View controls
     Matrix4 c;          //Camera Matrix
     Matrix4 ci;         //Inverse of Camera Matrix
+    // ViewProjection Matrix
+    Matrix4 pci;
 
 public:
     Camera();

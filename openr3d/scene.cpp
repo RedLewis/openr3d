@@ -147,8 +147,7 @@ void Scene::draw() const
     /* Activate Shader porgram */
     standardShader.bind();
     /* Load camera matrix */
-    Matrix4 mvpMatrix = this->activeCamera->p * this->activeCamera->ci;
-    gl->glUniformMatrix4fv(standardShader.mvpMatrixIndex, 1, GL_FALSE, mvpMatrix.ptr());
+    gl->glUniformMatrix4fv(standardShader.mvpMatrixIndex, 1, GL_FALSE, this->activeCamera->pci.ptr());
 
 
     /* Invoke glDrawArrays telling that our data is a line loop and we want to draw 4 vertexes */
