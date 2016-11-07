@@ -6,6 +6,7 @@
 #include "aligned.h"
 #include "transform.h"
 #include "component.h"
+#include "matrix4.h"
 
 class SceneObject : public Aligned<16> {
 
@@ -19,7 +20,7 @@ public:
     bool enabled = true;
 
     void update();
-    void draw() const;
+    void draw(const Matrix4& mvpMatrix) const;
 
 };
 

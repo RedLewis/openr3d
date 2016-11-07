@@ -103,10 +103,9 @@ int ShaderProgram::link()
             gl->glAttachShader(program, shader);
     }
 
-    //TODO: Make this generic
-    //Allow sending data to these two attributes using the given indexes (here 0 and 1)
-    gl->glBindAttribLocation(program, 0, "in_position");
-    gl->glBindAttribLocation(program, 1, "in_color");
+    //OPTION1 : ASSIGN INDEX BEFORE LINKING
+    //gl->glBindAttribLocation(program, 0, "in_position");
+    //gl->glBindAttribLocation(program, 1, "in_color");
 
     gl->glLinkProgram(program);
 
@@ -128,6 +127,12 @@ int ShaderProgram::link()
         return -1;
     }
     std::cout << "ShaderProgram::link()\tLinking success." << std::endl;
+
+
+    //OPTION2 : GET INDEX AFTER LINKING
+    this->mvpMatrixIndex = gl->glGetUniformLocation(program, "modelViewProjectionMatrix");
+    this->vertexIndex = gl->glGetAttribLocation(program, "in_vertex");
+    this->colorIndex = gl->glGetAttribLocation(program, "in_color");
 
     if (this->program != 0)
         gl->glDeleteProgram(this->program);

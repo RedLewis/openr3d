@@ -12,8 +12,9 @@ void SceneObject::update()
 
 //TODO: Store the model->world matrix in the object's transform and calculate it a each update
 //instead of calculating it at every draw
-void SceneObject::draw() const
+void SceneObject::draw(const Matrix4& mvpMatrix) const
 {
+
     //Load transform matrix
     Matrix4 matrix;
     matrix.makeRigidTransformation(transform.position, transform.rotation);
@@ -26,5 +27,5 @@ void SceneObject::draw() const
     for (auto& typeComponentPair : components)
         if (typeComponentPair.second->enabled) typeComponentPair.second->draw();
     for (SceneObject* child : children)
-        if (child->enabled) child->draw();
+        if (child->enabled) child->draw(mvpMatrix);
 }

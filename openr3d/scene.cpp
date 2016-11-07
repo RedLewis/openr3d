@@ -95,9 +95,6 @@ void Scene::draw() const
     ** Initialization
     */
 
-    /* Get Shader program's camera matrix location */
-    GLuint modelViewProjectionMatrixLocation = gl->glGetUniformLocation(standardShader.program, "modelViewProjectionMatrix");
-
     /* Create handles for our Vertex Array Object and two Vertex Buffer Objects (vertices and colors) */
     GLuint vbo[2];
 
@@ -132,9 +129,7 @@ void Scene::draw() const
     /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
     gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
-    GLuint positionAttributeLocation = 0;
-    //positionAttributeLocation = gl->glGetAttribLocation(standardShader.program, "in_position");
-    gl->glVertexAttribPointer(positionAttributeLocation, 3, GL_FLOAT, GL_FALSE, 0, 0); //Make stride of 8 bytes when using SSE Vector3
+    gl->glVertexAttribPointer(standardShader.vertexIndex, 3, GL_FLOAT, GL_FALSE, 0, 0); //Make stride of 8 bytes when using SSE Vector3
     /* Enable attribute index 0 as being used */
     gl->glEnableVertexAttribArray(0);
 
@@ -142,9 +137,7 @@ void Scene::draw() const
     /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
     gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
     /* Specify that our color data is going into attribute index 1, and contains three floats per vertex */
-    GLuint colorAttributeLocation = 1;
-    //colorAttributeLocation = gl->glGetAttribLocation(standardShader.program, "in_color");
-    gl->glVertexAttribPointer(colorAttributeLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    gl->glVertexAttribPointer(standardShader.colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
     /* Enable attribute index 1 as being used */
     gl->glEnableVertexAttribArray(1);
 
@@ -154,8 +147,8 @@ void Scene::draw() const
     /* Activate Shader porgram */
     standardShader.bind();
     /* Load camera matrix */
-    Matrix4 modelViewProjectionMatrix = this->activeCamera->p * this->activeCamera->ci;
-    gl->glUniformMatrix4fv(modelViewProjectionMatrixLocation, 1, GL_FALSE, modelViewProjectionMatrix.ptr());
+    Matrix4 mvpMatrix = this->activeCamera->p * this->activeCamera->ci;
+    gl->glUniformMatrix4fv(standardShader.mvpMatrixIndex, 1, GL_FALSE, mvpMatrix.ptr());
 
 
     /* Invoke glDrawArrays telling that our data is a line loop and we want to draw 4 vertexes */
@@ -187,7 +180,7 @@ void Scene::draw() const
         if (sceneObject->enabled) {
             // DEPRECATED
             //gl->glPushMatrix();
-            sceneObject->draw();
+            //sceneObject->draw();
             //gl->glPopMatrix();
         }
 }

@@ -27,6 +27,10 @@ public:
     std::vector<GLuint> shaders;
     GLuint program;
 
+    GLuint mvpMatrixIndex;
+    GLuint vertexIndex;
+    GLuint colorIndex;
+
     //TODO Handle detach delete and reatach shader to program
     ShaderProgram();
     ~ShaderProgram();
