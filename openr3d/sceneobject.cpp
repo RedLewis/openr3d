@@ -10,33 +10,35 @@ SceneObject::SceneObject(Scene* scene, SceneObject* parent)
 
 void SceneObject::update()
 {
+    //Update Transfrom
+    Matrix4 rigidTransfromMatrix, scaleMatrix;
+    rigidTransfromMatrix.makeRigidTransformation(this->transform.position, this->transform.rotation);
+    scaleMatrix.makeScale(this->transform.scale);
+    this->transform.localMatrix = scaleMatrix * rigidTransfromMatrix;
+    if (this->parent != NULL)
+        this->transform.modelMatrix = this->parent->transform.modelMatrix * this->transform.localMatrix;
+    else
+        this->transform.modelMatrix = this->transform.localMatrix;
+    this->transform.normalMatrix = this->transform.modelMatrix.inversed().transposed();
+
+    //Update Children
     for (auto& typeComponentPair : components)
         if (typeComponentPair.second->enabled) typeComponentPair.second->update();
     for (SceneObject* child : children)
         if (child->enabled) child->update();
 }
 
-//TODO: Store the model->world matrix in the object's transform and calculate it a each update
-//instead of calculating it at every draw
-static float rot;
-void SceneObject::draw(const Matrix4& mvpMatrix) const
+//TODO: This parent to children draw call architecture leaves a lot of unsed Matrix4 modelViewProjectionMatrix on the stack as it goes down!
+void SceneObject::draw(const Matrix4& viewProjectionMatrix) const
 {
-    Matrix4 dirtyRot;
-    dirtyRot.makeRotateY(rot);
+    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->modeMatrixIndex, 1, GL_FALSE, this->transform.modelMatrix.ptr());
+    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->normalMatrixIndex, 1, GL_FALSE, this->transform.normalMatrix.ptr());
 
-    //Load transform matrix
-    //TODO: Move transform matrix and it's calculation to Transform class
-    Matrix4 rigidM;
-    rigidM.makeRigidTransformation(transform.position, transform.rotation);
-    Matrix4 scaleM;
-    scaleM.makeScale(transform.scale);
-    Matrix4 transM;
-    transM = mvpMatrix * scaleM * rigidM * dirtyRot;
-
-    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->mvpMatrixIndex, 1, GL_FALSE, transM.ptr());
+    Matrix4 modelViewProjectionMatrix = viewProjectionMatrix * this->transform.modelMatrix;
+    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->modelViewProjectionMatrixIndex, 1, GL_FALSE, modelViewProjectionMatrix.ptr());
 
     for (auto& typeComponentPair : components)
         if (typeComponentPair.second->enabled) typeComponentPair.second->draw();
     for (SceneObject* child : children)
-        if (child->enabled) child->draw(transM);
+        if (child->enabled) child->draw(viewProjectionMatrix);
 }

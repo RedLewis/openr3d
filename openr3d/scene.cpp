@@ -47,12 +47,12 @@ Scene::Scene()
     meshRendererComponent->sceneObject = meshObjectChild;
     meshRendererComponent->mesh = new Mesh("../assets/bunny.obj");
     meshObjectChild->components[Component::MESHRENDERER] = meshRendererComponent;
-    //this->sceneObjects.push_back(meshObjectChild);
+    meshObjectChild->parent = meshObjectParent;
     meshObjectParent->children.push_back(meshObjectChild);
 
     //TODO: Clean way of setting up shader
-    this->activeCamera = cameraComponent;
-    this->activeLight = lightComponent;
+    this->activeCamera = cameraObject;
+    this->activeLight = lightObject;
     standardShader.load("../openr3d/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
     standardShader.load("../openr3d/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
     standardShader.link();
@@ -172,9 +172,14 @@ void Scene::draw() const
 
 
     standardShader.bind();
+    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->viewMatrixIndex, 1, GL_FALSE, static_cast<Camera*>(activeCamera->components[Component::CAMERA])->ci.ptr());
+    //TODO Store light direction in light component
+    Vector3 lightDirection(0, 1, 1);
+    lightDirection.normalize();
+    gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
     for (SceneObject* sceneObject : sceneObjects)
         if (sceneObject->enabled) {
-            sceneObject->draw(activeCamera->pci);
+            sceneObject->draw(static_cast<Camera*>(activeCamera->components[Component::CAMERA])->pci);
         }
     ShaderProgram::unbind();
 }
@@ -189,5 +194,5 @@ void Scene::update()
 void Scene::setAspectRatio(float a)
 {
     if (this->activeCamera)
-        activeCamera->setAspectRatio(a);
+        static_cast<Camera*>(activeCamera->components[Component::CAMERA])->setAspectRatio(a);
 }

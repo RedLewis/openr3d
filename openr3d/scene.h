@@ -19,8 +19,8 @@ public:
 
 
     //TODO: Find a cleaner way ot handle camera and light
-    Camera* activeCamera;
-    Light* activeLight;
+    SceneObject* activeCamera;
+    SceneObject* activeLight;
     //TODO: Use more than the standard shader
     ShaderProgram standardShader;
 

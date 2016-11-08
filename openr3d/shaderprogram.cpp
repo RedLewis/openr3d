@@ -130,7 +130,11 @@ int ShaderProgram::link()
 
 
     //OPTION2 : GET INDEX AFTER LINKING
-    this->mvpMatrixIndex = gl->glGetUniformLocation(program, "modelViewProjectionMatrix");
+    this->modeMatrixIndex = gl->glGetUniformLocation(program, "modelMatrix");
+    this->viewMatrixIndex = gl->glGetUniformLocation(program, "viewMatrix");
+    this->normalMatrixIndex = gl->glGetUniformLocation(program, "normalMatrix");
+    this->modelViewProjectionMatrixIndex = gl->glGetUniformLocation(program, "modelViewProjectionMatrix");
+    this->lightDirectionIndex = gl->glGetUniformLocation(program, "lightDirection");
     this->vertexIndex = gl->glGetAttribLocation(program, "in_vertex");
     this->normalIndex = gl->glGetAttribLocation(program, "in_normal");
     this->colorIndex = gl->glGetAttribLocation(program, "in_color");

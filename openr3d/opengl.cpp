@@ -33,8 +33,8 @@ void GL::configure()
     this->glDepthFunc(GL_LESS); //specifies the conditions under which the pixel will be drawn (default is GL_LESS, pixels with less depth will be drawn first)
 
     //Culling
-    //this->glEnable(GL_CULL_FACE);
-    //this->glCullFace(GL_BACK);
+    this->glEnable(GL_CULL_FACE);
+    this->glCullFace(GL_BACK);
 
     //Lighting
     //this->glEnable(GL_LIGHTING);

@@ -27,7 +27,11 @@ public:
     std::vector<GLuint> shaders;
     GLuint program;
 
-    GLuint mvpMatrixIndex;
+    GLuint modeMatrixIndex;
+    GLuint viewMatrixIndex;
+    GLuint normalMatrixIndex;
+    GLuint modelViewProjectionMatrixIndex;
+    GLuint lightDirectionIndex;
     GLuint vertexIndex;
     GLuint normalIndex;
     GLuint colorIndex;

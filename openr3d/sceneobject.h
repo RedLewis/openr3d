@@ -25,7 +25,7 @@ public:
     bool enabled = true;
 
     void update();
-    void draw(const Matrix4& mvpMatrix) const;
+    void draw(const Matrix4& viewProjectionMatrix) const;
 
 };
 

@@ -3,10 +3,15 @@
 
 #include "aligned.h"
 #include "vector3.h"
+#include "matrix4.h"
 
 class Transform : public Aligned<16> {
 
 public:
+
+    Matrix4 modelMatrix;
+    Matrix4 normalMatrix;
+    Matrix4 localMatrix;
 
     Vector3 position;
     Vector3 rotation;
