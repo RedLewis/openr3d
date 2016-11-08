@@ -10,7 +10,7 @@ Scene::Scene()
     //TODO: Functionalize this process (the creation linking of the sceneObject and the component)
 
     //Setup Camera
-    SceneObject* cameraObject = new SceneObject;
+    SceneObject* cameraObject = new SceneObject(this);
     //cameraObject->transform.position = {0, 1, 2};
     //cameraObject->transform.rotation = {-0.5f, 0, 0};
     cameraObject->transform.position = {0, 0, 5.0f};
@@ -21,7 +21,7 @@ Scene::Scene()
     this->sceneObjects.push_back(cameraObject);
 
     //Setup Light
-    SceneObject* lightObject = new SceneObject;
+    SceneObject* lightObject = new SceneObject(this);
     lightObject->transform.rotation = {0, 1.57f/2.0f, 0};
     Light* lightComponent = new Light(Light::Type::DIRECTIONAL);
     lightComponent->sceneObject = lightObject;
@@ -29,7 +29,7 @@ Scene::Scene()
     this->sceneObjects.push_back(lightObject);
 
     //Setup Mesh
-    SceneObject* meshObjectParent = new SceneObject;
+    SceneObject* meshObjectParent = new SceneObject(this);
     meshObjectParent->transform.position = {0, -1.5f, 0};
     meshObjectParent->transform.rotation = {0, 1.0f, 0};
     meshObjectParent->transform.scale = {1, 1, 1};
@@ -39,7 +39,7 @@ Scene::Scene()
     meshObjectParent->components[Component::MESHRENDERER] = meshRendererComponent;
     this->sceneObjects.push_back(meshObjectParent);
 
-    SceneObject* meshObjectChild = new SceneObject;
+    SceneObject* meshObjectChild = new SceneObject(this);
     meshObjectChild->transform.position = {2, 1, 0};
     meshObjectChild->transform.rotation = {0, 0, 0};
     meshObjectChild->transform.scale = {1, 1, 1};
@@ -87,101 +87,96 @@ void Scene::draw() const
 
     */
 
-    /*
-    ** <EXPERIMENTAL DRAW>
-    */
+//    /*
+//    ** <EXPERIMENTAL DRAW>
+//    */
 
-    /*
-    ** Initialization
-    */
+//    /*
+//    ** Initialization
+//    */
 
-    /* Create handles for our Vertex Array Object and two Vertex Buffer Objects (vertices and colors) */
-    GLuint vbo[2];
+//    /* Create handles for our Vertex Array Object and two Vertex Buffer Objects (vertices and colors) */
+//    GLuint vbo[2];
 
-    /* We're going to create a simple flat multicolored diamond */
-    const GLfloat diamond[4][3] = {
-    {  0.0,  1.0, 0.0 }, /* Top point */
-    {  1.0,  0.0, 0.0 }, /* Right point */
-    {  0.0, -1.0, 0.0 }, /* Bottom point */
-    { -1.0,  0.0, 0.0 } }; /* Left point */
-    const GLfloat colors[4][3] = {
-    {  1.0,  0.0,  0.0 }, /* Red */
-    {  0.0,  1.0,  0.0 }, /* Green */
-    {  0.0,  0.0,  1.0 }, /* Blue */
-    {  1.0,  1.0,  1.0 } }; /* White */
+//    /* We're going to create a simple flat multicolored diamond */
+//    const GLfloat diamond[4][3] = {
+//    {  0.0,  1.0, 0.0 }, /* Top point */
+//    {  1.0,  0.0, 0.0 }, /* Right point */
+//    {  0.0, -1.0, 0.0 }, /* Bottom point */
+//    { -1.0,  0.0, 0.0 } }; /* Left point */
+//    const GLfloat colors[4][3] = {
+//    {  1.0,  0.0,  0.0 }, /* Red */
+//    {  0.0,  1.0,  0.0 }, /* Green */
+//    {  0.0,  0.0,  1.0 }, /* Blue */
+//    {  1.0,  1.0,  1.0 } }; /* White */
 
-    /* Allocate and assign 2 Vertex Buffer Objects to our handle */
-    gl->glGenBuffers(2, vbo);
-    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
-    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    /* Copy the vertex data from diamond to our buffer */
-    gl->glBufferData(GL_ARRAY_BUFFER, sizeof(diamond), diamond, GL_STATIC_DRAW);
-    /* Bind our second VBO as being the active buffer and storing vertex attributes (colors) */
-    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    /* Copy the color data from colors to our buffer */
-    /* 12 * sizeof(GLfloat) is the size of the colors array, since it contains 12 GLfloat values */
-    gl->glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+//    /* Allocate and assign 2 Vertex Buffer Objects to our handle */
+//    gl->glGenBuffers(2, vbo);
+//    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
+//    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+//    /* Copy the vertex data from diamond to our buffer */
+//    gl->glBufferData(GL_ARRAY_BUFFER, sizeof(diamond), diamond, GL_STATIC_DRAW);
+//    /* Bind our second VBO as being the active buffer and storing vertex attributes (colors) */
+//    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+//    /* Copy the color data from colors to our buffer */
+//    /* 12 * sizeof(GLfloat) is the size of the colors array, since it contains 12 GLfloat values */
+//    gl->glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 
-    /*
-    ** Draw Loop
-    */
+//    /*
+//    ** Draw Loop
+//    */
 
-    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
-    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
-    gl->glVertexAttribPointer(standardShader.vertexIndex, 3, GL_FLOAT, GL_FALSE, 0, 0); //Make stride of 8 bytes when using SSE Vector3
-    /* Enable attribute index 0 as being used */
-    gl->glEnableVertexAttribArray(0);
+//    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
+//    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+//    /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
+//    gl->glVertexAttribPointer(standardShader.vertexIndex, 3, GL_FLOAT, GL_FALSE, 0, 0); //Make stride of 4 bytes when using SSE Vector3
+//    /* Enable attribute index as being used */
+//    gl->glEnableVertexAttribArray(standardShader.vertexIndex);
 
 
-    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
-    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    /* Specify that our color data is going into attribute index 1, and contains three floats per vertex */
-    gl->glVertexAttribPointer(standardShader.colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    /* Enable attribute index 1 as being used */
-    gl->glEnableVertexAttribArray(1);
+//    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
+//    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+//    /* Specify that our color data is going into attribute index 1, and contains three floats per vertex */
+//    gl->glVertexAttribPointer(standardShader.colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//    /* Enable attribute index as being used */
+//    gl->glEnableVertexAttribArray(standardShader.colorIndex);
 
-    /* OPTIONAL: Unbind current bounded buffer so no buffer are bounded */
-    gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    /* OPTIONAL: Unbind current bounded buffer so no buffer are bounded */
+//    gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /* Activate Shader porgram */
+//    /* Activate Shader porgram */
+//    standardShader.bind();
+//    /* Load camera matrix */
+//    gl->glUniformMatrix4fv(standardShader.mvpMatrixIndex, 1, GL_FALSE, this->activeCamera->pci.ptr());
+
+
+//    /* Invoke glDrawArrays telling that our data is a line loop and we want to draw 4 vertexes */
+//    gl->glDrawArrays(GL_LINE_LOOP, 0, 4);
+//    gl->glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+//    /* OPTIONAL: Deactivate last active shader program */
+//    ShaderProgram::unbind();
+
+//    /* Disable arrays, if left enabled OpenGL will try to read from arrays which may be bound to a invalid pointer */
+//    /* For instance, if another draw call uses only 1 array intead of 2 for the diamond draw call */
+//    gl->glDisableVertexAttribArray(standardShader.vertexIndex);
+//    gl->glDisableVertexAttribArray(standardShader.colorIndex);
+
+//    /* Cleanup */
+//    gl->glDeleteBuffers(2, vbo);
+
+//    /*
+//    ** </EXPERIMENTAL DRAW>
+//    */
+
+
     standardShader.bind();
-    /* Load camera matrix */
-    gl->glUniformMatrix4fv(standardShader.mvpMatrixIndex, 1, GL_FALSE, this->activeCamera->pci.ptr());
-
-
-    /* Invoke glDrawArrays telling that our data is a line loop and we want to draw 4 vertexes */
-    gl->glDrawArrays(GL_LINE_LOOP, 0, 4);
-    gl->glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-    /* OPTIONAL: Deactivate last active shader program */
-    ShaderProgram::unbind();
-
-    /* Disable arrays, if left enabled OpenGL will try to read from arrays which may be bound to a invalid pointer */
-    /* For instance, if another draw call uses only 1 array intead of 2 for the diamond draw call */
-    gl->glDisableVertexAttribArray(0);
-    gl->glDisableVertexAttribArray(1);
-
-    /* Cleanup */
-    gl->glDeleteBuffers(2, vbo);
-
-    /*
-    ** </EXPERIMENTAL DRAW>
-    */
-
-
-    //DEPRECATED: Switch to ModelView matrix matrix and clear
-    //gl->glMatrixMode(GL_MODELVIEW);
-
-    //TODO: Maybe load camera matrix here instead of in the update cycle?
     for (SceneObject* sceneObject : sceneObjects)
         if (sceneObject->enabled) {
-            // DEPRECATED
-            //gl->glPushMatrix();
-            //sceneObject->draw();
-            //gl->glPopMatrix();
+            sceneObject->draw(activeCamera->pci);
         }
+    ShaderProgram::unbind();
 }
 
 
@@ -189,4 +184,10 @@ void Scene::update()
 {
     for (SceneObject* sceneObject : sceneObjects)
         if (sceneObject->enabled) sceneObject->update();
+}
+
+void Scene::setAspectRatio(float a)
+{
+    if (this->activeCamera)
+        activeCamera->setAspectRatio(a);
 }

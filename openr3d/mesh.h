@@ -3,6 +3,8 @@
 
 #include "asset.h"
 #include "vector3.h"
+#include "opengl.h"
+#include "aligned.h"
 #include <vector>
 #include <string>
 
@@ -23,10 +25,15 @@ private:
     //Object should never be references out of this container
     //But we store pointer to vector3 instead of object beacause
     //the stl vector alocation is not memory aligned
-    std::vector<Face*> faces;
-    std::vector<Vector3*> vertices;
-    std::vector<Vector3*> normals;
-    std::vector<Vector3*> colors;
+    std::vector<Face> faces;
+    std::vector<Vector3> vertices;
+    std::vector<Vector3> normals;
+    std::vector<Vector3> colors;
+
+    GLuint verticesVbo;
+    std::vector<Vector3> verticesBuffer;
+    GLuint normalsVbo;
+    std::vector<Vector3> normalsBuffer;
 
 public:
 

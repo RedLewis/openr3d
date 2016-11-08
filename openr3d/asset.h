@@ -2,6 +2,7 @@
 #define ASSET_H
 
 #include <string>
+#include "aligned.h"
 
 class Asset
 {

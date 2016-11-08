@@ -63,15 +63,17 @@ void GLWidget::resizeGL(int width, int height)
     gl->glViewport(0, 0, width, height);
 
     //Update camera aspect ratio (IMPLEMENT AS EVENT)
-    //scene->camera.setAspectRatio((float)width/(float)height);
+    scene->setAspectRatio((float)width/(float)height);
 }
 
 void GLWidget::paintGL()
 {
     //Clear off-screen buffer
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     //Draw Scene
     this->scene->draw();
+
     //Swap off-screen buffer with on-screen buffer
     //...
 }

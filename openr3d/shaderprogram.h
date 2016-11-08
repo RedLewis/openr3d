@@ -29,6 +29,7 @@ public:
 
     GLuint mvpMatrixIndex;
     GLuint vertexIndex;
+    GLuint normalIndex;
     GLuint colorIndex;
 
     //TODO Handle detach delete and reatach shader to program

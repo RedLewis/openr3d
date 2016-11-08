@@ -28,6 +28,7 @@ public:
 
     void draw() const;
     void update();
+    void setAspectRatio(float a);
 
 };
 

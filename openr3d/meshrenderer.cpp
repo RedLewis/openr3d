@@ -38,4 +38,5 @@ void MeshRenderer::draw() const
     mesh->draw();
     //GLDrawCube();
     */
+    mesh->draw();
 }

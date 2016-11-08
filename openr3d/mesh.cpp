@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "opengl.h"
+#include "shaderprogram.h"
 #include <fstream>
 #include <list>
 #include <sstream>
@@ -25,10 +26,10 @@ int Mesh::load(const std::string& fileName)
     std::cout << "Mesh::load(\"" << fileName << "\")\tLoading file..." << std::endl;
 
     //Create std::list tpmVertices and tmpNormals
-    std::list<Face*> faceList;
-    std::list<Vector3*> vertexList;
-    std::list<Vector3*> normalList;
-    std::list<Vector3*> textureCoordinateList;
+    std::list<Face> faceList;
+    std::list<Vector3> vertexList;
+    std::list<Vector3> normalList;
+    std::list<Vector3> textureCoordinateList;
 
     //Load vextrices and normals into the lists
     while (!file.eof()) {
@@ -45,7 +46,7 @@ int Mesh::load(const std::string& fileName)
             ssLine >> vertex.x;
             ssLine >> vertex.y;
             ssLine >> vertex.z;
-            vertexList.push_back(new Vector3(vertex));
+            vertexList.push_back(vertex);
             //std::cout << "vertex = " << vertex << std::endl;
         }
         //Load space vertex
@@ -62,7 +63,7 @@ int Mesh::load(const std::string& fileName)
                 ssLine >> textureCoordinate.z;
             else
                 textureCoordinate.z = 0;
-            textureCoordinateList.push_back(new Vector3(textureCoordinate));
+            textureCoordinateList.push_back(textureCoordinate);
             //std::cout << "textureCoordinate = " << textureCoordinate << std::endl;
         }
         //Load normal
@@ -71,7 +72,7 @@ int Mesh::load(const std::string& fileName)
             ssLine >> normal.x;
             ssLine >> normal.y;
             ssLine >> normal.z;
-            normalList.push_back(new Vector3(normal));
+            normalList.push_back(normal);
             //std::cout << "normal = " << normal << std::endl;
         }
         //Load face
@@ -142,78 +143,87 @@ int Mesh::load(const std::string& fileName)
                 ++cornerNbr;
             }
             //std::cout << "face = " << face << std::endl;
-            faceList.push_back(new Face(face));
+            faceList.push_back(face);
             if (cornerNbr == 4) {
                 //std::cout << "quad to triangle face = " << faceQuadToTriangle << std::endl;
-                faceList.push_back(new Face(faceQuadToTriangle));
+                faceList.push_back(faceQuadToTriangle);
             }
         }
 
     }//End of file loop
 
     //Tranfers std::list vector pointers to their respective std::vector class tables
-    int index;
-
-    this->vertices.resize(vertexList.size());
-    index = 0;
-    for (Vector3* vertex : vertexList) {
-        this->vertices[index++] = vertex;
-    }
-
-    this->colors.resize(textureCoordinateList.size());
-    index = 0;
-    for (Vector3* textureCoordinate : textureCoordinateList) {
-        this->colors[index++] = textureCoordinate;
-    }
-
-    this->normals.resize(normalList.size());
-    index = 0;
-    for (Vector3* normal : normalList) {
-        this->normals[index++] = normal;
-    }
-
-    this->faces.resize(faceList.size());
-    index = 0;
-    for (Face* face : faceList) {
-        this->faces[index++] = face;
-    }
+    this->vertices.assign(vertexList.begin(), vertexList.end());
+    this->colors.assign(textureCoordinateList.begin(), textureCoordinateList.end());
+    this->normals.assign(normalList.begin(), normalList.end());
+    this->faces.assign(faceList.begin(), faceList.end());
 
     std::cout << "Mesh::load(\"" << fileName << "\")\tFile loaded." << std::endl;
     this->fileName = fileName;
+
+    /*
+    ** TODO: Move the opengl load to a init function called when opengl is ready
+    */
+
+    /*
+    ** Create vertices and normals buffers
+    */
+    this->verticesBuffer.reserve(this->faces.size() * 3);
+    this->normalsBuffer.reserve(this->faces.size() * 3);
+    for (Face& face : this->faces) {
+        verticesBuffer.push_back(this->vertices[face.vertexIndex[0]]);
+        verticesBuffer.push_back(this->vertices[face.vertexIndex[1]]);
+        verticesBuffer.push_back(this->vertices[face.vertexIndex[2]]);
+        normalsBuffer.push_back(this->normals[face.normalIndex[0]]);
+        normalsBuffer.push_back(this->normals[face.normalIndex[1]]);
+        normalsBuffer.push_back(this->normals[face.normalIndex[2]]);
+    }
+
+
+    gl->glGenBuffers(1, &(this->verticesVbo));
+    /* Bind VBO as being the active buffer and storing vertex attributes */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVbo);
+    /* Copy the vertex data to our buffer */
+    gl->glBufferData(GL_ARRAY_BUFFER, this->verticesBuffer.size() * sizeof(Vector3), this->verticesBuffer.data(), GL_STATIC_DRAW);
+
+    gl->glGenBuffers(1, &(this->normalsVbo));
+    /* Bind VBO as being the active buffer and storing normal attributes */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->normalsVbo);
+    /* Copy the vertex data to our buffer */
+    gl->glBufferData(GL_ARRAY_BUFFER, this->normalsBuffer.size() * sizeof(Vector3), this->normalsBuffer.data(), GL_STATIC_DRAW);
+
+    /* OPTIONAL: Unbind vbo */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     return 0;
 }
 
 void Mesh::draw() const
 {
-    /* DEPRECATED
-    gl->glBegin(GL_TRIANGLES);
+    /* Bind VBO as being the active buffer and storing vertex attributes */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVbo);
+    /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
+    gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->vertexIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 4th element of the vector3
+    /* Enable attribute index as being used */
+    gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
 
-    Vector3* tmpVertex;
-    Vector3* tmpNormal;
-    for (const Face* face : this->faces) {
-        //Calculate normals automatically
-        //tmpVertex[0] = this->vertices[face->vertexIndex[0]];
-        //tmpVertex[1] = this->vertices[face->vertexIndex[1]];
-        //tmpVertex[2] = this->vertices[face->vertexIndex[2]];
-        //tmpNormal = cross(*tmpVertex[1] - *tmpVertex[0], *tmpVertex[2] - *tmpVertex[0]).normalize();
-        //gl->glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
-        //gl->glVertex3f(tmpVertex[0]->x, tmpVertex[0]->y, tmpVertex[0]->z);
-        //gl->glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
-        //gl->glVertex3f(tmpVertex[1]->x, tmpVertex[1]->y, tmpVertex[1]->z);
-        //gl->glNormal3f(tmpNormal.x, tmpNormal.y, tmpNormal.z);
-        //gl->glVertex3f(tmpVertex[2]->x, tmpVertex[2]->y, tmpVertex[2]->z);
+    /* Bind VBO as being the active buffer and storing vertex attributes */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->normalsVbo);
+    /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
+    gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->normalIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 4th element of the vector3
+    /* Enable attribute index as being used */
+    gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->normalIndex);
 
-        //Used stored normals
-        for (int i = 0; i < 3; ++i) {
-            tmpVertex = this->vertices[face->vertexIndex[i]];
-            tmpNormal = this->normals[face->normalIndex[i]];
-            gl->glNormal3f(tmpNormal->x, tmpNormal->y, tmpNormal->z);
-            gl->glVertex3f(tmpVertex->x, tmpVertex->y, tmpVertex->z);
-        }
-    }
+    /* OPTIONAL: Unbind vbo */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    gl->glEnd();
-    */
+    /* Invoke glDrawArrays telling that our data is are triangles and we want to draw all the vertexes */
+    gl->glDrawArrays(GL_TRIANGLES, 0, this->verticesBuffer.size());
+
+    /* Disable attribute index as being used */
+    gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
+    /* Disable attribute index as being used */
+    gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->normalIndex);
 }
 
 std::ostream& operator<<(std::ostream& out, const Mesh::Face& f) {
