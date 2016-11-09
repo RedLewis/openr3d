@@ -25,6 +25,7 @@ Scene::Scene()
     lightObject->transform.rotation = {0, 1.57f/2.0f, 0};
     Light* lightComponent = new Light(Light::Type::DIRECTIONAL);
     lightComponent->sceneObject = lightObject;
+    lightComponent->color.set(0.0, 1.0, 0.0, 1.0);
     lightObject->components[Component::LIGHT] = lightComponent;
     this->sceneObjects.push_back(lightObject);
 
@@ -174,9 +175,14 @@ void Scene::draw() const
     standardShader.bind();
     gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->viewMatrixIndex, 1, GL_FALSE, static_cast<Camera*>(activeCamera->components[Component::CAMERA])->ci.ptr());
     //TODO Store light direction in light component
-    Vector3 lightDirection(0, 1, 1);
-    lightDirection.normalize();
+    Vector3 lightDirection = Vector3(0, 0, 1);
+    Matrix4 rotation;
+    rotation.makeEulerRotation(this->activeLight->transform.rotation);
+    lightDirection = (rotation * lightDirection.toVector4(0.0f)).toVector3().normalize();
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
+    gl->glUniform4fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
+
+
     for (SceneObject* sceneObject : sceneObjects)
         if (sceneObject->enabled) {
             sceneObject->draw(static_cast<Camera*>(activeCamera->components[Component::CAMERA])->pci);

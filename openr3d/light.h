@@ -17,9 +17,7 @@ public:
     };
 
     Light::Type type;
-    Color ambientColor;
-    Color diffuseColor;
-    Color specularColor;
+    Color color;
 
 
     unsigned int bindID;

@@ -135,9 +135,9 @@ int ShaderProgram::link()
     this->normalMatrixIndex = gl->glGetUniformLocation(program, "normalMatrix");
     this->modelViewProjectionMatrixIndex = gl->glGetUniformLocation(program, "modelViewProjectionMatrix");
     this->lightDirectionIndex = gl->glGetUniformLocation(program, "lightDirection");
+    this->lightColorIndex = gl->glGetUniformLocation(program, "lightColor");
     this->vertexIndex = gl->glGetAttribLocation(program, "in_vertex");
     this->normalIndex = gl->glGetAttribLocation(program, "in_normal");
-    this->colorIndex = gl->glGetAttribLocation(program, "in_color");
 
     if (this->program != 0)
         gl->glDeleteProgram(this->program);

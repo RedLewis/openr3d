@@ -32,9 +32,9 @@ public:
     GLuint normalMatrixIndex;
     GLuint modelViewProjectionMatrixIndex;
     GLuint lightDirectionIndex;
+    GLuint lightColorIndex;
     GLuint vertexIndex;
     GLuint normalIndex;
-    GLuint colorIndex;
 
     //TODO Handle detach delete and reatach shader to program
     ShaderProgram();

@@ -9,9 +9,7 @@ Light::Light(Light::Type type)
     : Component(Component::Type::LIGHT), type(type)
 {
     bindID = nextBindID++;
-    ambientColor.set(1.0f, 1.0f, 1.0f, 1.0f);
-    diffuseColor.set(1.0f, 1.0f, 1.0f, 1.0f);
-    specularColor.set(1.0f, 1.0f, 1.0f, 1.0f);
+    color.set(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void Light::update()
