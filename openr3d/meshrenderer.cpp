@@ -13,30 +13,12 @@ void MeshRenderer::update()
 }
 
 
-//TODO: USE MESH AND MATERIAL INSTEAD OF HARD CODING
-//TODO: Remove hard coded rotation
-
 void MeshRenderer::draw() const
 {
-    /* DEPRECATED
-    //draw() must be called at every frame to keep the sphere.
-
-    float objAmbientColor[4] = { 0.0f, 0.1f, 0.1f, 1.0f };
-    float objDiffuseColor[4] = { 0.0f, 0.75f, 0.75f, 1.0f };
-    float objSpecularColor[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
-    float objEmissionColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    float objShininess = 256.0f;
-
-    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, objAmbientColor);
-    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseColor);
-    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, objSpecularColor);
-    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, objEmissionColor);
-    gl->glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &objShininess);
-
-
-    //glRotatef(rot1, 0, 1, 0);
-    mesh->draw();
-    //GLDrawCube();
-    */
-    mesh->draw();
+    if (texture != NULL) {
+        texture->draw();
+    }
+    if (mesh != NULL) {
+        mesh->draw();
+    }
 }

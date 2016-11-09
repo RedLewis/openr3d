@@ -26,6 +26,7 @@ public:
 protected:
 
     Component(Component::Type type);
+    virtual ~Component();
 
 };
 

@@ -121,22 +121,22 @@ int Mesh::load(const std::string& fileName)
 
                 if (cornerNbr < 3) {
                     face.vertexIndex[cornerNbr] = vertexIndex;
-                    face.colorIndex[cornerNbr] = textureCoordinateIndex;
+                    face.textureCoordinateIndex[cornerNbr] = textureCoordinateIndex;
                     face.normalIndex[cornerNbr] = normalIndex;
                 }
                 if (cornerNbr == 0) {
                     faceQuadToTriangle.vertexIndex[0] = vertexIndex;
-                    faceQuadToTriangle.colorIndex[0] = textureCoordinateIndex;
+                    faceQuadToTriangle.textureCoordinateIndex[0] = textureCoordinateIndex;
                     faceQuadToTriangle.normalIndex[0] = normalIndex;
                 }
                 else if (cornerNbr == 2) {
                     faceQuadToTriangle.vertexIndex[1] = vertexIndex;
-                    faceQuadToTriangle.colorIndex[1] = textureCoordinateIndex;
+                    faceQuadToTriangle.textureCoordinateIndex[1] = textureCoordinateIndex;
                     faceQuadToTriangle.normalIndex[1] = normalIndex;
                 }
                 else if (cornerNbr == 3) {
                     faceQuadToTriangle.vertexIndex[2] = vertexIndex;
-                    faceQuadToTriangle.colorIndex[2] = textureCoordinateIndex;
+                    faceQuadToTriangle.textureCoordinateIndex[2] = textureCoordinateIndex;
                     faceQuadToTriangle.normalIndex[2] = normalIndex;
                 }
 
@@ -154,7 +154,7 @@ int Mesh::load(const std::string& fileName)
 
     //Tranfers std::list vector pointers to their respective std::vector class tables
     this->vertices.assign(vertexList.begin(), vertexList.end());
-    this->colors.assign(textureCoordinateList.begin(), textureCoordinateList.end());
+    this->textureCoordinates.assign(textureCoordinateList.begin(), textureCoordinateList.end());
     this->normals.assign(normalList.begin(), normalList.end());
     this->faces.assign(faceList.begin(), faceList.end());
 
@@ -163,6 +163,7 @@ int Mesh::load(const std::string& fileName)
 
     /*
     ** TODO: Move the opengl load to a init function called when opengl is ready
+    ** TODO: Proper way of NOT having texture coordinates
     */
 
     /*
@@ -170,6 +171,8 @@ int Mesh::load(const std::string& fileName)
     */
     this->verticesBuffer.reserve(this->faces.size() * 3);
     this->normalsBuffer.reserve(this->faces.size() * 3);
+    if (textureCoordinates.size() > 0)
+        this->textureCoordinatesBuffer.reserve(this->faces.size() * 3);
     for (Face& face : this->faces) {
         verticesBuffer.push_back(this->vertices[face.vertexIndex[0]]);
         verticesBuffer.push_back(this->vertices[face.vertexIndex[1]]);
@@ -177,8 +180,14 @@ int Mesh::load(const std::string& fileName)
         normalsBuffer.push_back(this->normals[face.normalIndex[0]]);
         normalsBuffer.push_back(this->normals[face.normalIndex[1]]);
         normalsBuffer.push_back(this->normals[face.normalIndex[2]]);
+        if (textureCoordinates.size() > 0) {
+            textureCoordinatesBuffer.push_back(this->textureCoordinates[face.textureCoordinateIndex[0]]);
+            textureCoordinatesBuffer.push_back(this->textureCoordinates[face.textureCoordinateIndex[1]]);
+            textureCoordinatesBuffer.push_back(this->textureCoordinates[face.textureCoordinateIndex[2]]);
+        }
     }
 
+    //TODO: Check if glGenBuffers set vbo to 0!
 
     gl->glGenBuffers(1, &(this->verticesVbo));
     /* Bind VBO as being the active buffer and storing vertex attributes */
@@ -192,6 +201,12 @@ int Mesh::load(const std::string& fileName)
     /* Copy the vertex data to our buffer */
     gl->glBufferData(GL_ARRAY_BUFFER, this->normalsBuffer.size() * sizeof(Vector3), this->normalsBuffer.data(), GL_STATIC_DRAW);
 
+    gl->glGenBuffers(1, &(this->textureCoordinatesVbo));
+    /* Bind VBO as being the active buffer and storing normal attributes */
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordinatesVbo);
+    /* Copy the vertex data to our buffer */
+    gl->glBufferData(GL_ARRAY_BUFFER, this->textureCoordinatesBuffer.size() * sizeof(Vector3), this->textureCoordinatesBuffer.data(), GL_STATIC_DRAW);
+
     /* OPTIONAL: Unbind vbo */
     gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -200,19 +215,34 @@ int Mesh::load(const std::string& fileName)
 
 void Mesh::draw() const
 {
+    //TODO: All these function recieve size from their respective vector buffer but these should all be the same size anyway otherwise glDrawArrays will segfault
+
     /* Bind VBO as being the active buffer and storing vertex attributes */
     gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVbo);
-    /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
+    /* Specify that our coordinate data is going into attribute index, and contains two floats per vertex */
     gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->vertexIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 4th element of the vector3
     /* Enable attribute index as being used */
     gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
 
     /* Bind VBO as being the active buffer and storing vertex attributes */
     gl->glBindBuffer(GL_ARRAY_BUFFER, this->normalsVbo);
-    /* Specify that our coordinate data is going into attribute index 0, and contains two floats per vertex */
+    /* Specify that our coordinate data is going into attribute index, and contains two floats per vertex */
     gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->normalIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 4th element of the vector3
     /* Enable attribute index as being used */
     gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->normalIndex);
+
+    //TODO: Proper way of NOT having texture coordinates
+    if (textureCoordinatesBuffer.size() > 0) {
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 1);
+        /* Bind VBO as being the active buffer and storing vertex attributes */
+        gl->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordinatesVbo);
+        /* Specify that our coordinate data is going into attribute index, and contains two floats per vertex */
+        gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->textureCoordinateIndex, 2, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 3rd and 4th elements of the vector3
+        /* Enable attribute index as being used */
+        gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->textureCoordinateIndex);
+    }
+    else
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 0);
 
     /* OPTIONAL: Unbind vbo */
     gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -224,6 +254,11 @@ void Mesh::draw() const
     gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
     /* Disable attribute index as being used */
     gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->normalIndex);
+    if (textureCoordinatesBuffer.size() > 0) {
+        /* Disable attribute index as being used */
+        gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->textureCoordinateIndex);
+    }
+
 }
 
 std::ostream& operator<<(std::ostream& out, const Mesh::Face& f) {
@@ -233,8 +268,8 @@ std::ostream& operator<<(std::ostream& out, const Mesh::Face& f) {
         if (f.vertexIndex[i] != -1)
            out <<  f.vertexIndex[i];
         out << "/";
-        if (f.colorIndex[i] != -1)
-           out <<  f.colorIndex[i];
+        if (f.textureCoordinateIndex[i] != -1)
+           out <<  f.textureCoordinateIndex[i];
         out << "/";
         if (f.normalIndex[i] != -1)
            out <<  f.normalIndex[i];

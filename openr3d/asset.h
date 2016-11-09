@@ -23,6 +23,7 @@ public:
 protected:
 
     Asset(Asset::Type type);
+    virtual ~Asset();
 
 };
 

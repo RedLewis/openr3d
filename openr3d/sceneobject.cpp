@@ -8,6 +8,10 @@ SceneObject::SceneObject(Scene* scene, SceneObject* parent)
 {
 }
 
+SceneObject::~SceneObject()
+{
+}
+
 void SceneObject::update()
 {
     //Update Transfrom

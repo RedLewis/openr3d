@@ -129,7 +129,9 @@ int ShaderProgram::link()
     std::cout << "ShaderProgram::link()\tLinking success." << std::endl;
 
 
-    //OPTION2 : GET INDEX AFTER LINKING
+    //OPTION2 : GET INDEX AFTER
+    this->textureSamplerIndex = gl->glGetUniformLocation(program, "textureSampler");
+    this->useTextureIndex = gl->glGetUniformLocation(program, "useTexture");
     this->modeMatrixIndex = gl->glGetUniformLocation(program, "modelMatrix");
     this->viewMatrixIndex = gl->glGetUniformLocation(program, "viewMatrix");
     this->normalMatrixIndex = gl->glGetUniformLocation(program, "normalMatrix");
@@ -138,6 +140,7 @@ int ShaderProgram::link()
     this->lightColorIndex = gl->glGetUniformLocation(program, "lightColor");
     this->vertexIndex = gl->glGetAttribLocation(program, "in_vertex");
     this->normalIndex = gl->glGetAttribLocation(program, "in_normal");
+    this->textureCoordinateIndex = gl->glGetAttribLocation(program, "in_textureCoordinate");
 
     if (this->program != 0)
         gl->glDeleteProgram(this->program);

@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     transform.cpp \
     vector3.cpp \
     vector4.cpp \
-    shaderprogram.cpp
+    shaderprogram.cpp \
+    texture.cpp
 
 HEADERS  += mainwindow.h \
     vector4.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     camera.h \
     asset.h \
     aligned.h \
-    shaderprogram.h
+    shaderprogram.h \
+    texture.h
 
 FORMS    += mainwindow.ui
 

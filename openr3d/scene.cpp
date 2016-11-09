@@ -25,7 +25,7 @@ Scene::Scene()
     lightObject->transform.rotation = {0, 1.57f/2.0f, 0};
     Light* lightComponent = new Light(Light::Type::DIRECTIONAL);
     lightComponent->sceneObject = lightObject;
-    lightComponent->color.set(0.0, 1.0, 0.0, 1.0);
+    lightComponent->color.set(1.0, 1.0, 1.0, 1.0);
     lightObject->components[Component::LIGHT] = lightComponent;
     this->sceneObjects.push_back(lightObject);
 
@@ -37,6 +37,7 @@ Scene::Scene()
     MeshRenderer* meshRendererComponent = new MeshRenderer;
     meshRendererComponent->sceneObject = meshObjectParent;
     meshRendererComponent->mesh = new Mesh("../assets/Tree/Tree.obj");
+    meshRendererComponent->texture = new Texture("../assets/Tree/Tree.ppm");
     meshObjectParent->components[Component::MESHRENDERER] = meshRendererComponent;
     this->sceneObjects.push_back(meshObjectParent);
 
@@ -187,6 +188,7 @@ void Scene::draw() const
         if (sceneObject->enabled) {
             sceneObject->draw(static_cast<Camera*>(activeCamera->components[Component::CAMERA])->pci);
         }
+
     ShaderProgram::unbind();
 }
 

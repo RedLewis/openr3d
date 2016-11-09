@@ -21,6 +21,7 @@ public:
     std::map<Component::Type, Component*> components;
 
     SceneObject(Scene* scene, SceneObject* parent = NULL);
+    virtual ~SceneObject();
 
     bool enabled = true;
 

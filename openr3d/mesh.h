@@ -10,14 +10,14 @@
 
 class Mesh : public Asset {
 
-private:
+public:
 
     //Index or pointer?
     //Index allows acces to the vector laction for easier removal
     struct Face {
         int vertexIndex[3];
         int normalIndex[3];
-        int colorIndex[3];
+        int textureCoordinateIndex[3];
         friend std::ostream& operator<<(std::ostream& out, const Face& f);
     };
     friend std::ostream& operator<<(std::ostream& out, const Mesh::Face& f);
@@ -28,14 +28,14 @@ private:
     std::vector<Face> faces;
     std::vector<Vector3> vertices;
     std::vector<Vector3> normals;
-    std::vector<Vector3> colors;
+    std::vector<Vector3> textureCoordinates;
 
     GLuint verticesVbo;
     std::vector<Vector3> verticesBuffer;
     GLuint normalsVbo;
     std::vector<Vector3> normalsBuffer;
-
-public:
+    GLuint textureCoordinatesVbo;
+    std::vector<Vector3> textureCoordinatesBuffer;
 
     Mesh();
     Mesh(const std::string& fileName);

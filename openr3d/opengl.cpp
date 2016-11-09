@@ -52,12 +52,10 @@ void GL::configure()
 //http://nehe.gamedev.net/article/replacement_for_gluperspective/21002/
 void GL::perspectiveProjetion(GLdouble fov, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
-    /* DEPRECATED
     GLdouble fW, fH;
     fH = tan( fov / 360 * M_PI ) * zNear;
     fW = fH * aspect;
-    this->glFrustum( -fW, fW, -fH, fH, zNear, zFar );
-    */
+    glFrustum( -fW, fW, -fH, fH, zNear, zFar );
 }
 
 void GL::drawCube()

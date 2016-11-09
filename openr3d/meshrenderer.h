@@ -3,8 +3,8 @@
 
 #include "component.h"
 #include "mesh.h"
-//TODO: TEXUTRE AND MATERIAL ASSETS
-//#include "texture.h"
+#include "texture.h"
+//TODO: MATERIAL ASSETS
 //#include "material.h"
 
 class MeshRenderer : public Component
@@ -12,8 +12,8 @@ class MeshRenderer : public Component
 
 public:
 
-    Mesh* mesh;
-
+    Mesh* mesh = NULL;
+    Texture* texture = NULL;
 
     MeshRenderer();
 

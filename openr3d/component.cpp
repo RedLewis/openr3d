@@ -6,6 +6,10 @@ Component::Component(Component::Type type)
 {
 }
 
+Component::~Component()
+{
+}
+
 void Component::update()
 {
     //Default: Nothing to update
