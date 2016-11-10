@@ -39,3 +39,5 @@ CMakeLists.txt.user*
 # Directories to ignore
 assets/*
 !assets/bunny.obj
+!assets/cube.obj
+!assets/texture.ppm

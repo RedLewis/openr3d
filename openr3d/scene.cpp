@@ -13,7 +13,7 @@ Scene::Scene()
     SceneObject* cameraObject = new SceneObject(this);
     //cameraObject->transform.position = {0, 1, 2};
     //cameraObject->transform.rotation = {-0.5f, 0, 0};
-    cameraObject->transform.position = {0, 0, 5.0f};
+    cameraObject->transform.position = {0, 0, 2.5f};
     cameraObject->transform.rotation = {0, 0, 0};
     Camera* cameraComponent = new Camera;
     cameraComponent->sceneObject = cameraObject;
@@ -22,7 +22,7 @@ Scene::Scene()
 
     //Setup Light
     SceneObject* lightObject = new SceneObject(this);
-    lightObject->transform.rotation = {0, 1.57f/2.0f, 0};
+    lightObject->transform.rotation = {0, /*1.57f/2.0f*/0, 0};
     Light* lightComponent = new Light(Light::Type::DIRECTIONAL);
     lightComponent->sceneObject = lightObject;
     lightComponent->color.set(1.0, 1.0, 1.0, 1.0);
@@ -31,18 +31,18 @@ Scene::Scene()
 
     //Setup Mesh
     SceneObject* meshObjectParent = new SceneObject(this);
-    meshObjectParent->transform.position = {0, -1.5f, 0};
-    meshObjectParent->transform.rotation = {0, 1.0f, 0};
+    meshObjectParent->transform.position = {0, /*-1.5f*/ 0, 0};
+    meshObjectParent->transform.rotation = {0, 0.5f, 0};
     meshObjectParent->transform.scale = {1, 1, 1};
     MeshRenderer* meshRendererComponent = new MeshRenderer;
     meshRendererComponent->sceneObject = meshObjectParent;
-    meshRendererComponent->mesh = new Mesh("../assets/Tree/Tree.obj");
-    meshRendererComponent->texture = new Texture("../assets/Tree/Tree.ppm");
+    meshRendererComponent->mesh = new Mesh("../assets/cube.obj");
+    meshRendererComponent->texture = new Texture("../assets/texture.ppm");
     meshObjectParent->components[Component::MESHRENDERER] = meshRendererComponent;
     this->sceneObjects.push_back(meshObjectParent);
 
     SceneObject* meshObjectChild = new SceneObject(this);
-    meshObjectChild->transform.position = {2, 1, 0};
+    meshObjectChild->transform.position = {2, 0, 0};
     meshObjectChild->transform.rotation = {0, 0, 0};
     meshObjectChild->transform.scale = {1, 1, 1};
     meshRendererComponent = new MeshRenderer;
