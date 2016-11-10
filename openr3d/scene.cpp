@@ -183,7 +183,6 @@ void Scene::draw() const
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
     gl->glUniform4fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
 
-
     for (SceneObject* sceneObject : sceneObjects)
         if (sceneObject->enabled) {
             sceneObject->draw(static_cast<Camera*>(activeCamera->components[Component::CAMERA])->pci);

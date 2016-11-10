@@ -88,7 +88,7 @@ int Texture::load(const std::string& fileName)
     /*
     ** TODO: Move the opengl load to a init function called when opengl is ready
     */
-    //TODO: Check if glGenTextures set vbo to 0!
+    //TODO: Check if glGenTextures set tbo to 0!
     // Create Texture Buffer Object
     gl->glGenTextures(1, &(this->tbo));
     // Bind to the texture in OpenGL

@@ -1,11 +1,22 @@
 #include "vector3.h"
 
 // Constructors
-Vector3::Vector3() : xmm(_mm_setzero_ps()) {}
-Vector3::Vector3(const Vector3& o) : xmm(o.xmm) {}
-Vector3::Vector3(const __m128& m) : xmm(m) {}
-Vector3::Vector3(float s) : xmm(_mm_set_ps1(s)) {}
-Vector3::Vector3(float xVal, float yVal, float zVal) : xmm(_mm_set_ps(0.f, zVal, yVal, xVal)) {}
+Vector3::Vector3() : xmm(_mm_setzero_ps()) {
+    std::cout << "Vector3::Vector3()" << std::endl;
+    if (reinterpret_cast<size_t>(this) & 15 != 0)
+}
+Vector3::Vector3(const Vector3& o) : xmm(o.xmm) {
+    std::cout << "Vector3::Vector3(const Vector3& o)" << std::endl;
+}
+Vector3::Vector3(const __m128& m) : xmm(m) {
+    std::cout << "Vector3::Vector3(const __m128& m)" << std::endl;
+}
+Vector3::Vector3(float s) : xmm(_mm_set_ps1(s)) {
+    std::cout << "Vector3::Vector3(float s) : xmm(_mm_set_ps1(s))" << std::endl;
+}
+Vector3::Vector3(float xVal, float yVal, float zVal) : xmm(_mm_set_ps(0.f, zVal, yVal, xVal)) {
+    std::cout << "Vector3::Vector3(float s) : xmm(_mm_set_ps1(s))" << std::endl;
+}
 
 // Assignments
 void Vector3::set(float a) { xmm = _mm_set_ps1(a); }
