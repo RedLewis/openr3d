@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include "aligned.h"
-#include "vector4.h"
 
 //SIMD: Use SSE on x86 and NEON on ARM
 

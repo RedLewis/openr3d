@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include "aligned.h"
-#include "vector3.h"
 
 class Vector3;
 

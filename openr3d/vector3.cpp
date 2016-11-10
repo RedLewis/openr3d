@@ -1,4 +1,5 @@
 #include "vector3.h"
+#include "vector4.h"
 
 // Constructors
 Vector3::Vector3() : xmm(_mm_setzero_ps()) {}

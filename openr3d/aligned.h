@@ -23,41 +23,84 @@
 #else
     #include <x86intrin.h>
 #endif
-#include <iostream>
+#include <exception>
+#include <sstream>
+
+class BadAlignment: public std::exception {
+
+public:
+
+    std::size_t alignment;
+    std::string log;
+
+    BadAlignment(std::size_t alignment) : alignment(alignment) {
+        std::stringstream ss;
+        ss << "Memory not " << alignment << " bytes memory aligned!";
+        log = ss.str();
+    }
+
+    virtual const char* what() const throw() {
+        return log.c_str();
+    }
+
+};
 
 template <std::size_t ALIGNMENT>
 class alignas(ALIGNMENT) Aligned
 {
 
+protected:
+
+    Aligned() {
+        if ((reinterpret_cast<std::size_t>(this) % ALIGNMENT) != 0)
+            throw BadAlignment(ALIGNMENT);
+    }
+
 public:
 
     void* operator new (std::size_t size) {
+        void* ptr = _mm_malloc (size, ALIGNMENT);
+        if (ptr == NULL)
+            throw std::bad_alloc();
+        return ptr;
+    }
+    void* operator new (std::size_t size, const std::nothrow_t& tag) {
         return _mm_malloc (size, ALIGNMENT);
     }
-
     void* operator new (std::size_t size, void* ptr) {
         (void)size;
         if (reinterpret_cast<std::size_t>(ptr) % ALIGNMENT != 0)
-            throw std::bad_alloc();
+            throw BadAlignment(ALIGNMENT);
         return ptr;
     }
 
     void* operator new[] (std::size_t size) {
+        void* ptr = _mm_malloc (size, ALIGNMENT);
+        if (ptr == NULL)
+            throw std::bad_alloc();
+        return ptr;
+    }
+    void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
         return _mm_malloc (size, ALIGNMENT);
     }
-
-    void* operator new[] (std::size_t size,  void* ptr) {
+    void* operator new[] (std::size_t size, void* ptr) {
         (void)size;
         if (reinterpret_cast<std::size_t>(ptr) % ALIGNMENT != 0)
-            throw std::bad_alloc();
+            throw BadAlignment(ALIGNMENT);
         return ptr;
     }
 
     void operator delete (void *ptr) {
         _mm_free(ptr);
     }
+    void operator delete (void *ptr, const std::nothrow_t& tag) {
+        _mm_free(ptr);
+    }
 
     void operator delete[] (void *ptr) {
+        _mm_free(ptr);
+    }
+    void operator delete[] (void *ptr, const std::nothrow_t& tag) {
         _mm_free(ptr);
     }
 
@@ -69,6 +112,7 @@ public:
  * Modified from the Mallocator from Stephan T. Lavavej.
  * <http://blogs.msdn.com/b/vcblog/archive/2008/08/28/the-mallocator.aspx>
  */
+/*
 template <typename T, std::size_t ALIGNMENT>
 class AlignedAllocator
 {
@@ -186,7 +230,7 @@ class AlignedAllocator
 
         // The following will be the same for all allocators that ignore hints.
         template <typename U>
-        T * allocate(const std::size_t n, const U * /* const hint */) const
+        T * allocate(const std::size_t n, const U *) const //const U * => const Hint
         {
             return allocate(n);
         }
@@ -202,5 +246,6 @@ class AlignedAllocator
     private:
         AlignedAllocator& operator=(const AlignedAllocator&);
 };
+*/
 
 #endif // !_ALIGNED_H

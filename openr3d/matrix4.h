@@ -1,11 +1,10 @@
 #ifndef MATRIX4_H
 #define MATRIX4_H
 
-#include "aligned.h"
 #include "vector4.h"
 #include "vector3.h"
 
-class Matrix4 : Aligned<16>
+class Matrix4
 {
 
 protected:
