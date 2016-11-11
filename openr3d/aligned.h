@@ -71,7 +71,7 @@ class alignas(ALIGNMENT_SIZE) Aligned : public virtual Aligned<ALIGNMENT_SIZE/2,
 
 protected:
 
-    template<typename T, std::size_t> friend class AlignedAllocator;
+    template<typename, std::size_t> friend class AlignedAllocator;
     static const std::size_t alignment_size = ALIGNMENT_SIZE;
 
     Aligned() {
@@ -142,7 +142,7 @@ class alignas(2) Aligned<2, true>
 
 protected:
 
-    template<typename T, std::size_t> friend class AlignedAllocator;
+    template<typename, std::size_t> friend class AlignedAllocator;
     static const std::size_t alignment_size = 2;
 
     Aligned() {
@@ -213,7 +213,7 @@ class alignas(ALIGNMENT_SIZE) Aligned<ALIGNMENT_SIZE, false>
 
 protected:
 
-    template<typename T, std::size_t> friend class AlignedAllocator;
+    template<typename, std::size_t> friend class AlignedAllocator;
     static const std::size_t alignment_size = ALIGNMENT_SIZE;
 
     Aligned() {
