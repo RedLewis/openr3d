@@ -5,7 +5,8 @@
 
 class SceneObject;
 
-class Component : public Aligned<16> {
+class Component : public Aligned<Alignment::SSE>
+{
 
 public:
 

@@ -10,7 +10,8 @@
 
 class Scene;
 
-class SceneObject : public Aligned<16> {
+class SceneObject : public Aligned<Alignment::SSE>
+{
 
 public:
 

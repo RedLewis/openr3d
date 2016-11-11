@@ -4,7 +4,7 @@
 #include "aligned.h"
 #include "color.h"
 
-class Lighting : public Aligned<16>
+class Lighting : public Aligned<Alignment::SSE>
 {
 
 public:

@@ -10,7 +10,7 @@
 #include "camera.h"
 #include "light.h"
 
-class Scene : public Aligned<16>
+class Scene : public Aligned<Alignment::SSE>
 {
 public:
 

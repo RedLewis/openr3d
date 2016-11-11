@@ -5,7 +5,8 @@
 #include "vector3.h"
 #include "matrix4.h"
 
-class Transform : public Aligned<16> {
+class Transform : public Aligned<Alignment::SSE>
+{
 
 public:
 

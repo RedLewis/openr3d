@@ -11,7 +11,7 @@
 
 class Vector4;
 
-class Vector3 : public Aligned<16>
+class Vector3 : public Aligned<Alignment::SSE>
 {
 public:
 

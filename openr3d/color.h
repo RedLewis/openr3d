@@ -3,7 +3,8 @@
 
 #include "vector4.h"
 
-class Color : public Vector4 {
+class Color : public Vector4
+{
 
 public:
 

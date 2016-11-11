@@ -8,7 +8,8 @@
 #include <vector>
 #include <string>
 
-class Mesh : public Asset {
+class Mesh : public Asset
+{
 
 public:
 
