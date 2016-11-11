@@ -56,12 +56,6 @@ int main(int argc, char *argv[])
     std::vector<Huge, AlignedAllocator<Huge, 128>> vec1;
     vec1.reserve(2);
     vec1.resize(2);
-    }
-
-    {
-    std::vector<int, AlignedAllocator<int>> vec1;
-    vec1.reserve(2);
-    vec1.resize(2);
     }*/
 
     return app.exec();

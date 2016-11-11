@@ -362,6 +362,7 @@ public:
     }
 
     void deallocate(T * const p, const size_t n) const {
+        (void)n;
         // AlignedAllocator prints a diagnostic message to demonstrate
         // what it’s doing. Real allocators won’t do this.
         //std::cout << "Deallocating " << n << (n == 1 ? " object" : " objects") << " of size " << sizeof(T) << " with a memory alignment of " << ALIGNMENT_SIZE << "." << std::endl;
@@ -458,6 +459,7 @@ public:
     }
 
     void deallocate(T * const p, const size_t n) const {
+        (void)n;
         // AlignedAllocator prints a diagnostic message to demonstrate
         // what it’s doing. Real allocators won’t do this.
         //std::cout << "Deallocating " << n << (n == 1 ? " object" : " objects") << " of size " << sizeof(T) << " with a memory alignment of " << T::Aligned::alignment_size << "." << std::endl;
