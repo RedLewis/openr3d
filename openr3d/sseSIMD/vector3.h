@@ -17,6 +17,7 @@ class Vector3 : public Aligned<Alignment::SSE>
 public:
 
     union {
+        __m128 xmm;
         float data[3];
         struct {
             float x;
@@ -28,6 +29,7 @@ public:
     // Constructors
     Vector3();
     Vector3(const Vector3& v);
+    Vector3(const __m128& m);
     Vector3(float a);
     Vector3(float a, float b, float c);
 

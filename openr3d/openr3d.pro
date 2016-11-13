@@ -9,15 +9,15 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
-win32 {
-    LIBS += -lopengl32
-} else {
-# -march=native selects all the SSE/AVX instructions available on the processor.
-# For a Sandy Bridge processor, the flowing flags are selected:
-# -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx
-    #QMAKE_CXXFLAGS += -march=native
-    QMAKE_CXXFLAGS += -msse4
-}
+#win32 {
+#    LIBS += -lopengl32
+#} else {
+## -march=native selects all the SSE/AVX instructions available on the processor.
+## For a Sandy Bridge processor, the flowing flags are selected:
+## -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx
+#    #QMAKE_CXXFLAGS += -march=native
+#    QMAKE_CXXFLAGS += -msse4
+#}
 
 TARGET = openr3d
 TEMPLATE = app

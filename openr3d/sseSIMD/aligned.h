@@ -18,7 +18,11 @@
 */
 
 #include <cstddef>
-#include <cstdlib>
+#ifdef _WIN32
+    #include <intrin.h>
+#else
+    #include <x86intrin.h>
+#endif
 #include <exception>
 #include <sstream>
 #include <iostream>
@@ -70,54 +74,64 @@ protected:
     template<typename, std::size_t> friend class AlignedAllocator;
     static const std::size_t alignment_size = ALIGNMENT_SIZE;
 
+    Aligned() {
+        //std::cout << "Child of Aligned<" << ALIGNMENT_SIZE << ">" << std::endl;
+        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
+            throw BadAlignment();
+    }
+
 public:
 
     void* operator new (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = malloc(size);
+        void* ptr = _mm_malloc (size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return malloc(size);
+        return _mm_malloc (size, alignment_size);
     }
     void* operator new (std::size_t size, void* ptr) {
         (void)size;
+        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
+            throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void* operator new[] (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = malloc(size);
+        void* ptr = _mm_malloc (size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return malloc(size);
+        return _mm_malloc (size, alignment_size);
     }
     void* operator new[] (std::size_t size, void* ptr) {
         (void)size;
+        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
+            throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void operator delete (void *ptr) {
-        free(ptr);
+        _mm_free(ptr);
     }
     void operator delete (void *ptr, const std::nothrow_t& tag) {
         (void)tag;
-        free(ptr);
+        _mm_free(ptr);
     }
 
     void operator delete[] (void *ptr) {
-        free(ptr);
+        _mm_free(ptr);
     }
     void operator delete[] (void *ptr, const std::nothrow_t& tag) {
         (void)tag;
-        free(ptr);
+        _mm_free(ptr);
     }
 
 };
@@ -131,54 +145,64 @@ protected:
     template<typename, std::size_t> friend class AlignedAllocator;
     static const std::size_t alignment_size = 2;
 
+    Aligned() {
+        //std::cout << "Child of Aligned<" << 2 << ">" << std::endl;
+        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
+            throw BadAlignment();
+    }
+
 public:
 
     void* operator new (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << 2 << std::endl;
-        void* ptr = malloc(size);
+        void* ptr = _mm_malloc (size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return malloc(size);
+        return _mm_malloc (size, alignment_size);
     }
     void* operator new (std::size_t size, void* ptr) {
         (void)size;
+        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
+            throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void* operator new[] (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << 2 << std::endl;
-        void* ptr = malloc(size);
+        void* ptr = _mm_malloc (size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return malloc(size);
+        return _mm_malloc (size, alignment_size);
     }
     void* operator new[] (std::size_t size, void* ptr) {
         (void)size;
+        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
+            throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void operator delete (void *ptr) {
-        free(ptr);
+        _mm_free(ptr);
     }
     void operator delete (void *ptr, const std::nothrow_t& tag) {
         (void)tag;
-        free(ptr);
+        _mm_free(ptr);
     }
 
     void operator delete[] (void *ptr) {
-        free(ptr);
+        _mm_free(ptr);
     }
     void operator delete[] (void *ptr, const std::nothrow_t& tag) {
         (void)tag;
-        free(ptr);
+        _mm_free(ptr);
     }
 
 };
@@ -192,54 +216,64 @@ protected:
     template<typename, std::size_t> friend class AlignedAllocator;
     static const std::size_t alignment_size = ALIGNMENT_SIZE;
 
+    Aligned() {
+        //std::cout << "Child of Aligned<" << ALIGNMENT_SIZE << ">" << std::endl;
+        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
+            throw BadAlignment(alignment_size);
+    }
+
 public:
 
     void* operator new (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = malloc(size);
+        void* ptr = _mm_malloc (size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return malloc(size);
+        return _mm_malloc (size, alignment_size);
     }
     void* operator new (std::size_t size, void* ptr) {
         (void)size;
+        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
+            throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void* operator new[] (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = malloc(size);
+        void* ptr = _mm_malloc (size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return malloc(size);
+        return _mm_malloc (size, alignment_size);
     }
     void* operator new[] (std::size_t size, void* ptr) {
         (void)size;
+        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
+            throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void operator delete (void *ptr) {
-        free(ptr);
+        _mm_free(ptr);
     }
     void operator delete (void *ptr, const std::nothrow_t& tag) {
         (void)tag;
-        free(ptr);
+        _mm_free(ptr);
     }
 
     void operator delete[] (void *ptr) {
-        free(ptr);
+        _mm_free(ptr);
     }
     void operator delete[] (void *ptr, const std::nothrow_t& tag) {
         (void)tag;
-        free(ptr);
+        _mm_free(ptr);
     }
 
 };
@@ -321,7 +355,7 @@ public:
             throw std::length_error("AlignedAllocator<T>::allocate() – Integer overflow.");
         }
         // AlignedAllocator wraps malloc().
-        void * const pv = malloc(n * sizeof(T));
+        void * const pv = _mm_malloc(n * sizeof(T), ALIGNMENT_SIZE);
         // Allocators should throw std::bad_alloc in the case of memory allocation failure.
         if (pv == NULL) { throw std::bad_alloc(); }
         return static_cast<T *>(pv);
@@ -333,7 +367,7 @@ public:
         // what it’s doing. Real allocators won’t do this.
         //std::cout << "Deallocating " << n << (n == 1 ? " object" : " objects") << " of size " << sizeof(T) << " with a memory alignment of " << ALIGNMENT_SIZE << "." << std::endl;
         // AlignedAllocator wraps free().
-        free(p);
+        _mm_free(p);
     }
 
     // The following will be the same for all allocators that ignore hints.
@@ -418,7 +452,7 @@ public:
             throw std::length_error("AlignedAllocator<T>::allocate() – Integer overflow.");
         }
         // AlignedAllocator wraps malloc().
-        void * const pv = malloc(n * sizeof(T));
+        void * const pv = _mm_malloc(n * sizeof(T), T::Aligned::alignment_size);
         // Allocators should throw std::bad_alloc in the case of memory allocation failure.
         if (pv == NULL) { throw std::bad_alloc(); }
         return static_cast<T *>(pv);
@@ -430,7 +464,7 @@ public:
         // what it’s doing. Real allocators won’t do this.
         //std::cout << "Deallocating " << n << (n == 1 ? " object" : " objects") << " of size " << sizeof(T) << " with a memory alignment of " << T::Aligned::alignment_size << "." << std::endl;
         // AlignedAllocator wraps free().
-        free(p);
+        _mm_free(p);
     }
 
     // The following will be the same for all allocators that ignore hints.
@@ -461,13 +495,13 @@ public:
       if (n > static_cast<std::size_t>(-1) / sizeof(T)) {
           throw std::bad_array_new_length();
       }
-      void* const pv = malloc(n * sizeof(T));
+      void* const pv = _mm_malloc(n * sizeof(T), T::alignment_size);
       if (pv == NULL) { throw std::bad_alloc(); }
       return static_cast<T*>(pv);
   }
   void deallocate(T* const p, std::size_t) const {
       //std::cout << "void deallocate(T* const p, std::size_t) with alignment = " << T::alignment_size << std::endl;
-      free(p);
+      _mm_free(p);
   }
 };
 */
