@@ -17,6 +17,7 @@ public:
 
     Texture();
     Texture(const std::string& fileName);
+    //TODO: Add destructor and glDeleteTexture
 
     //Supports PPM Files
     int load(const std::string& fileName);

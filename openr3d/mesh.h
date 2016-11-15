@@ -40,6 +40,7 @@ public:
 
     Mesh();
     Mesh(const std::string& fileName);
+    //TODO: Add destructor and glDeleteBuffers
 
     //OBJECT FILE
     int load(const std::string& fileName);
