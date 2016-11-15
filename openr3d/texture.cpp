@@ -16,7 +16,7 @@ Texture::Texture(const std::string& fileName)
 
 Texture::~Texture()
 {
-    glDeleteTextures(1, &tbo);
+    gl->glDeleteTextures(1, &tbo);
 }
 
 /** Load a ppm file from disk.
