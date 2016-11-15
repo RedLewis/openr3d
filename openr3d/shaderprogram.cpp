@@ -130,17 +130,30 @@ int ShaderProgram::link()
 
 
     //OPTION2 : GET INDEX AFTER
+    //OPTION2 : GET INDEX AFTER
     this->textureSamplerIndex = gl->glGetUniformLocation(program, "textureSampler");
+    if (this->textureSamplerIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"textureSampler\" not found." << std::endl;
     this->useTextureIndex = gl->glGetUniformLocation(program, "useTexture");
-    this->modeMatrixIndex = gl->glGetUniformLocation(program, "modelMatrix");
+    if (this->useTextureIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useTexture\" not found." << std::endl;
+    this->modelMatrixIndex = gl->glGetUniformLocation(program, "modelMatrix");
+    if (this->modelMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelMatrix\" not found." << std::endl;
     this->viewMatrixIndex = gl->glGetUniformLocation(program, "viewMatrix");
+    if (this->viewMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"viewMatrix\" not found." << std::endl;
     this->normalMatrixIndex = gl->glGetUniformLocation(program, "normalMatrix");
+    if (this->normalMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"normalMatrix\" not found." << std::endl;
     this->modelViewProjectionMatrixIndex = gl->glGetUniformLocation(program, "modelViewProjectionMatrix");
+    if (this->modelViewProjectionMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelViewProjectionMatrix\" not found." << std::endl;
     this->lightDirectionIndex = gl->glGetUniformLocation(program, "lightDirection");
+    if (this->lightDirectionIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightDirection\" not found." << std::endl;
     this->lightColorIndex = gl->glGetUniformLocation(program, "lightColor");
+    if (this->lightColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightColor\" not found." << std::endl;
     this->vertexIndex = gl->glGetAttribLocation(program, "in_vertex");
+    if (this->vertexIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_vertex\" not found." << std::endl;
     this->normalIndex = gl->glGetAttribLocation(program, "in_normal");
+    if (this->normalIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_normal\" not found." << std::endl;
     this->textureCoordinateIndex = gl->glGetAttribLocation(program, "in_textureCoordinate");
+    if (this->textureCoordinateIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_textureCoordinate\" not found." << std::endl;
+
 
     if (this->program != 0)
         gl->glDeleteProgram(this->program);

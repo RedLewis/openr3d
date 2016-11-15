@@ -27,17 +27,17 @@ public:
     std::vector<GLuint> shaders;
     GLuint program;
 
-    GLuint textureSamplerIndex;
-    GLuint useTextureIndex;
-    GLuint modeMatrixIndex;
-    GLuint viewMatrixIndex;
-    GLuint normalMatrixIndex;
-    GLuint modelViewProjectionMatrixIndex;
-    GLuint lightDirectionIndex;
-    GLuint lightColorIndex;
-    GLuint vertexIndex;
-    GLuint normalIndex;
-    GLuint textureCoordinateIndex;
+    GLint textureSamplerIndex;
+    GLint useTextureIndex;
+    GLint modelMatrixIndex;
+    GLint viewMatrixIndex;
+    GLint normalMatrixIndex;
+    GLint modelViewProjectionMatrixIndex;
+    GLint lightDirectionIndex;
+    GLint lightColorIndex;
+    GLint vertexIndex;
+    GLint normalIndex;
+    GLint textureCoordinateIndex;
 
     //TODO Handle detach delete and reatach shader to program
     ShaderProgram();

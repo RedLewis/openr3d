@@ -16,6 +16,14 @@ Mesh::Mesh(const std::string& fileName)
     this->load(fileName);
 }
 
+Mesh::~Mesh()
+{
+    gl->glDeleteBuffers(1, &verticesVbo);
+    gl->glDeleteBuffers(1, &normalsVbo);
+    if (textureCoordinatesBuffer.size() > 0)
+        gl->glDeleteBuffers(1, &textureCoordinatesVbo);
+}
+
 int Mesh::load(const std::string& fileName)
 {
     std::ifstream file(fileName);

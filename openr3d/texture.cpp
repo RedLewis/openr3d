@@ -14,6 +14,11 @@ Texture::Texture(const std::string& fileName)
     this->load(fileName);
 }
 
+Texture::~Texture()
+{
+    glDeleteTextures(1, &tbo);
+}
+
 /** Load a ppm file from disk.
 @input filename The location of the PPM file.  If the file is not found, an error message
 will be printed and this function will return 0
@@ -82,8 +87,11 @@ unsigned char* loadPPM(const char* filename, unsigned int& width, unsigned int& 
 int Texture::load(const std::string& fileName)
 {
     unsigned char *rawData = loadPPM(fileName.c_str(), this->width, this->height);
-    if (rawData == NULL)
+    if (rawData == NULL) {
+        std::cerr << "Texture::load(\"" << fileName << "\")\tFile not found." << std::endl;
         return -1;
+    }
+    std::cout << "Texture::load(\"" << fileName << "\")\tLoading file..." << std::endl;
 
     /*
     ** TODO: Move the opengl load to a init function called when opengl is ready
@@ -103,6 +111,7 @@ int Texture::load(const std::string& fileName)
 
 
     delete rawData;
+    std::cout << "Texture::load(\"" << fileName << "\")\tFile loaded." << std::endl;
     this->fileName = fileName;
     return 0;
 }

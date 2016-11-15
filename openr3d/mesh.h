@@ -40,7 +40,8 @@ public:
 
     Mesh();
     Mesh(const std::string& fileName);
-    //TODO: Add destructor and glDeleteBuffers
+    //TODO: Handle the destruction case when no date have has been loaded
+    ~Mesh();
 
     //OBJECT FILE
     int load(const std::string& fileName);

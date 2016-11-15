@@ -35,7 +35,7 @@ void SceneObject::update()
 //TODO: This parent to children draw call architecture leaves a lot of unsed Matrix4 modelViewProjectionMatrix on the stack as it goes down!
 void SceneObject::draw(const Matrix4& viewProjectionMatrix) const
 {
-    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->modeMatrixIndex, 1, GL_FALSE, this->transform.modelMatrix.ptr());
+    gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->modelMatrixIndex, 1, GL_FALSE, this->transform.modelMatrix.ptr());
     gl->glUniformMatrix4fv(ShaderProgram::activeShaderProgram->normalMatrixIndex, 1, GL_FALSE, this->transform.normalMatrix.ptr());
 
     Matrix4 modelViewProjectionMatrix = viewProjectionMatrix * this->transform.modelMatrix;

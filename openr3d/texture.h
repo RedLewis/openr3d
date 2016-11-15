@@ -17,7 +17,8 @@ public:
 
     Texture();
     Texture(const std::string& fileName);
-    //TODO: Add destructor and glDeleteTexture
+    //TODO: Handle the destruction case when no texture have been loaded
+    ~Texture();
 
     //Supports PPM Files
     int load(const std::string& fileName);
