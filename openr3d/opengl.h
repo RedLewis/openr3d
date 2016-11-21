@@ -16,10 +16,6 @@ public:
 
     void printContext();
     void configure();
-    void perspectiveProjetion(GLdouble fov, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-
-    void drawCube();
-    void drawSphere();
 
 };
 
