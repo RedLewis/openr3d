@@ -19,11 +19,11 @@ public:
     std::string fileName;
 
     int load(const std::string& fileName);
+    void clear();
 
-protected:
-
-    Asset(Asset::Type type);
     virtual ~Asset();
+protected:
+    Asset(Asset::Type type);
 
 };
 

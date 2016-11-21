@@ -1,22 +1,42 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "vector4.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
-class Color : public Vector4
+class Color
 {
 
 public:
 
-    float& r = Vector4::x;
-    float& g = Vector4::y;
-    float& b = Vector4::z;
-    float& a = Vector4::w = 1.0f;
+    union {
+        float data[4];
+        struct {
+            float r;
+            float g;
+            float b;
+            float a;
+        };
+    };
 
-    using Vector4::Vector4;
+    Color();
+    Color(float r, float g, float b);
+    Color(float r, float g, float b, float a);
+    Color(unsigned int hex);
+    Color(const Color& color);
 
-    void setHex(unsigned int hex);
-    unsigned int toHex() const;
+    void set(float r, float g, float b);
+    void set(float r, float g, float b, float a);
+    void set(unsigned int hex);
+    void set(const Color& color);
+
+    Color& operator=(const Color& color);
+    Color& operator=(unsigned int hex);
+
+    unsigned int getHex() const;
+
+    float* ptr();
+    const float* ptr() const;
 
 };
 

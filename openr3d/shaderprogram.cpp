@@ -5,7 +5,7 @@
 const ShaderProgram* ShaderProgram::activeShaderProgram = NULL;
 
 ShaderProgram::ShaderProgram()
-    : shaderFileNames(SHADERTYPE_NBR), shaders(SHADERTYPE_NBR, 0), program(0)
+    : fileNames(SHADERTYPE_NBR), shaders(SHADERTYPE_NBR, 0), program(0)
 {
 
 }
@@ -13,12 +13,11 @@ ShaderProgram::ShaderProgram()
 ShaderProgram::~ShaderProgram()
 {
     for (auto shader : this->shaders) {
-        if (shader != 0) {
-           gl->glDetachShader(this->program, shader);
-           gl->glDeleteShader(shader);
-        }
+        if (shader != 0)
+            gl->glDeleteShader(shader);
     }
-    gl->glDeleteProgram(this->program);
+    if (this->program != 0)
+        gl->glDeleteProgram(this->program);
 }
 
 int ShaderProgram::load(std::string shaderFileName, ShaderType type)
@@ -43,19 +42,23 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
             shader = gl->glCreateShader(GL_VERTEX_SHADER);
         break;
         case ShaderType::TESSELLATION_CTRL:
-            shader = gl->glCreateShader(GL_TESS_CONTROL_SHADER);
+            std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tTesselation Control shader not supported." << std::endl;
+            //shader = gl->glCreateShader(GL_TESS_CONTROL_SHADER);
         break;
         case ShaderType::TESSELLATION_EVAL:
-            shader = gl->glCreateShader(GL_TESS_EVALUATION_SHADER);
+            std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tTesselation Evaluation shader not supported." << std::endl;
+            //shader = gl->glCreateShader(GL_TESS_EVALUATION_SHADER);
         break;
         case ShaderType::GEOMETRY:
-            shader = gl->glCreateShader(GL_GEOMETRY_SHADER);
+            std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tGeometry shader not supported." << std::endl;
+            //shader = gl->glCreateShader(GL_GEOMETRY_SHADER);
         break;
         case ShaderType::FRAGMENT:
             shader = gl->glCreateShader(GL_FRAGMENT_SHADER);
         break;
         case ShaderType::COMPUTE:
-            shader = gl->glCreateShader(GL_COMPUTE_SHADER);
+            std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tCompute shader not supported." << std::endl;
+            //shader = gl->glCreateShader(GL_COMPUTE_SHADER);
         break;
         default:
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tInvalid shader type." << std::endl;
@@ -84,9 +87,10 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
     }
     std::cout << "ShaderProgram::load(\"" << shaderFileName << "\")\tCompilation success." << std::endl;
 
+    // Finishing
     if (this->shaders[type] != 0)
         gl->glDeleteShader(this->shaders[type]);
-    this->shaderFileNames[type] = shaderFileName;
+    this->fileNames[type] = shaderFileName;
     this->shaders[type] = shader;
     return 0;
 }
@@ -94,76 +98,87 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
 int ShaderProgram::link()
 {
     //Create a shader program
-    GLuint program = gl->glCreateProgram();
+    GLuint tmpProgram = gl->glCreateProgram();
 
     std::cout << "ShaderProgram::link()\tLinking shaders into a program..." << std::endl;
 
+
+    // Attach shaders for linking
     for (GLuint shader : this->shaders) {
         if (shader != 0)
-            gl->glAttachShader(program, shader);
+            gl->glAttachShader(tmpProgram, shader);
     }
+
 
     //OPTION1 : ASSIGN INDEX BEFORE LINKING
     //gl->glBindAttribLocation(program, 0, "in_position");
     //gl->glBindAttribLocation(program, 1, "in_color");
 
-    gl->glLinkProgram(program);
+
+    gl->glLinkProgram(tmpProgram);
 
     GLint success = GL_FALSE;
-    gl->glGetProgramiv(program, GL_LINK_STATUS, &success);
+    gl->glGetProgramiv(tmpProgram, GL_LINK_STATUS, &success);
     if (success == GL_FALSE)
     {
         GLint logLength;
         char* logStr;
         std::cerr << "ShaderProgram::link()\tLinking failure." << std::endl;
-        gl->glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+        gl->glGetProgramiv(tmpProgram, GL_INFO_LOG_LENGTH, &logLength);
         if (logLength) {
             logStr = new char[logLength];
-            gl->glGetProgramInfoLog(program, logLength, NULL, logStr);
+            gl->glGetProgramInfoLog(tmpProgram, logLength, NULL, logStr);
             std::cerr << logStr;
             delete[] logStr;
         }
-        gl->glDeleteProgram(program);
+        gl->glDeleteProgram(tmpProgram);
         return -1;
     }
     std::cout << "ShaderProgram::link()\tLinking success." << std::endl;
 
+    // Now that linking is done, detach shaders
+    for (GLuint shader : this->shaders) {
+        if (shader != 0)
+            gl->glDetachShader(tmpProgram, shader);
+    }
+
 
     //OPTION2 : GET INDEX AFTER
     //OPTION2 : GET INDEX AFTER
-    this->textureSamplerIndex = gl->glGetUniformLocation(program, "textureSampler");
+    this->textureSamplerIndex = gl->glGetUniformLocation(tmpProgram, "textureSampler");
     if (this->textureSamplerIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"textureSampler\" not found." << std::endl;
-    this->useTextureIndex = gl->glGetUniformLocation(program, "useTexture");
+    this->useTextureIndex = gl->glGetUniformLocation(tmpProgram, "useTexture");
     if (this->useTextureIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useTexture\" not found." << std::endl;
-    this->modelMatrixIndex = gl->glGetUniformLocation(program, "modelMatrix");
+    this->modelMatrixIndex = gl->glGetUniformLocation(tmpProgram, "modelMatrix");
     if (this->modelMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelMatrix\" not found." << std::endl;
-    this->viewMatrixIndex = gl->glGetUniformLocation(program, "viewMatrix");
+    this->viewMatrixIndex = gl->glGetUniformLocation(tmpProgram, "viewMatrix");
     if (this->viewMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"viewMatrix\" not found." << std::endl;
-    this->normalMatrixIndex = gl->glGetUniformLocation(program, "normalMatrix");
+    this->normalMatrixIndex = gl->glGetUniformLocation(tmpProgram, "normalMatrix");
     if (this->normalMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"normalMatrix\" not found." << std::endl;
-    this->modelViewProjectionMatrixIndex = gl->glGetUniformLocation(program, "modelViewProjectionMatrix");
+    this->modelViewProjectionMatrixIndex = gl->glGetUniformLocation(tmpProgram, "modelViewProjectionMatrix");
     if (this->modelViewProjectionMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelViewProjectionMatrix\" not found." << std::endl;
-    this->lightDirectionIndex = gl->glGetUniformLocation(program, "lightDirection");
+    this->lightDirectionIndex = gl->glGetUniformLocation(tmpProgram, "lightDirection");
     if (this->lightDirectionIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightDirection\" not found." << std::endl;
-    this->lightColorIndex = gl->glGetUniformLocation(program, "lightColor");
+    this->lightColorIndex = gl->glGetUniformLocation(tmpProgram, "lightColor");
     if (this->lightColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightColor\" not found." << std::endl;
-    this->vertexIndex = gl->glGetAttribLocation(program, "in_vertex");
+    this->vertexIndex = gl->glGetAttribLocation(tmpProgram, "in_vertex");
     if (this->vertexIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_vertex\" not found." << std::endl;
-    this->normalIndex = gl->glGetAttribLocation(program, "in_normal");
+    this->normalIndex = gl->glGetAttribLocation(tmpProgram, "in_normal");
     if (this->normalIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_normal\" not found." << std::endl;
-    this->textureCoordinateIndex = gl->glGetAttribLocation(program, "in_textureCoordinate");
+    this->textureCoordinateIndex = gl->glGetAttribLocation(tmpProgram, "in_textureCoordinate");
     if (this->textureCoordinateIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_textureCoordinate\" not found." << std::endl;
 
 
+    // Finishing
     if (this->program != 0)
         gl->glDeleteProgram(this->program);
-    this->program = program;
+    this->program = tmpProgram;
     return 0;
 }
 
 void ShaderProgram::bind() const
 {
-    if (activeShaderProgram != this) {
+    if (this->program != 0 && activeShaderProgram != this) {
         activeShaderProgram = this;
         gl->glUseProgram(this->program);
     }

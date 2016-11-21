@@ -4,12 +4,15 @@
 #include "component.h"
 #include "aligned.h"
 #include "matrix4.h"
+#include "rectangle.h"
 
 class Camera : public Component
 {
 
 public:
     bool orthographic = false;
+    // ViewPort controls
+    Rectangle viewport;
     // Projection controls
     Matrix4 p;          // Perspective Projection Matrix
     float fov;          // Field of View Angle
@@ -23,10 +26,11 @@ public:
     Matrix4 pci;
 
 public:
-    Camera();
+    Camera(SceneObject* sceneObject);
+    ~Camera();
 
-    void update();
-    void setAspectRatio(float aspectRatio);
+    void updateControls();
+    void drawScene();
 
 };
 

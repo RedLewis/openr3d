@@ -90,8 +90,8 @@ Vector3 Vector3::minvec(const Vector3& v) { return Vector3((x < v.x) ? x : v.x, 
 float Vector3::average() { return (x + y + z) / 3.0f; }
 
 // Pointer
-float* Vector3::ptr() { return &(this->x); }
-const float* Vector3::ptr() const { return &(this->x); }
+float* Vector3::ptr() { return this->data; }
+const float* Vector3::ptr() const { return this->data; }
 
 // To Vector4
 Vector4 Vector3::toVector4() const { return Vector4(x, y, z, 0); }

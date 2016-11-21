@@ -3,16 +3,12 @@
 #include "sceneobject.h"
 #include "matrix4.h"
 
-unsigned int Light::nextBindID = GL_LIGHT0;
-
-Light::Light(Light::Type type)
-    : Component(Component::Type::LIGHT), type(type)
+Light::Light(SceneObject* sceneObject, Light::Type type)
+    : Component(Component::Type::LIGHT, sceneObject), type(type), color(1.0f, 1.0f, 1.0f)
 {
-    bindID = nextBindID++;
-    color.set(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Light::update()
+void Light::update(float deltaTime)
 {
     /* DEPRECATED
     //The configuration of the light only needs to be called once (or every time it changes)

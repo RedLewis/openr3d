@@ -2,6 +2,7 @@
 #define SHADER_H
 
 #include <vector>
+#include <string>
 #include "opengl.h"
 
 //TODO: Review class architecture, for instand shaders can be safely deleted after program is created
@@ -23,7 +24,7 @@ public:
         SHADERTYPE_NBR
     };
 
-    std::vector<std::string> shaderFileNames;
+    std::vector<std::string> fileNames;
     std::vector<GLuint> shaders;
     GLuint program;
 

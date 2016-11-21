@@ -82,8 +82,8 @@ Vector4 Vector4::minvec(const Vector4& v) { return Vector4((x < v.x) ? x : v.x, 
 float Vector4::average() { return (x + y + z + w) / 4.0f; }
 
 // Pointer
-float* Vector4::ptr() { return &(this->x); }
-const float* Vector4::ptr() const { return &(this->x); }
+float* Vector4::ptr() { return this->data; }
+const float* Vector4::ptr() const { return this->data; }
 
 // To Vector3
 Vector3 Vector4::toVector3() const { return *reinterpret_cast<const Vector3*>(this); }

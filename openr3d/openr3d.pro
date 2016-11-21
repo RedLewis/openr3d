@@ -42,7 +42,9 @@ SOURCES += main.cpp\
     vector3.cpp \
     vector4.cpp \
     shaderprogram.cpp \
-    texture.cpp
+    texture.cpp \
+    rectangle.cpp \
+    screen.cpp
 
 HEADERS  += mainwindow.h \
     vector4.h \
@@ -64,10 +66,14 @@ HEADERS  += mainwindow.h \
     asset.h \
     aligned.h \
     shaderprogram.h \
-    texture.h
+    texture.h \
+    rectangle.h \
+    screen.h
 
 FORMS    += mainwindow.ui
 
 DISTFILES += \
     standard_fragment_shader.fsh \
-    standard_vertex_shader.vsh
+    standard_vertex_shader.vsh \
+    shaders/standard_fragment_shader.fsh \
+    shaders/standard_vertex_shader.vsh

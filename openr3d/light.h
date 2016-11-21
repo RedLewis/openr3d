@@ -19,13 +19,9 @@ public:
     Light::Type type;
     Color color;
 
+    Light(SceneObject* sceneObject, Light::Type type);
 
-    unsigned int bindID;
-    static unsigned int nextBindID;
-
-    Light(Light::Type type);
-
-    void update();
+    void update(float deltaTime);
     void draw() const;
 
 };

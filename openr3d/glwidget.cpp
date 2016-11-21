@@ -53,17 +53,18 @@ void GLWidget::initializeGL()
     //As soon as openGL is ready initialise Scene by calling a first update
     //This sets up the differemt matrices needed before the first draw call
     //(NOT IDEAL : SHOUD NOT REQUIRE OPENGL TO UPDATE SCENE)
-    this->scene = new Scene;
-    this->scene->update();
+    this->scene = new Scene(this->width(), this->height());
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
     //Set Viewport Matrix : Defines the area of the drawing context (here the whole widget)
-    gl->glViewport(0, 0, width, height);
+    //gl->glViewport(0, 0, width, height);
 
     //Update camera aspect ratio (IMPLEMENT AS EVENT)
-    scene->setAspectRatio((float)width/(float)height);
+    //scene->setAspectRatio((float)width/(float)height);
+    scene->screen.width = width;
+    scene->screen.height = height;
 }
 
 void GLWidget::paintGL()
@@ -91,7 +92,8 @@ void GLWidget::keyPressEvent(QKeyEvent *keyEvent)
 void GLWidget::timeOutSlot()
 {
     //Update scene (including matrices, positions, physics etc)
-    this->scene->update();
+    //TODO: Send time between frames
+    this->scene->update(1.0f/60.0f);
 
     //Trigger a repaint (paintGL)
     this->QOpenGLWidget::update();

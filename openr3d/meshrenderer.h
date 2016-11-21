@@ -15,9 +15,9 @@ public:
     Mesh* mesh = NULL;
     Texture* texture = NULL;
 
-    MeshRenderer();
+    MeshRenderer(SceneObject* sceneObject);
 
-    void update();
+    void update(float deltaTime);
     void draw() const;
 };
 

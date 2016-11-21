@@ -10,8 +10,6 @@ class Component : public Aligned<Alignment::SSE>
 
 public:
 
-    SceneObject* sceneObject;
-
     enum Type {
         LIGHT,
         CAMERA,
@@ -19,15 +17,18 @@ public:
     };
 
     const Component::Type type;
+
+    //TODO: Not use pointers? But reference
+    SceneObject* const sceneObject;
+
     bool enabled = true;
 
-    virtual void update();
+    virtual void update(float deltaTime);
     virtual void draw() const;
 
-protected:
-
-    Component(Component::Type type);
     virtual ~Component();
+protected:
+    Component(Component::Type type, SceneObject* sceneObject);
 
 };
 

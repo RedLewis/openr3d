@@ -16,7 +16,9 @@ Texture::Texture(const std::string& fileName)
 
 Texture::~Texture()
 {
-    gl->glDeleteTextures(1, &tbo);
+    if (baseData.size() > 0) {
+        gl->glDeleteTextures(1, &baseTBO);
+    }
 }
 
 /** Load a ppm file from disk.
@@ -39,7 +41,7 @@ unsigned char* loadPPM(const char* filename, unsigned int& width, unsigned int& 
     //Open the texture file
     if ((fp = fopen(filename, "rb")) == NULL)
     {
-        std::cerr << "Error: loading ppm: " << filename << ", file not found" << std::endl;
+        std::cerr << "Texture::load(\"" << filename << "\")\tFile not found." << std::endl;
         width = 0;
         height = 0;
         return NULL;
@@ -73,7 +75,7 @@ unsigned char* loadPPM(const char* filename, unsigned int& width, unsigned int& 
     //If the read was a failure, error
     if (read != 1)
     {
-        std::cerr << "Error: parsing ppm: " << filename << ", incomplete data" << std::endl;
+        std::cerr << "Texture::load(\"" << filename << "\")\tInvalid file." << std::endl;
         delete[] rawData;
         width = 0;
         height = 0;
@@ -86,44 +88,81 @@ unsigned char* loadPPM(const char* filename, unsigned int& width, unsigned int& 
 //TODO: Use a C++ loader for RPM with error managmenet and store texture data in Texture class
 int Texture::load(const std::string& fileName)
 {
+    std::vector<Color> tmpBaseData;
+
     unsigned char *rawData = loadPPM(fileName.c_str(), this->width, this->height);
-    if (rawData == NULL) {
-        std::cerr << "Texture::load(\"" << fileName << "\")\tFile not found." << std::endl;
+    if (rawData == NULL)
         return -1;
-    }
     std::cout << "Texture::load(\"" << fileName << "\")\tLoading file..." << std::endl;
 
-    /*
-    ** TODO: Move the opengl load to a init function called when opengl is ready
+    /* Convert raw data to base data
     */
-    //TODO: Check if glGenTextures set tbo to 0!
-    // Create Texture Buffer Object
-    gl->glGenTextures(1, &(this->tbo));
-    // Bind to the texture in OpenGL
-    gl->glBindTexture(GL_TEXTURE_2D, this->tbo);
-    // Set Parameters
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    // Load the bitmap into the bound texture.
-    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->width, this->height, 0, GL_RGB, GL_UNSIGNED_BYTE, rawData);
 
+    tmpBaseData.resize(this->width * this->height);
+    for (unsigned int i = 0; i < tmpBaseData.size(); ++i) {
+        tmpBaseData[i].set((float)(rawData[0]) / 255.f, (float)(rawData[1]) / 255.f, (float)(rawData[2]) / 255.f);
+        rawData += 3;
+    }
+    rawData -= tmpBaseData.size() * 3;
+    delete[] rawData;
 
-    delete rawData;
+    //Init opengl data
+    // Create Texture Buffer Object (if not previously created)  and delete now useless buffers
+    if (tmpBaseData.size() > 0 && this->baseData.size() == 0) {
+        gl->glGenTextures(1, &(this->baseTBO));
+        // Bind to the texture in OpenGL
+        gl->glBindTexture(GL_TEXTURE_2D, this->baseTBO);
+        // Set Parameters
+        gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        // OPTIONAL: Unbind TBO
+        gl->glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    else if (tmpBaseData.size() == 0 && this->baseData.size() > 0)
+        gl->glDeleteTextures(1, &baseTBO);
+
+    //Move tmp data to texture
+    this->baseData = std::move(tmpBaseData);
+
+    //Update opengl data
+    this->update();
+
+    //Finish
     std::cout << "Texture::load(\"" << fileName << "\")\tFile loaded." << std::endl;
     this->fileName = fileName;
     return 0;
 }
 
+void Texture::update() {
+    if (this->baseData.size() > 0) {
+        // Bind to the texture in OpenGL
+        gl->glBindTexture(GL_TEXTURE_2D, this->baseTBO);
+        // Load the data into the bound texture.
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_FLOAT, this->baseData.data());
+    }
+    // OPTIONAL: Unbind TBO
+    gl->glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
 void Texture::draw() const
 {
-    // Set the active texture unit to texture unit 0.
-    gl->glActiveTexture(GL_TEXTURE0);
+    if (this->baseData.size() > 0) {
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 1);
 
-    // Bind the texture to this unit.
-    gl->glBindTexture(GL_TEXTURE_2D, this->tbo);
+        // Tell the shader's texture uniform sampler to use texture unit 0
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->textureSamplerIndex, 0);
+        // Set the active texture unit to texture unit 0
+        gl->glActiveTexture(GL_TEXTURE0);
+        // Bind the texture to this unit
+        gl->glBindTexture(GL_TEXTURE_2D, this->baseTBO);
 
-    // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
-    gl->glUniform1i(ShaderProgram::activeShaderProgram->textureSamplerIndex, 0);
+        //TODO: Unbind Texture for each glActiveTexture, must be done after drawing mesh
+        //OPTIONAL: Unbind TBO
+        //gl->glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    else
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 0);
 }
