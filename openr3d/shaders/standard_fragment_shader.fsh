@@ -16,11 +16,9 @@ void main(void)
     mediump float lightIntensity = max(dot(lightDirection, out_normal), 0.0);
     gl_FragColor = lightColor * lightIntensity;
     if (useTexture != 0) {
-        //gl_FragColor.r = out_textureCoordinate.x;
-        //gl_FragColor.g = out_textureCoordinate.y;
-        gl_FragColor =  lightColor * lightIntensity * texture2D(textureSampler, out_textureCoordinate);
+        gl_FragColor *= texture2D(textureSampler, out_textureCoordinate);
     }
-    else {
-        gl_FragColor = lightColor * lightIntensity;
-    }
+    //else {
+        //gl_FragColor *= out_vertex_color;
+    //}
 }
