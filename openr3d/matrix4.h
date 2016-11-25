@@ -26,6 +26,10 @@ protected:
         EULER_ZYX
     };
 
+    //Recommended by french guy: EULER_YZX
+    //But also try: EULER_YXZ
+    static const EulerOrder defaultOrder = EULER_YZX;
+
 public:
 
     // Constructors
@@ -78,20 +82,24 @@ public:
 
     Matrix4& makeTranslate(float,float,float);
     Matrix4& makeTranslate(const Vector3&);
+    Vector3 extractTranslation();
 
     Matrix4& makeRotateX(float);
     Matrix4& makeRotateY(float);
     Matrix4& makeRotateZ(float);
     Matrix4& makeArbitraryRotatation(const Vector3&, float);
-    Matrix4& makeEulerRotation(float alpha, float beta, float gamma, EulerOrder eulerOrder = EULER_XYZ);
-    Matrix4& makeEulerRotation(const Vector3& r, EulerOrder eulerOrder = EULER_XYZ);
+    Matrix4& makeEulerRotation(float alpha, float beta, float gamma, EulerOrder eulerOrder = defaultOrder);
+    Matrix4& makeEulerRotation(const Vector3& r, EulerOrder eulerOrder = defaultOrder);
+    //Does not work for matrices of children object whose parent have nonuiform scaling
+    Vector3 extractEulerAngles(EulerOrder eulerOrder = defaultOrder);
 
     Matrix4& makeScale(float);
     Matrix4& makeScale(float,float,float);
     Matrix4& makeScale(const Vector3& s);
+    Vector3 extractScale();
 
-    Matrix4& makeRigidTransformation(float tx, float ty, float tz, float rx, float ry, float rz);
-    Matrix4& makeRigidTransformation(const Vector3& translation, const Vector3& rotation);
+    Matrix4& makeRigidTransformation(float tx, float ty, float tz, float rx, float ry, float rz, EulerOrder eulerOrder = defaultOrder);
+    Matrix4& makeRigidTransformation(const Vector3& translation, const Vector3& rotation, EulerOrder eulerOrder = defaultOrder);
 
     Matrix4& makeOrthographicProjection(float right, float left, float top, float bottom, float nearplane, float farplane);
     Matrix4& makePerspectiveProjection(float fov, float aspect, float nearplane, float farplane);

@@ -229,8 +229,8 @@ Vector3 Matrix4::dot(const Vector3& a) const
         a[0] * m[0][2] + a[1] * m[1][2] + a[2] * m[2][2] + a[3] * m[3][2]
     };
 
-    //Implement Matrix * Vector3 multiplication
-    //Assume the 4th component is 0
+    //Implement Matrix3x3 * Vector3 multiplication
+    //Assumes the 4th component is 0
 
     return b;
 }
@@ -810,6 +810,11 @@ Matrix4& Matrix4::makeRotateX(float angle)
     return *this;
 }
 
+Vector3 Matrix4::extractTranslation()
+{
+    return Vector3(m[3][0], m[3][1], m[3][2]);
+}
+
 Matrix4& Matrix4::makeRotateY(float angle)
 {
     identity();
@@ -869,14 +874,26 @@ Matrix4& Matrix4::makeEulerRotation(float alpha, float beta, float gamma, EulerO
 
     switch (eulerOrder) {
         case EULER_XYZ:
-            m[0][0] = cy*cz;    m[1][0] = sx*sy*cz - cx*sz; m[2][0] = cx*sy*cz + sx*sz; m[3][0] = 0;
-            m[0][1] = cy*sz;    m[1][1] = sx*sy*sz + cx*cz; m[2][1] = cx*sy*sz - sx*cz; m[3][1] = 0;
-            m[0][2] = -sy;      m[1][2] = sx*cy;            m[2][2] = cx*cy;            m[3][2] = 0;
+            m[0][0] = cy*cz;                m[1][0] = -cy*sz;               m[2][0] = sy;
+            m[0][1] = cz*sx*sy + cx*sz;     m[1][1] = cx*cz - sx*sy*sz;     m[2][1] = -cy*sx;
+            m[0][2] = -cx*cz*sy + sx*sz;    m[1][2] = cz*sx + cx*sy*sz;     m[2][2] = cx*cy;
+            break;
+        case EULER_ZYX:
+            m[0][0] = cy*cz;                m[1][0] = sx*sy*cz - cx*sz;     m[2][0] = cx*sy*cz + sx*sz;
+            m[0][1] = cy*sz;                m[1][1] = sx*sy*sz + cx*cz;     m[2][1] = cx*sy*sz - sx*cz;
+            m[0][2] = -sy;                  m[1][2] = sx*cy;                m[2][2] = cx*cy;
+            break;
+        case EULER_YZX:
+            m[0][0] = cy*cz;                m[1][0] = sx*sy - cx*cy*sz;     m[2][0] = cx*sy + cy*sx*sz;
+            m[0][1] = sz;                   m[1][1] = cx*cz;                m[2][1] = -cz*sx;
+            m[0][2] = -cz*sy;               m[1][2] = cy*sx + cx*sy*sz;     m[2][2] = cx*cy - sx*sy*sz;
             break;
         default:
             break;
     }
-
+    m[3][0] = 0;
+    m[3][1] = 0;
+    m[3][2] = 0;
     m[0][3] = 0;    m[1][3] = 0;    m[2][3] = 0;    m[3][3] = 1;
     return *this;
 }
@@ -884,6 +901,41 @@ Matrix4& Matrix4::makeEulerRotation(float alpha, float beta, float gamma, EulerO
 Matrix4& Matrix4::makeEulerRotation(const Vector3& r, EulerOrder eulerOrder)
 {
     return makeEulerRotation(r[0], r[1], r[2], eulerOrder);
+}
+
+// Formula by Mike Day, Insomniac Games
+//https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2012/07/euler-angles1.pdf
+//This is the euler XYZ implementation
+//Does not work for matrices of children object whose parent have nonuiform scaling
+Vector3 Matrix4::extractEulerAngles(EulerOrder eulerOrder) {
+    //Division by scale needed in the case of non uniform scaling
+    Vector3 scale = this->extractScale();
+    Vector3 angles;
+
+    switch (eulerOrder) {
+        case EULER_XYZ: {
+            /*X*/float t1 = atan2f(-m[2][1]/scale.z, m[2][2]/scale.z);
+            float c2 = sqrtf(powf(m[0][0]/scale.x, 2) + powf(m[1][0]/scale.y, 2));
+            /*Y*/float t2 = atan2f(m[2][0]/scale.z, c2);
+            float s1 = sinf(t1);
+            float c1 = cosf(t1);
+            /*Z*/float t3 = atan2f(c1*m[0][1]/scale.x + s1*m[0][2]/scale.x, c1*m[1][1]/scale.y + s1*m[1][2]/scale.y);
+            angles.set(t1, t2, t3);
+        } break;
+        case EULER_YZX: {
+            /*Y*/float t1 = atan2f(-m[0][2]/scale.x, m[0][0]/scale.x);
+            float c2 = sqrtf(powf(m[1][1]/scale.y, 2) + powf(m[2][1]/scale.z, 2));
+            /*Z*/float t2 = atan2f(m[0][1]/scale.x, c2);
+            float s1 = sinf(t1);
+            float c1 = cosf(t1);
+            /*X*/float t3 = atan2(s1 * m[1][0]/scale.y + c1 * m[1][2]/scale.y, c1 * m[2][2]/scale.z + s1 * m[2][0]/scale.z);
+            angles.set(t3, t1, t2);
+        } break;
+        default:
+            break;
+    }
+
+    return angles;
 }
 
 Matrix4& Matrix4::makeScale(float s)
@@ -907,23 +959,52 @@ Matrix4& Matrix4::makeScale(const Vector3& s)
     return makeScale(s[0], s[1], s[2]);
 }
 
-Matrix4& Matrix4::makeRigidTransformation(float tx, float ty, float tz, float rx, float ry, float rz)
+Vector3 Matrix4::extractScale()
+{
+    Vector3 scale;
+
+    scale.x = Vector3(m[0][0], m[0][1], m[0][2]).magnitude();
+    scale.y = Vector3(m[1][0], m[1][1], m[1][2]).magnitude();
+    scale.z = Vector3(m[2][0], m[2][1], m[2][2]).magnitude();
+
+    return scale;
+}
+
+Matrix4& Matrix4::makeRigidTransformation(float tx, float ty, float tz, float rx, float ry, float rz, EulerOrder eulerOrder)
 {
     float sx=sinf(rx),cx=cosf(rx);
     float sy=sinf(ry),cy=cosf(ry);
     float sz=sinf(rz),cz=cosf(rz);
 
-    m[0][0] = cy*cz;    m[1][0] = sx*sy*cz - cx*sz; m[2][0] = cx*sy*cz + sx*sz; m[3][0] = tx;
-    m[0][1] = cy*sz;    m[1][1] = sx*sy*sz + cx*cz; m[2][1] = cx*sy*sz - sx*cz; m[3][1] = ty;
-    m[0][2] = -sy;      m[1][2] = sx*cy;            m[2][2] = cx*cy;            m[3][2] = tz;
-    m[0][3] = 0;        m[1][3] = 0;                m[2][3] = 0;                m[3][3] = 1;
-
+    switch (eulerOrder) {
+        case EULER_XYZ:
+            m[0][0] = cy*cz;                m[1][0] = -cy*sz;               m[2][0] = sy;
+            m[0][1] = cz*sx*sy + cx*sz;     m[1][1] = cx*cz - sx*sy*sz;     m[2][1] = -cy*sx;
+            m[0][2] = -cx*cz*sy + sx*sz;    m[1][2] = cz*sx + cx*sy*sz;     m[2][2] = cx*cy;
+            break;
+        case EULER_ZYX:
+            m[0][0] = cy*cz;                m[1][0] = sx*sy*cz - cx*sz;     m[2][0] = cx*sy*cz + sx*sz;
+            m[0][1] = cy*sz;                m[1][1] = sx*sy*sz + cx*cz;     m[2][1] = cx*sy*sz - sx*cz;
+            m[0][2] = -sy;                  m[1][2] = sx*cy;                m[2][2] = cx*cy;
+            break;
+        case EULER_YZX:
+            m[0][0] = cy*cz;                m[1][0] = sx*sy - cx*cy*sz;     m[2][0] = cx*sy + cy*sx*sz;
+            m[0][1] = sz;                   m[1][1] = cx*cz;                m[2][1] = -cz*sx;
+            m[0][2] = -cz*sy;               m[1][2] = cy*sx + cx*sy*sz;     m[2][2] = cx*cy - sx*sy*sz;
+            break;
+        default:
+            break;
+    }
+    m[3][0] = tx;
+    m[3][1] = ty;
+    m[3][2] = tz;
+    m[0][3] = 0;    m[1][3] = 0;    m[2][3] = 0;    m[3][3] = 1;
     return *this;
 }
 
-Matrix4& Matrix4::makeRigidTransformation(const Vector3& translation, const Vector3& rotation)
+Matrix4& Matrix4::makeRigidTransformation(const Vector3& translation, const Vector3& rotation, EulerOrder eulerOrder)
 {
-    return makeRigidTransformation(translation.x, translation.y, translation.z, rotation.x, rotation.y, rotation.z);
+    return makeRigidTransformation(translation.x, translation.y, translation.z, rotation.x, rotation.y, rotation.z, eulerOrder);
 }
 
 Matrix4& Matrix4::makeOrthographicProjection(float left, float right, float bottom, float top, float near, float far)

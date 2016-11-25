@@ -9,15 +9,15 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
-#win32 {
-#    LIBS += -lopengl32
-#} else {
-## -march=native selects all the SSE/AVX instructions available on the processor.
-## For a Sandy Bridge processor, the flowing flags are selected:
-## -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx
-#    #QMAKE_CXXFLAGS += -march=native
-#    QMAKE_CXXFLAGS += -msse4
-#}
+win32 {
+    LIBS += -lopengl32
+} else {
+# -march=native selects all the SSE/AVX instructions available on the processor.
+# For a Sandy Bridge processor, the flowing flags are selected:
+# -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx
+    #QMAKE_CXXFLAGS += -march=native
+    QMAKE_CXXFLAGS += -msse4
+}
 
 TARGET = openr3d
 TEMPLATE = app
@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     shaderprogram.cpp \
     texture.cpp \
     rectangle.cpp \
-    screen.cpp
+    screen.cpp \
+    collider.cpp
 
 HEADERS  += mainwindow.h \
     vector4.h \
@@ -68,12 +69,17 @@ HEADERS  += mainwindow.h \
     shaderprogram.h \
     texture.h \
     rectangle.h \
-    screen.h
+    screen.h \
+    collider.h
 
 FORMS    += mainwindow.ui
 
 DISTFILES += \
     standard_fragment_shader.fsh \
     standard_vertex_shader.vsh \
+    shaders/standard_fragment_shader.fsh \
+    shaders/standard_vertex_shader.vsh \
+    shaders/standard_fragment_shader.fsh \
+    shaders/standard_vertex_shader.vsh \
     shaders/standard_fragment_shader.fsh \
     shaders/standard_vertex_shader.vsh

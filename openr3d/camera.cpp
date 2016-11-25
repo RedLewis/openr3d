@@ -34,7 +34,7 @@ void Camera::updateControls()
         p.makePerspectiveProjection(fov, aspectRatio, nearClip, farClip);
 
     // Update View Matrix
-    c.makeRigidTransformation(sceneObject->transform.position, sceneObject->transform.rotation);
+    c.makeRigidTransformation(sceneObject->transform.worldPosition, sceneObject->transform.worldRotation);
     ci = c.rigidInversed();
 
     // Update View Projection Matrix

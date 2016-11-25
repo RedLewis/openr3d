@@ -26,7 +26,8 @@ public:
     std::list<SceneObject*> children;
     std::map<Component::Type, Component*> components;
 
-    SceneObject(Scene* scene, SceneObject* parent = NULL);
+    SceneObject(Scene* scene);
+    SceneObject(SceneObject* parent);
     ~SceneObject();
 
     bool enabled = true;

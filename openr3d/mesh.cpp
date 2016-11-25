@@ -380,6 +380,8 @@ void Mesh::draw() const
         // Enable attribute index as being used
         gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->textureCoordinateIndex);
     }
+    else
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 0);
     // OPTIONAL: Unbind VBO
     gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
 

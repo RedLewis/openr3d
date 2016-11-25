@@ -10,13 +10,16 @@ class Transform : public Aligned<Alignment::SSE>
 
 public:
 
-    Matrix4 modelMatrix;
-    Matrix4 normalMatrix;
-    Matrix4 localMatrix;
+    Matrix4 worldMatrix;
+    Matrix4 worldNormalMatrix;
 
-    Vector3 position;
-    Vector3 rotation;
-    Vector3 scale;
+    Vector3 localPosition;
+    Vector3 localRotation;
+    Vector3 localScale;
+
+    Vector3 worldPosition;
+    Vector3 worldRotation;
+    Vector3 worldScale;
 
     Transform();
 };

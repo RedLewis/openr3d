@@ -13,7 +13,8 @@ public:
     enum Type {
         LIGHT,
         CAMERA,
-        MESHRENDERER
+        MESHRENDERER,
+        COLLIDER
     };
 
     const Component::Type type;

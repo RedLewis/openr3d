@@ -11,53 +11,33 @@ Scene::Scene(int width, int height)
     //TODO: Functionalize this process (the creation linking of the sceneObject and the component)
 
     Texture* texture = new Texture("../assets/texture.ppm");
-    Mesh* cube_tex = new Mesh("../assets/cube.obj");
+    Mesh* mesh = new Mesh("../assets/bunny.obj");
     this->assets.push_back(texture);
-    this->assets.push_back(cube_tex);
+    this->assets.push_back(mesh);
 
     //Setup Camera
     SceneObject* cameraObject = new SceneObject(this);
-    cameraObject->transform.position = {0, 0, 2.5f};
-    cameraObject->transform.rotation = {0, 0, 0};
+    cameraObject->transform.localPosition = {0, 0, 5.0f};
+    cameraObject->transform.localRotation = {0, 0, 0};
     Camera* cameraComponent = new Camera(cameraObject);
-    cameraComponent->viewport.set(0, 0, 0.5, 0.5);
-    cameraComponent->orthographic = true;
-    cameraComponent->fov = 2;
-
-    cameraObject = new SceneObject(this);
-    cameraObject->transform.position = {0, 2.5, 2.5f};
-    cameraObject->transform.rotation = {-0.8, 0, 0};
-    cameraComponent = new Camera(cameraObject);
-    cameraComponent->viewport.set(0.5, 0, 0.5, 0.5);
-    cameraComponent->orthographic = true;
-    cameraComponent->fov = 2;
-
-    cameraObject = new SceneObject(this);
-    cameraObject->transform.position = {2.5, 1.25, 2.5f};
-    cameraObject->transform.rotation = {-0.3, 0.7, 0};
-    cameraComponent = new Camera(cameraObject);
-    cameraComponent->viewport.set(0.5, 0.5, 0.5, 0.5);
-
-    cameraObject = new SceneObject(this);
-    cameraObject->transform.position = {2.0, 2.0, 2.5f};
-    cameraObject->transform.rotation = {-0.7, 0.7, 0};
-    cameraComponent = new Camera(cameraObject);
-    cameraComponent->viewport.set(0, 0.5, 0.5, 0.5);
+    cameraComponent->viewport.set(0.0f, 0.0f, 0.5f, 1.0f);
 
     //Setup Light
     SceneObject* lightObject = new SceneObject(this);
-    lightObject->transform.rotation = {0, 0, 0};
+    lightObject->transform.localRotation = {0, 0, 0};
     Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
     lightComponent->color = {1.0, 1.0, 1.0};
 
     //Setup Mesh
     SceneObject* meshObjectParent = new SceneObject(this);
-    meshObjectParent->transform.position = {0, 0, 0};
-    meshObjectParent->transform.rotation = {0, 0.5f, 0};
-    meshObjectParent->transform.scale = {1, 1, 1};
     MeshRenderer* meshRendererComponent = new MeshRenderer(meshObjectParent);
-    meshRendererComponent->mesh = cube_tex;
+    meshRendererComponent->mesh = mesh;
     meshRendererComponent->texture = texture;
+
+    cameraObject = new SceneObject(meshObjectParent);
+    cameraObject->transform.localPosition.z = 3;
+    cameraComponent = new Camera(cameraObject);
+    cameraComponent->viewport.set(0.5f, 0.0f, 0.5f, 1.0f);
 
     //TODO: Clean way of setting up shader
     this->activeCamera = cameraObject;
@@ -82,9 +62,9 @@ void Scene::draw() const
 
     //Add Light
     //TODO Store light direction in light component
-    Vector3 lightDirection = Vector3(0, 0, 1);
+    Vector3 lightDirection(0, 0, 1);
     Matrix4 rotation;
-    rotation.makeEulerRotation(this->activeLight->transform.rotation);
+    rotation.makeEulerRotation(this->activeLight->transform.localRotation);
     lightDirection = (rotation * lightDirection.toVector4(0.0f)).toVector3().normalize();
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
     gl->glUniform4fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
