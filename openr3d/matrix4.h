@@ -28,7 +28,7 @@ protected:
 
     //Recommended by french guy: EULER_YZX
     //But also try: EULER_YXZ
-    static const EulerOrder defaultOrder = EULER_YZX;
+    static const EulerOrder defaultOrder = EULER_YXZ;
 
 public:
 

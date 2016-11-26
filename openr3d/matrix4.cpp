@@ -888,6 +888,10 @@ Matrix4& Matrix4::makeEulerRotation(float alpha, float beta, float gamma, EulerO
             m[0][1] = sz;                   m[1][1] = cx*cz;                m[2][1] = -cz*sx;
             m[0][2] = -cz*sy;               m[1][2] = cy*sx + cx*sy*sz;     m[2][2] = cx*cy - sx*sy*sz;
             break;
+        case EULER_YXZ:
+            m[0][0] = cy*cz + sx*sy*sz;     m[1][0] = cz*sx*sy - cy*sz;     m[2][0] = cx*sy;
+            m[0][1] = cx*sz;                m[1][1] = cx*cz;                m[2][1] = -sx;
+            m[0][2] = -cz*sy + cy*sx*sz;    m[1][2] = cy*cz*sx + sy*sz;     m[2][2] = cx*cy;
         default:
             break;
     }
@@ -930,6 +934,15 @@ Vector3 Matrix4::extractEulerAngles(EulerOrder eulerOrder) {
             float c1 = cosf(t1);
             /*X*/float t3 = atan2(s1 * m[1][0]/scale.y + c1 * m[1][2]/scale.y, c1 * m[2][2]/scale.z + s1 * m[2][0]/scale.z);
             angles.set(t3, t1, t2);
+        } break;
+        case EULER_YXZ: {
+            /*Y*/float t1 = atan2f(m[2][0], m[2][2]);
+            float c2 = sqrtf(powf(m[1][1], 2) + powf(m[0][1], 2));
+            /*X*/float t2 = atan2f(-m[2][1], c2);
+            float s1 = sinf(t1);
+            float c1 = cosf(t1);
+            /*Z*/float t3 = atan2(s1 * m[1][2] - c1 * m[1][0], c1 * m[0][0] - s1 * m[0][2]);
+            angles.set(t2, t1, t3);
         } break;
         default:
             break;
@@ -992,6 +1005,10 @@ Matrix4& Matrix4::makeRigidTransformation(float tx, float ty, float tz, float rx
             m[0][1] = sz;                   m[1][1] = cx*cz;                m[2][1] = -cz*sx;
             m[0][2] = -cz*sy;               m[1][2] = cy*sx + cx*sy*sz;     m[2][2] = cx*cy - sx*sy*sz;
             break;
+        case EULER_YXZ:
+            m[0][0] = cy*cz + sx*sy*sz;     m[1][0] = cz*sx*sy - cy*sz;     m[2][0] = cx*sy;
+            m[0][1] = cx*sz;                m[1][1] = cx*cz;                m[2][1] = -sx;
+            m[0][2] = -cz*sy + cy*sx*sz;    m[1][2] = cy*cz*sx + sy*sz;     m[2][2] = cx*cy;
         default:
             break;
     }

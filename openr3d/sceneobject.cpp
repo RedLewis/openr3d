@@ -35,12 +35,12 @@ SceneObject::~SceneObject()
 
 void SceneObject::update(float deltaTime)
 {
-    /*if (this->components.find(Component::CAMERA) == this->components.end() &&
+    if (this->components.find(Component::CAMERA) == this->components.end() &&
         this->components.find(Component::LIGHT) == this->components.end()) {
         this->transform.localRotation.x += 0.166 * deltaTime;
         this->transform.localRotation.y += 0.333 * deltaTime;
         this->transform.localRotation.z += 0.500 * deltaTime;
-    }*/
+    }
 
     /*
     ** Update Transfrom
