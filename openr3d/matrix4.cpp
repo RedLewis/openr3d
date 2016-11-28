@@ -936,12 +936,12 @@ Vector3 Matrix4::extractEulerAngles(EulerOrder eulerOrder) {
             angles.set(t3, t1, t2);
         } break;
         case EULER_YXZ: {
-            /*Y*/float t1 = atan2f(m[2][0], m[2][2]);
-            float c2 = sqrtf(powf(m[1][1], 2) + powf(m[0][1], 2));
-            /*X*/float t2 = atan2f(-m[2][1], c2);
+            /*Y*/float t1 = atan2f(m[2][0]/scale.z, m[2][2]/scale.z);
+            float c2 = sqrtf(powf(m[1][1]/scale.y, 2) + powf(m[0][1]/scale.x, 2));
+            /*X*/float t2 = atan2f(-m[2][1]/scale.z, c2);
             float s1 = sinf(t1);
             float c1 = cosf(t1);
-            /*Z*/float t3 = atan2(s1 * m[1][2] - c1 * m[1][0], c1 * m[0][0] - s1 * m[0][2]);
+            /*Z*/float t3 = atan2(s1 * m[1][2]/scale.y - c1 * m[1][0]/scale.y, c1 * m[0][0]/scale.x - s1 * m[0][2]/scale.x);
             angles.set(t2, t1, t3);
         } break;
         default:
