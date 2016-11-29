@@ -16,7 +16,7 @@ SceneObject::SceneObject(SceneObject* parent)
     : scene(parent->scene), parent(parent)
 {
     //Add sceneObject to parent
-    containerIterator= parent->children.insert(scene->sceneObjects.end(), this);
+    containerIterator= parent->children.insert(parent->children.end(), this);
 }
 
 SceneObject::~SceneObject()
