@@ -5,11 +5,12 @@
 #include "aligned.h"
 #include "matrix4.h"
 #include "rectangle.h"
+#include <list>
 
 class Camera : public Component
 {
+private:
 
-public:
     bool orthographic = false;
     // ViewPort controls
     Rectangle viewport;
@@ -26,11 +27,25 @@ public:
     Matrix4 pci;
 
 public:
+
+    std::list<Camera*>::iterator containerIterator;
+
     Camera(SceneObject* sceneObject);
     ~Camera();
 
+    void update(float deltaTime);
+
     void updateControls();
     void drawScene();
+
+    //TODO: Set an toBeUpdated variable, otherwise each function calls updateControls
+    //which could be called more than once per frame
+
+    void setFOV(float fov);
+    float getFOV() const;
+
+    void setOrthographic(bool orthographic);
+    bool isOrthographic() const;
 
 };
 

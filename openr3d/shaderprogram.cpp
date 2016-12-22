@@ -38,31 +38,36 @@ int ShaderProgram::load(std::string shaderFileName, ShaderType type)
 
     GLuint shader;
     switch (type) {
-        case ShaderType::VERTEX:
+        case ShaderType::VERTEX: {
             shader = gl->glCreateShader(GL_VERTEX_SHADER);
-        break;
-        case ShaderType::TESSELLATION_CTRL:
+        } break;
+        case ShaderType::TESSELLATION_CTRL: {
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tTesselation Control shader not supported." << std::endl;
+            return -1;
             //shader = gl->glCreateShader(GL_TESS_CONTROL_SHADER);
-        break;
-        case ShaderType::TESSELLATION_EVAL:
+        } break;
+        case ShaderType::TESSELLATION_EVAL: {
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tTesselation Evaluation shader not supported." << std::endl;
+            return -1;
             //shader = gl->glCreateShader(GL_TESS_EVALUATION_SHADER);
-        break;
-        case ShaderType::GEOMETRY:
+        } break;
+        case ShaderType::GEOMETRY: {
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tGeometry shader not supported." << std::endl;
+            return -1;
             //shader = gl->glCreateShader(GL_GEOMETRY_SHADER);
-        break;
-        case ShaderType::FRAGMENT:
+        } break;
+        case ShaderType::FRAGMENT: {
             shader = gl->glCreateShader(GL_FRAGMENT_SHADER);
-        break;
-        case ShaderType::COMPUTE:
+        } break;
+        case ShaderType::COMPUTE: {
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tCompute shader not supported." << std::endl;
+            return -1;
             //shader = gl->glCreateShader(GL_COMPUTE_SHADER);
-        break;
-        default:
+        } break;
+        default: {
             std::cerr << "ShaderProgram::load(\"" << shaderFileName << "\")\tInvalid shader type." << std::endl;
             return -1;
+        }
     }
 
     const char *sourceCodeStr = sourceCode.c_str();
@@ -147,8 +152,12 @@ int ShaderProgram::link()
     //OPTION2 : GET INDEX AFTER
     this->textureSamplerIndex = gl->glGetUniformLocation(tmpProgram, "textureSampler");
     if (this->textureSamplerIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"textureSampler\" not found." << std::endl;
+    this->useLightIndex = gl->glGetUniformLocation(tmpProgram, "useLight");
+    if (this->useLightIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useLight\" not found." << std::endl;
     this->useTextureIndex = gl->glGetUniformLocation(tmpProgram, "useTexture");
     if (this->useTextureIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useTexture\" not found." << std::endl;
+    this->useVertexColorIndex = gl->glGetUniformLocation(tmpProgram, "useVertexColor");
+    if (this->useVertexColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useVertexColor\" not found." << std::endl;
     this->modelMatrixIndex = gl->glGetUniformLocation(tmpProgram, "modelMatrix");
     if (this->modelMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelMatrix\" not found." << std::endl;
     this->viewMatrixIndex = gl->glGetUniformLocation(tmpProgram, "viewMatrix");
@@ -167,6 +176,8 @@ int ShaderProgram::link()
     if (this->normalIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_normal\" not found." << std::endl;
     this->textureCoordinateIndex = gl->glGetAttribLocation(tmpProgram, "in_textureCoordinate");
     if (this->textureCoordinateIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_textureCoordinate\" not found." << std::endl;
+    this->vertexColorIndex = gl->glGetAttribLocation(tmpProgram, "in_vertexColor");
+    if (this->vertexColorIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_vertexColor\" not found." << std::endl;
 
 
     // Finishing

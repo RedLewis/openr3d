@@ -19,6 +19,7 @@ Component::~Component()
 
 void Component::update(float deltaTime)
 {
+    (void)deltaTime;
     //Default: Nothing to update
 }
 

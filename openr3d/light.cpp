@@ -10,6 +10,7 @@ Light::Light(SceneObject* sceneObject, Light::Type type)
 
 void Light::update(float deltaTime)
 {
+    (void)deltaTime;
     /* DEPRECATED
     //The configuration of the light only needs to be called once (or every time it changes)
     //Configure the light at the bindID

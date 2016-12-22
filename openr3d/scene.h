@@ -12,10 +12,13 @@
 #include "light.h"
 #include "asset.h"
 #include "screen.h"
+#include "physics2d.h"
 
 class Scene : public Aligned<Alignment::SSE>
 {
 public:
+
+    Physics2D physics2d;
 
     //TODO Move screen to a openr3d static engine class (screen should not be scene dependent)
     Screen screen;
@@ -29,7 +32,7 @@ public:
 
 
     //TODO: Find a cleaner way ot handle camera and light
-    std::set<Camera*> cameras;
+    std::list<Camera*> cameras;
     SceneObject* activeCamera;
     SceneObject* activeLight;
 

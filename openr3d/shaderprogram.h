@@ -29,7 +29,9 @@ public:
     GLuint program;
 
     GLint textureSamplerIndex;
+    GLint useLightIndex;
     GLint useTextureIndex;
+    GLint useVertexColorIndex;
     GLint modelMatrixIndex;
     GLint viewMatrixIndex;
     GLint normalMatrixIndex;
@@ -39,6 +41,7 @@ public:
     GLint vertexIndex;
     GLint normalIndex;
     GLint textureCoordinateIndex;
+    GLint vertexColorIndex;
 
     //TODO Handle detach delete and reatach shader to program
     ShaderProgram();

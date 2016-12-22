@@ -11,6 +11,7 @@ public:
 
     enum Type {
         MESH,
+        POLYGON,
         TEXTURE,
         MATERIAL
     };
@@ -18,8 +19,8 @@ public:
     const Asset::Type type;
     std::string fileName;
 
-    int load(const std::string& fileName);
-    void clear();
+    virtual int load(const std::string& fileName);
+    virtual void clear();
 
     virtual ~Asset();
 protected:

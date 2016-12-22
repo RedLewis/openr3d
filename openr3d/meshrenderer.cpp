@@ -10,7 +10,7 @@ MeshRenderer::MeshRenderer(SceneObject* sceneObject)
 
 void MeshRenderer::update(float deltaTime)
 {
-
+    (void)deltaTime;
 }
 
 
@@ -28,4 +28,7 @@ void MeshRenderer::draw() const
     if (texture != NULL) {
         gl->glBindTexture(GL_TEXTURE_2D, 0);
     }
+
+    //Make sure useTextureIndex is set back to 0
+    gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 0);
 }

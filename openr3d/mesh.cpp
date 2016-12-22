@@ -65,7 +65,10 @@ int Mesh::load(const std::string& fileName)
                 Vector3 vertex;
                 ssLine >> vertex.x;
                 ssLine >> vertex.y;
-                ssLine >> vertex.z;
+                if (!ssLine.eof())
+                    ssLine >> vertex.z;
+                else
+                    vertex.z = 0;
                 vertexList.push_back(vertex);
                 //std::cout << "vertex = " << vertex << std::endl;
             }
@@ -175,7 +178,7 @@ int Mesh::load(const std::string& fileName)
             std::cerr << "Mesh::load\tInvalid file: No faces found." << std::endl;
             return -1;
         }
-        if (vertexList.size() == 0) {
+        if (vertexList.size() == 0) { //Must have either v or vp
             std::cerr << "Mesh::load\tInvalid file: No vertices found." << std::endl;
             return -1;
         }
@@ -186,31 +189,6 @@ int Mesh::load(const std::string& fileName)
         tmpNormals.assign(normalList.begin(), normalList.end());
         tmpTextureCoordinates.assign(textureCoordinateList.begin(), textureCoordinateList.end());
     }
-
-
-    /* If no normals : generate face normals
-    */
-    if (tmpNormals.size() == 0) {
-        std::cout << "Mesh::load(\"" << fileName << "\")\tNo normals found. Using per face normals." << std::endl;
-        unsigned int vi[3];
-        tmpNormals.resize(tmpFaces.size());
-        for (unsigned int i = 0; i < tmpFaces.size(); ++i) {
-            vi[0] = tmpFaces[i].vertexIndex[0];
-            vi[1] = tmpFaces[i].vertexIndex[1];
-            vi[2] = tmpFaces[i].vertexIndex[2];
-            if (vi[0] >= tmpFaces.size() ||
-                vi[1] >= tmpFaces.size() ||
-                vi[2] >= tmpFaces.size()) {
-                std::cerr << "Mesh::load\tInvalid file: Face vertex index missing or out of range." << std::endl;
-                return -1;
-            }
-            tmpNormals[i] = (tmpVertices[vi[1]] - tmpVertices[vi[0]]).cross(tmpVertices[vi[2]] - tmpVertices[vi[0]]).normalize();
-            tmpFaces[i].normalIndex[0] = i;
-            tmpFaces[i].normalIndex[1] = i;
-            tmpFaces[i].normalIndex[2] = i;
-        }
-    }
-
 
     /* Veritfy tmp data
     */
@@ -238,6 +216,23 @@ int Mesh::load(const std::string& fileName)
                 std::cerr << "Mesh::load\tInvalid file: Face texture coordinate index missing or out of range." << std::endl;
                 return -1;
             }
+        }
+    }
+
+    /* If no normals : generate face normals
+    */
+    if (tmpNormals.size() == 0) {
+        std::cout << "Mesh::load(\"" << fileName << "\")\tNo normals found. Generating per face normals." << std::endl;
+        unsigned int vi[3];
+        tmpNormals.resize(tmpFaces.size());
+        for (unsigned int i = 0; i < tmpFaces.size(); ++i) {
+            vi[0] = tmpFaces[i].vertexIndex[0];
+            vi[1] = tmpFaces[i].vertexIndex[1];
+            vi[2] = tmpFaces[i].vertexIndex[2];
+            tmpNormals[i] = ((tmpVertices[vi[1]] - tmpVertices[vi[0]]).cross(tmpVertices[vi[2]] - tmpVertices[vi[0]])).normalize();
+            tmpFaces[i].normalIndex[0] = i;
+            tmpFaces[i].normalIndex[1] = i;
+            tmpFaces[i].normalIndex[2] = i;
         }
     }
 

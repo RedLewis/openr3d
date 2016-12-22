@@ -163,6 +163,4 @@ void Texture::draw() const
         //OPTIONAL: Unbind TBO
         //gl->glBindTexture(GL_TEXTURE_2D, 0);
     }
-    else
-        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 0);
 }

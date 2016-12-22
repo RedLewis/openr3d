@@ -7,7 +7,8 @@ Camera::Camera(SceneObject* sceneObject)
     : Component(Component::Type::CAMERA, sceneObject), viewport(0.0f, 0.0f, 1.0f, 1.0f)
 {
     //Add camera to scene
-    this->sceneObject->scene->cameras.insert(this);
+    containerIterator = this->sceneObject->scene->cameras.insert(this->sceneObject->scene->cameras.end(), this);
+
     orthographic = false;
     fov = 60.0f;
     nearClip = 0.1f;
@@ -16,9 +17,13 @@ Camera::Camera(SceneObject* sceneObject)
 
 Camera::~Camera()
 {
-    auto it = this->sceneObject->scene->cameras.find(this);
-    if (it != this->sceneObject->scene->cameras.end())
-        this->sceneObject->scene->cameras.erase(it);
+    //Remove camera from scene
+    this->sceneObject->scene->cameras.erase(containerIterator);
+}
+
+void Camera::update(float deltaTime)
+{
+    (void)deltaTime;
 }
 
 //TODO: DOES NOT RESPECT TRANSFORM HIEARCHY! (Tranform of father sceneObjects ignored)
@@ -29,12 +34,12 @@ void Camera::updateControls()
 
     // Update Perspective Projection Matrix
     if (orthographic)
-        p.makeOrthographicProjection(-aspectRatio * (fov / 2), aspectRatio * (fov / 2), -fov / 2, fov / 2, nearClip, farClip);
+        p.makeOrthographicProjection(-aspectRatio * (fov / 2.f), aspectRatio * (fov / 2.f), -fov / 2.f, fov / 2.f, nearClip, farClip);
     else
         p.makePerspectiveProjection(fov, aspectRatio, nearClip, farClip);
 
     // Update View Matrix
-    c.makeRigidTransformation(sceneObject->transform.worldPosition, sceneObject->transform.worldRotation);
+    c.makeRigidTransformation(sceneObject->transform.getWorldPosition(), sceneObject->transform.getWorldRotation());
     ci = c.rigidInversed();
 
     // Update View Projection Matrix
@@ -42,7 +47,7 @@ void Camera::updateControls()
 }
 
 void Camera::drawScene() {
-    this->updateControls();
+    updateControls();
     gl->glViewport(this->viewport.x * this->sceneObject->scene->screen.width,
                    this->viewport.y * this->sceneObject->scene->screen.height,
                    this->viewport.w * this->sceneObject->scene->screen.width,
@@ -52,4 +57,21 @@ void Camera::drawScene() {
         if (sceneObject->enabled) {
             sceneObject->draw(this->pci);
         }
+}
+
+void Camera::setFOV(float fov) {
+    this->fov = fov;
+}
+
+float Camera::getFOV() const
+{
+    return this->fov;
+}
+
+void Camera::setOrthographic(bool orthographic) {
+    this->orthographic = orthographic;
+}
+
+bool Camera::isOrthographic() const {
+    return orthographic;
 }

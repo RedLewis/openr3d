@@ -37,7 +37,10 @@ Makefile*
 CMakeLists.txt.user*
 
 # Directories to ignore
+build-*
 assets/*
 !assets/bunny.obj
 !assets/cube.obj
 !assets/texture.ppm
+!assets/sphere.obj
+!assets/earth.ppm

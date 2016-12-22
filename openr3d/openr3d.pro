@@ -9,6 +9,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
+CONFIG += link_pkgconfig
+PKGCONFIG += box2d
+
 win32 {
     LIBS += -lopengl32
 } else {
@@ -24,12 +27,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    mainwindow.cpp\
+    glwidget.cpp\
     asset.cpp \
     camera.cpp \
     color.cpp \
     component.cpp \
-    glwidget.cpp \
     light.cpp \
     lighting.cpp \
     matrix4.cpp \
@@ -38,48 +41,57 @@ SOURCES += main.cpp\
     opengl.cpp \
     scene.cpp \
     sceneobject.cpp \
+    shaderprogram.cpp \
+    texture.cpp \
     transform.cpp \
     vector3.cpp \
     vector4.cpp \
-    shaderprogram.cpp \
-    texture.cpp \
-    rectangle.cpp \
     screen.cpp \
-    collider.cpp
+    rectangle.cpp \
+    collider.cpp \
+    boxcollider2d.cpp \
+    circlecollider2d.cpp \
+    polygoncollider2d.cpp \
+    edgecollider2d.cpp \
+    physics2d.cpp \
+    collider2d.cpp \
+    polygon.cpp
 
-HEADERS  += mainwindow.h \
-    vector4.h \
-    vector3.h \
-    transform.h \
-    sceneobject.h \
-    scene.h \
-    opengl.h \
-    meshrenderer.h \
-    mesh.h \
-    matrix4.h \
-    mathtest.h \
-    lighting.h \
-    light.h \
+HEADERS  += \
+    mainwindow.h \
     glwidget.h \
-    component.h \
-    color.h \
-    camera.h \
-    asset.h \
     aligned.h \
+    asset.h \
+    camera.h \
+    color.h \
+    component.h \
+    light.h \
+    lighting.h \
+    mathtest.h \
+    matrix4.h \
+    mesh.h \
+    meshrenderer.h \
+    opengl.h \
+    scene.h \
+    sceneobject.h \
     shaderprogram.h \
     texture.h \
-    rectangle.h \
+    transform.h \
+    vector3.h \
+    vector4.h \
     screen.h \
-    collider.h
+    rectangle.h \
+    collider.h \
+    boxcollider2d.h \
+    circlecollider2d.h \
+    polygoncollider2d.h \
+    edgecollider2d.h \
+    physics2d.h \
+    collider2d.h \
+    polygon.h
 
 FORMS    += mainwindow.ui
 
 DISTFILES += \
-    standard_fragment_shader.fsh \
-    standard_vertex_shader.vsh \
-    shaders/standard_fragment_shader.fsh \
-    shaders/standard_vertex_shader.vsh \
-    shaders/standard_fragment_shader.fsh \
-    shaders/standard_vertex_shader.vsh \
     shaders/standard_fragment_shader.fsh \
     shaders/standard_vertex_shader.vsh
