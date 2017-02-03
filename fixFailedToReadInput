@@ -1,2 +1,0 @@
-sudo chmod 777 /dev/input/event*
-sudo chmod 777 /dev/input/mouse*
