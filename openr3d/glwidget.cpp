@@ -47,7 +47,7 @@ void GLWidget::initializeGL()
     gl = new GL(*this->context());
 
     std::cout << "Program compiled for " << sizeof(size_t) * 8 << "bit systems." << std::endl;
-    gl->printContext();
+    gl->printInfo();
     gl->configure();
 
     this->scene = new Scene(this->width(), this->height());

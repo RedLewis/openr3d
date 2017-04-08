@@ -7,6 +7,12 @@
 Component::Component(Component::Type type, SceneObject* sceneObject)
     : type(type), sceneObject(sceneObject)
 {
+    //Remove existing component
+    auto it = sceneObject->components.find(type);
+    if (it != sceneObject->components.end())
+        delete it->second;
+
+    //Add component
     sceneObject->components[type] = this;
 }
 

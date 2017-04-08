@@ -13,7 +13,7 @@ public:
     enum Type {
         LIGHT,
         CAMERA,
-        MESHRENDERER,
+        RENDERER,
         COLLIDER
     };
 

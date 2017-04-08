@@ -1,17 +1,156 @@
+#include <iostream>
 #include "polygon.h"
 #include "physics2d.h"
 #include "opengl.h"
-#include "shaderprogram.h"
+
+static const float EPSILON=0.0000000001f;
+
+float Triangulate::Area(const std::vector<Vector2> &contour)
+{
+
+  int n = contour.size();
+
+  float A=0.0f;
+
+  for(int p=n-1,q=0; q<n; p=q++)
+    {
+      A+= contour[p].x*contour[q].y - contour[q].x*contour[p].y;
+    }
+  return A*0.5f;
+}
+
+/*
+     InsideTriangle decides if a point P is Inside of the triangle
+     defined by A, B, C.
+*/
+bool Triangulate::InsideTriangle(float Ax, float Ay,
+                                 float Bx, float By,
+                                 float Cx, float Cy,
+                                 float Px, float Py)
+
+{
+  float ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
+  float cCROSSap, bCROSScp, aCROSSbp;
+
+  ax = Cx - Bx;  ay = Cy - By;
+  bx = Ax - Cx;  by = Ay - Cy;
+  cx = Bx - Ax;  cy = By - Ay;
+  apx= Px - Ax;  apy= Py - Ay;
+  bpx= Px - Bx;  bpy= Py - By;
+  cpx= Px - Cx;  cpy= Py - Cy;
+
+  aCROSSbp = ax*bpy - ay*bpx;
+  cCROSSap = cx*apy - cy*apx;
+  bCROSScp = bx*cpy - by*cpx;
+
+  return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
+};
+
+bool Triangulate::Snip(const std::vector<Vector2> &contour,int u,int v,int w,int n,int *V)
+{
+  int p;
+  float Ax, Ay, Bx, By, Cx, Cy, Px, Py;
+
+  Ax = contour[V[u]].x;
+  Ay = contour[V[u]].y;
+
+  Bx = contour[V[v]].x;
+  By = contour[V[v]].y;
+
+  Cx = contour[V[w]].x;
+  Cy = contour[V[w]].y;
+
+  if ( EPSILON > (((Bx-Ax)*(Cy-Ay)) - ((By-Ay)*(Cx-Ax))) ) return false;
+
+  for (p=0;p<n;p++)
+    {
+      if( (p == u) || (p == v) || (p == w) ) continue;
+      Px = contour[V[p]].x;
+      Py = contour[V[p]].y;
+      if (InsideTriangle(Ax,Ay,Bx,By,Cx,Cy,Px,Py)) return false;
+    }
+
+  return true;
+}
+
+bool Triangulate::Process(const std::vector<Vector2> &contour,std::vector<Vector2> &result)
+{
+  /* allocate and initialize list of Vertices in polygon */
+
+  int n = contour.size();
+  if ( n < 3 ) return false;
+
+  int *V = new int[n];
+
+  /* we want a counter-clockwise polygon in V */
+
+  if ( 0.0f < Area(contour) )
+    for (int v=0; v<n; v++) V[v] = v;
+  else
+    for(int v=0; v<n; v++) V[v] = (n-1)-v;
+
+  int nv = n;
+
+  /*  remove nv-2 Vertices, creating 1 triangle every time */
+  int count = 2*nv;   /* error detection */
+
+  for(int m=0, v=nv-1; nv>2; )
+    {
+      /* if we loop, it is probably a non-simple polygon */
+      if (0 >= (count--))
+        {
+          //** Triangulate: ERROR - probable bad polygon!
+          delete V;
+          std::cerr << "Triangulate: ERROR - probable bad polygon!" << std::endl;
+          return false;
+        }
+
+      /* three consecutive vertices in current polygon, <u,v,w> */
+      int u = v  ; if (nv <= u) u = 0;     /* previous */
+      v = u+1; if (nv <= v) v = 0;     /* new v    */
+      int w = v+1; if (nv <= w) w = 0;     /* next     */
+
+      if ( Snip(contour,u,v,w,nv,V) )
+        {
+          int a,b,c,s,t;
+
+          /* true names of the vertices */
+          a = V[u]; b = V[v]; c = V[w];
+
+          /* output Triangle */
+          //Pushed in different order to conserve orientation
+          result.push_back( contour[c] );
+          result.push_back( contour[a] );
+          result.push_back( contour[b] );
+
+          m++;
+
+          /* remove v from remaining polygon */
+          for(s=v,t=v+1;t<nv;s++,t++) V[s] = V[t]; nv--;
+
+          /* resest error detection counter */
+          count = 2*nv;
+        }
+    }
+
+
+
+  delete[] V;
+
+  return true;
+}
+
+
 
 Polygon::Polygon()
     : Asset(Asset::Type::POLYGON)
 {
 }
 
-Polygon::Polygon(const std::vector<Vector3>& paramPoints)
+Polygon::Polygon(const std::vector<Vector2>& outerPoints)
     : Asset(Asset::Type::POLYGON)
 {
-    load(paramPoints);
+    load(outerPoints);
 }
 
 Polygon::~Polygon()
@@ -19,7 +158,7 @@ Polygon::~Polygon()
 }
 
 //Can be optimised using only dot product and transpose to deduce if > 180 degree
-bool isReflex(b2Vec2 c, b2Vec2 v1, b2Vec2 v2) {
+bool isReflex(Vector2 c, Vector2 v1, Vector2 v2) {
     v1 -= c;
     v2 -= c;
     float dot = v1.x * v2.x + v1.y * v2.y;
@@ -28,7 +167,7 @@ bool isReflex(b2Vec2 c, b2Vec2 v1, b2Vec2 v2) {
     return angle < 0;
 }
 
-bool inTriangle(b2Vec2 p, b2Vec2 v1, b2Vec2 v2, b2Vec2 v3) {
+bool inTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3) {
     //the coordinates of p can be expressed as a linear combination of p1, p2 and p3
     //using 3 scalars p can be defined as
     //p.x = a * v1.x + b * v2.x + c * v3.x
@@ -44,127 +183,171 @@ bool inTriangle(b2Vec2 p, b2Vec2 v1, b2Vec2 v2, b2Vec2 v3) {
 }
 
 //TODO: Check if aligned points work && Add support for superposed points and crossing edges
-int Polygon::load(const std::vector<Vector3>& paramPoints)
+int Polygon::load(const std::vector<Vector2>& outerPoints)
 {
+    /* Verify Data
+    */
+    if (outerPoints.size() < 3) {
+        std::cerr << "Polygon::load()\tInvalid polygon: less than 3 points." << std::endl;
+        return -1;
+    }
+    innerRings.clear();
+
     /* Correct point order and store points
     */
     {
         //If points are clockwise reverse to counter clockwise
-        points.resize(paramPoints.size());
+        outerRing.resize(outerPoints.size());
         //Compute polygon area using shoelace formula without the absolute sign
         //If area positive the points are ordered clockwise and vice versa
         float sum = 0;
-        unsigned int j = paramPoints.size() - 1;
-        for (unsigned int i = 0; i < paramPoints.size(); ++i) {
-            sum += (paramPoints[i].x * paramPoints[j].y) - (paramPoints[j].x * paramPoints[i].y);
+        unsigned int j = outerPoints.size() - 1;
+        for (unsigned int i = 0; i < outerPoints.size(); ++i) {
+            sum += (outerPoints[i].x * outerPoints[j].y) - (outerPoints[j].x * outerPoints[i].y);
             j = i;
         }
         //Clockwise (needs to be reversed)
         if (sum > 0) {
-            std::cerr << "int Polygon::load(const std::vector<Vector3>&)\tWarning: Points ordered clockwise. Automatically reordered counterclockwise." << std::endl;
+#ifdef DEBUG
+            std::cerr << "int Polygon::load()\tWarning: Points ordered clockwise. Automatically reordered counterclockwise." << std::endl;
+#endif
             unsigned int i = 0;
-            for (auto it = paramPoints.rbegin(); it != paramPoints.rend(); ++it) {
-                points[i].x = it->x;
-                points[i].y = it->y;
+            for (auto it = outerPoints.rbegin(); it != outerPoints.rend(); ++it) {
+                outerRing[i].x = it->x;
+                outerRing[i].y = it->y;
                 ++i;
             }
         }
         //Counterclockwise (no reverse needed)
         else {
             unsigned int i = 0;
-            for (auto it = paramPoints.begin(); it != paramPoints.end(); ++it) {
-                points[i].x = it->x;
-                points[i].y = it->y;
+            for (auto it = outerPoints.begin(); it != outerPoints.end(); ++it) {
+                outerRing[i].x = it->x;
+                outerRing[i].y = it->y;
                 ++i;
             }
         }
     }
 
-
-    /* Split points into convex faces
-    */
-    {
-        std::vector<b2Vec2> tmpPoints(points);
-
-        while (tmpPoints.size() >= 3) {
-            convexFaces.emplace_back();
-            ConvexFace& convexFace = convexFaces.back();
-
-            //Find a triangle (hopefully the first one)
-            for (auto it = tmpPoints.begin(); it != tmpPoints.end();) {
-                b2Vec2& prevPoint = (it == tmpPoints.begin()) ? tmpPoints.back() : *(std::prev(it));
-                b2Vec2& currPoint = *it;
-                b2Vec2& nextPoint = (it == (--tmpPoints.end())) ? tmpPoints.front() : *(std::next(it));
-
-                //Check if the origin of the triangle is reflex
-                if (!isReflex(currPoint, nextPoint, prevPoint)) {
-                    //Check if triangle contain another polygon point
-                    bool containsPoint = false;
-                    for (b2Vec2& otherPoint : tmpPoints) {
-                        if (&otherPoint == &prevPoint || &otherPoint == &currPoint || &otherPoint == &nextPoint) continue;
-                        if (inTriangle(otherPoint, prevPoint, currPoint, nextPoint)) { containsPoint = true; break; }
-                    }
-                    //Triangle is valid
-                    if (!containsPoint) {
-                        convexFace.points.resize(3);
-                        convexFace.points[0] = prevPoint;
-                        convexFace.points[1] = currPoint;
-                        convexFace.points[2] = nextPoint;
-                        tmpPoints.erase(it++);
-                        break;
-                    }
-                    //Triangle is invalid
-                    else
-                        ++it;
-                }
-                //Triangle is invalid
-                else
-                    ++it;
-            }
-            //Found a triangle
-        }
-    }
-
+    convexDecomposition();
 
     return 0;
 }
 
+void Polygon::convexDecomposition()
+{
+    std::vector<Vector2> result;
+    Triangulate::Process(outerRing, result);
+    int tcount = result.size()/3;
+    for (int i=0; i<tcount; i++)
+      {
+        convexFaces.emplace_back();
+        ConvexFace& convexFace = convexFaces.back();
+        convexFace.resize(3);
+        convexFace[0] = result[i*3+0];
+        convexFace[1] = result[i*3+1];
+        convexFace[2] = result[i*3+2];
+        convexFace.update();
+      }
+}
+
+std::vector<Polygon>& Polygon::substract(const Polygon& other, std::vector<Polygon>& results) const
+{
+    boost::geometry::difference(*this, other, results);
+    return results;
+}
+
+std::vector<Polygon>& Polygon::merge(const Polygon& other, std::vector<Polygon>& results) const
+{
+    boost::geometry::union_(*this, other, results);
+    return results;
+}
+
+std::vector<Polygon>& Polygon::intersect(const Polygon& other, std::vector<Polygon>& results) const
+{
+    boost::geometry::intersection(*this, other, results);
+    return results;
+}
+
+
+#include "vector3.h"
+#include "shaderprogram.h"
 void Polygon::draw() const
 {
-    for (const Polygon::ConvexFace& cf : convexFaces) {
-        std::vector<Vector3> colors(cf.points.size());
-
-        for (Vector3& color : colors) {
-            color.x = ((((size_t)&cf) >> 0) % 256) / 255.0f;
-            color.y = ((((size_t)&cf) >> 8) % 256) / 255.0f;
-            color.z = ((((size_t)&cf) >> 16) % 256) / 255.0f;
-        }
-
-        GLuint vbo_vertex, vbo_colors;
-
-        gl->glGenBuffers(1, &vbo_vertex);
-        gl->glBindBuffer(GL_ARRAY_BUFFER, vbo_vertex);
-        gl->glBufferData(GL_ARRAY_BUFFER, cf.points.size() * sizeof(b2Vec2), cf.points.data(), GL_STATIC_DRAW);
-        gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->vertexIndex, 2, GL_FLOAT, GL_FALSE, sizeof(b2Vec2), (GLvoid*)0);
-        gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
-
-        gl->glGenBuffers(1, &vbo_colors);
-        gl->glBindBuffer(GL_ARRAY_BUFFER, vbo_colors);
-        gl->glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(Vector3), colors.data(), GL_STATIC_DRAW);
-        gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->vertexColorIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (GLvoid*)0);
-        gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexColorIndex);
-
-        gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+    //TODO: Polygons have no normal data therefor light must be inactive for them to be visible
+    // Set Shader Settings
+    GLint useLightIndexValue;
+    gl->glGetUniformiv(ShaderProgram::activeShaderProgram->program,
+                       ShaderProgram::activeShaderProgram->useLightIndex,
+                       &useLightIndexValue);
+    if (useLightIndexValue != 0)
         gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, 0);
-        gl->glUniform1i(ShaderProgram::activeShaderProgram->useVertexColorIndex, 1);
-        gl->glDrawArrays(GL_TRIANGLE_FAN, 0, cf.points.size());
-        gl->glUniform1i(ShaderProgram::activeShaderProgram->useVertexColorIndex, 0);
-        gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, 1);
 
-        gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
-        gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexColorIndex);
-        gl->glDeleteBuffers(1, &vbo_vertex);
-        gl->glDeleteBuffers(1, &vbo_colors);
-    }
+    for (const Polygon::ConvexFace& convexFace : convexFaces)
+        convexFace.draw();
+
+    // Reset Shader Settings
+    if (useLightIndexValue != 0)
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, useLightIndexValue);
+}
+
+Polygon::ConvexFace::ConvexFace() {
+    //Create VBOs
+    gl->glGenBuffers(1, &(this->verticesVBO));
+    gl->glGenBuffers(1, &(this->textureCoordinatesVBO));
+}
+
+Polygon::ConvexFace::~ConvexFace() {
+    //Delete VBOs
+    gl->glDeleteBuffers(1, &(this->verticesVBO));
+    gl->glDeleteBuffers(1, &(this->textureCoordinatesVBO));
+}
+
+void Polygon::ConvexFace::update() {
+    //Bind VBO as being the active buffer
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVBO);
+    //Copy the vertex data to the active buffer
+    gl->glBufferData(GL_ARRAY_BUFFER, this->size() * sizeof(Vector2), this->data(), GL_STATIC_DRAW);
+
+    //TODO: The texture coordinates are only valid if polygon is in boundry of -0.5 to 0.5.
+    //Should be made dynamic by finding the ranges on x and on y.
+    //OR TO REMOVE: find another way of texturing polygon
+    std::vector<Vector2> textureCoordinates(*this);
+    //Transform from range -0.5 to 0.5 to a range of 0 to 1
+    for (Vector2& v : textureCoordinates) { v.x += 0.5f; v.y += 0.5f; }
+    //Bind VBO as being the active buffer
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordinatesVBO);
+    //Copy the vertex data to the active buffer
+    gl->glBufferData(GL_ARRAY_BUFFER, this->size() * sizeof(Vector2), textureCoordinates.data(), GL_STATIC_DRAW);
+
+    //OPTIONAL: Unbind VBO
+    gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Polygon::ConvexFace::draw() const {
+
+    //Bind VBO as being the active buffer
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVBO);
+    // Specify that our coordinate data is going into attribute index, and contains two floats per vertex
+    gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->vertexIndex, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (GLvoid*)0);
+
+    //Bind VBO as being the active buffer
+    gl->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordinatesVBO);
+    // Specify that our coordinate data is going into attribute index, and contains two floats per vertex
+    gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->textureCoordinateIndex, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (GLvoid*)0);
+
+    //OPTIONAL: Unbind VBO
+    gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Enable attribute index as being used
+    gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
+    gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->textureCoordinateIndex);
+
+    // Invoke glDrawArrays telling that our data are triangles and we want to draw all the vertexes
+    gl->glDrawArrays(GL_TRIANGLE_FAN, 0, this->size());
+
+    // Disable attribute index as being used
+    gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->vertexIndex);
+    gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->textureCoordinateIndex);
+
 }

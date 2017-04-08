@@ -2,7 +2,7 @@
 #define VECTOR4_H
 
 #define _USE_MATH_DEFINES
-#include <cmath>
+#include <math.h>
 #include <iostream>
 
 #include "aligned.h"
@@ -14,6 +14,7 @@ class Vector4 : public Aligned<Alignment::SSE>
 public:
 
     union {
+        __m128 xmm;
         float data[4];
         struct {
             float x;
@@ -26,6 +27,8 @@ public:
     // Constructors
     Vector4();
     Vector4(const Vector4& v);
+    Vector4(const Vector3& v, float wVal = 0.0f);
+    Vector4(const __m128& m);
     Vector4(float a);
     Vector4(float a, float b, float c, float d);
 

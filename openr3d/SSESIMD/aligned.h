@@ -17,21 +17,20 @@
 ** <zmmintrin.h> AVX512
 */
 
-#include <cstddef>
 #ifdef _WIN32
     #include <intrin.h>
 #else
     #include <x86intrin.h>
 #endif
-#include <exception>
-#include <sstream>
-#include <iostream>
+#include <cstddef>
+#include <stdexcept>
+#include <string>
 
 namespace Alignment
 {
     enum Size : std::size_t
     {
-        DEFAULT = sizeof(void*),
+        NATIVE = sizeof(void*),
         SSE    = 16,
         AVX    = 32
     };
@@ -48,11 +47,8 @@ public:
     BadAlignment(std::size_t alignment_size = 0) : alignment_size(alignment_size) {
         if (alignment_size == 0)
             log = "Memory does not meet the requiered alignment!";
-        else {
-            std::stringstream ss;
-            ss << "Memory does nt meet the requiered " << alignment_size << " bytes alignment!";
-            log = ss.str();
-        }
+        else
+            log = std::string("Memory does not meet the requiered ") + std::to_string(alignment_size) + std::string(" bytes alignment!");
     }
 
     virtual const char* what() const throw() {
@@ -61,154 +57,8 @@ public:
 
 };
 
-template <std::size_t ALIGNMENT_SIZE, bool SAFE>
-class alignas(ALIGNMENT_SIZE) Aligned;
-//Recursively virtually inherit alignment
-//this allows to use the biggest alignment when a class has multiple alignment inheritence
-template <std::size_t ALIGNMENT_SIZE, bool SAFE = false>
-class alignas(ALIGNMENT_SIZE) Aligned : public virtual Aligned<ALIGNMENT_SIZE/2, SAFE>
-{
-
-protected:
-
-    template<typename, std::size_t> friend class AlignedAllocator;
-    static const std::size_t alignment_size = ALIGNMENT_SIZE;
-
-    Aligned() {
-        //std::cout << "Child of Aligned<" << ALIGNMENT_SIZE << ">" << std::endl;
-        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
-            throw BadAlignment();
-    }
-
-public:
-
-    void* operator new (std::size_t size) {
-        //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = _mm_malloc (size, alignment_size);
-        if (ptr == NULL)
-            throw std::bad_alloc();
-        return ptr;
-    }
-    void* operator new (std::size_t size, const std::nothrow_t& tag) {
-        (void)tag;
-        return _mm_malloc (size, alignment_size);
-    }
-    void* operator new (std::size_t size, void* ptr) {
-        (void)size;
-        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
-            throw BadAlignment(alignment_size);
-        return ptr;
-    }
-
-    void* operator new[] (std::size_t size) {
-        //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = _mm_malloc (size, alignment_size);
-        if (ptr == NULL)
-            throw std::bad_alloc();
-        return ptr;
-    }
-    void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
-        (void)tag;
-        return _mm_malloc (size, alignment_size);
-    }
-    void* operator new[] (std::size_t size, void* ptr) {
-        (void)size;
-        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
-            throw BadAlignment(alignment_size);
-        return ptr;
-    }
-
-    void operator delete (void *ptr) {
-        _mm_free(ptr);
-    }
-    void operator delete (void *ptr, const std::nothrow_t& tag) {
-        (void)tag;
-        _mm_free(ptr);
-    }
-
-    void operator delete[] (void *ptr) {
-        _mm_free(ptr);
-    }
-    void operator delete[] (void *ptr, const std::nothrow_t& tag) {
-        (void)tag;
-        _mm_free(ptr);
-    }
-
-};
-
-template <>
-class alignas(2) Aligned<2, true>
-{
-
-protected:
-
-    template<typename, std::size_t> friend class AlignedAllocator;
-    static const std::size_t alignment_size = 2;
-
-    Aligned() {
-        //std::cout << "Child of Aligned<" << 2 << ">" << std::endl;
-        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
-            throw BadAlignment();
-    }
-
-public:
-
-    void* operator new (std::size_t size) {
-        //std::cout << "Allocating " << size << " bytes with alignment " << 2 << std::endl;
-        void* ptr = _mm_malloc (size, alignment_size);
-        if (ptr == NULL)
-            throw std::bad_alloc();
-        return ptr;
-    }
-    void* operator new (std::size_t size, const std::nothrow_t& tag) {
-        (void)tag;
-        return _mm_malloc (size, alignment_size);
-    }
-    void* operator new (std::size_t size, void* ptr) {
-        (void)size;
-        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
-            throw BadAlignment(alignment_size);
-        return ptr;
-    }
-
-    void* operator new[] (std::size_t size) {
-        //std::cout << "Allocating " << size << " bytes with alignment " << 2 << std::endl;
-        void* ptr = _mm_malloc (size, alignment_size);
-        if (ptr == NULL)
-            throw std::bad_alloc();
-        return ptr;
-    }
-    void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
-        (void)tag;
-        return _mm_malloc (size, alignment_size);
-    }
-    void* operator new[] (std::size_t size, void* ptr) {
-        (void)size;
-        if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
-            throw BadAlignment(alignment_size);
-        return ptr;
-    }
-
-    void operator delete (void *ptr) {
-        _mm_free(ptr);
-    }
-    void operator delete (void *ptr, const std::nothrow_t& tag) {
-        (void)tag;
-        _mm_free(ptr);
-    }
-
-    void operator delete[] (void *ptr) {
-        _mm_free(ptr);
-    }
-    void operator delete[] (void *ptr, const std::nothrow_t& tag) {
-        (void)tag;
-        _mm_free(ptr);
-    }
-
-};
-
 template <std::size_t ALIGNMENT_SIZE>
-class alignas(ALIGNMENT_SIZE) Aligned<ALIGNMENT_SIZE, false>
+class alignas(ALIGNMENT_SIZE) Aligned
 {
 
 protected:
@@ -217,7 +67,7 @@ protected:
     static const std::size_t alignment_size = ALIGNMENT_SIZE;
 
     Aligned() {
-        //std::cout << "Child of Aligned<" << ALIGNMENT_SIZE << ">" << std::endl;
+        //std::cout << "Constructing child of Aligned<" << ALIGNMENT_SIZE << ">" << std::endl;
         if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
             throw BadAlignment(alignment_size);
     }
@@ -226,17 +76,19 @@ public:
 
     void* operator new (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = _mm_malloc (size, alignment_size);
+        void* ptr = _mm_malloc(size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return _mm_malloc (size, alignment_size);
+        //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
+        return _mm_malloc(size, alignment_size);
     }
     void* operator new (std::size_t size, void* ptr) {
         (void)size;
+        //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
         if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
             throw BadAlignment(alignment_size);
         return ptr;
@@ -244,34 +96,40 @@ public:
 
     void* operator new[] (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
-        void* ptr = _mm_malloc (size, alignment_size);
+        void* ptr = _mm_malloc(size, alignment_size);
         if (ptr == NULL)
             throw std::bad_alloc();
         return ptr;
     }
     void* operator new[] (std::size_t size, const std::nothrow_t& tag) {
         (void)tag;
-        return _mm_malloc (size, alignment_size);
+        //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
+        return _mm_malloc(size, alignment_size);
     }
     void* operator new[] (std::size_t size, void* ptr) {
         (void)size;
+        //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;
         if (reinterpret_cast<std::size_t>(ptr) % alignment_size != 0)
             throw BadAlignment(alignment_size);
         return ptr;
     }
 
     void operator delete (void *ptr) {
+        //std::cout << "Deleting with alignment " << ALIGNMENT_SIZE << std::endl;
         _mm_free(ptr);
     }
     void operator delete (void *ptr, const std::nothrow_t& tag) {
+        //std::cout << "Deleting with alignment " << ALIGNMENT_SIZE << std::endl;
         (void)tag;
         _mm_free(ptr);
     }
 
     void operator delete[] (void *ptr) {
+        //std::cout << "Deleting with alignment " << ALIGNMENT_SIZE << std::endl;
         _mm_free(ptr);
     }
     void operator delete[] (void *ptr, const std::nothrow_t& tag) {
+        //std::cout << "Deleting with alignment " << ALIGNMENT_SIZE << std::endl;
         (void)tag;
         _mm_free(ptr);
     }
@@ -480,6 +338,7 @@ private:
 
 /*
  * Simple version the AlignedAllocator that requires the type T to be a child of Aligned
+ * But does not support specifying the alignment as a second template parameter
  *
 template <typename T>
 class AlignedAllocator {

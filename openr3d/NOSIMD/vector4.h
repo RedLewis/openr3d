@@ -2,7 +2,7 @@
 #define VECTOR4_H
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 #include "aligned.h"
@@ -26,6 +26,7 @@ public:
     // Constructors
     Vector4();
     Vector4(const Vector4& v);
+    Vector4(const Vector3& v, float wVal = 0.0f);
     Vector4(float a);
     Vector4(float a, float b, float c, float d);
 

@@ -11,6 +11,8 @@
 
 class Scene;
 
+// TODO: Review pre and post update (unse lambda functions instead of overloading?)
+
 class SceneObject : public Aligned<Alignment::SSE>
 {
 
@@ -29,7 +31,7 @@ public:
 
     SceneObject(Scene* scene);
     SceneObject(SceneObject* parent);
-    ~SceneObject();
+    virtual ~SceneObject();
 
     //TODO: Cleaner way of implementing rigidbody
     //(have the rigidbody be a component separated from collider?)
@@ -37,7 +39,9 @@ public:
     bool enabled = true;
 
     //Called before drawing
+    virtual void preUpdate(float deltaTime);
     void update(float deltaTime);
+    virtual void postUpdate(float deltaTime);
 
     void draw(const Matrix4& viewProjectionMatrix) const;
 

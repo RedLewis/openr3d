@@ -34,11 +34,16 @@ SceneObject::~SceneObject()
         parent->children.erase(containerIterator);
 }
 
+void SceneObject::preUpdate(float deltaTime) {
+}
+
 void SceneObject::update(float deltaTime)
 {
     /*
      * Apply Updates that affect transform
     */
+
+    //Apply Script
 
     //Apply Animation
 
@@ -61,6 +66,9 @@ void SceneObject::update(float deltaTime)
     //Update Children
     for (auto it = children.begin(); it != children.end();)
         (*(it++))->update(deltaTime);
+}
+
+void SceneObject::postUpdate(float deltaTime) {
 }
 
 //TODO: This parent to children draw call architecture leaves a lot of unsed Matrix4 modelViewProjectionMatrix on the stack as it goes down!

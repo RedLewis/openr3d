@@ -6,6 +6,9 @@
 #include "opengl.h"
 #include <vector>
 
+
+//TODO: Use unsigned char textures instead of float
+//That applies to the TBO
 class Texture : public Asset
 {
 

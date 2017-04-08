@@ -1,9 +1,12 @@
 #include "vector3.h"
+#include "vector2.h"
 #include "vector4.h"
 
 // Constructors
 Vector3::Vector3() : xmm(_mm_setzero_ps()) {}
 Vector3::Vector3(const Vector3& v) : xmm(v.xmm) {}
+Vector3::Vector3(const Vector4& v) : xmm(v.xmm) {}
+Vector3::Vector3(const Vector2& v, float zVal) : xmm(_mm_set_ps(0.f, zVal, v.y, v.x)) {}
 Vector3::Vector3(const __m128& m) : xmm(m) {}
 Vector3::Vector3(float a) : xmm(_mm_set_ps1(a)) {}
 Vector3::Vector3(float a, float b, float c) : xmm(_mm_set_ps(0.f, c, b, a)) {}

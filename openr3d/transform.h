@@ -32,10 +32,10 @@ private:
     Matrix4 localToWorldNormalMatrix;
     Matrix4 worldToLocalMatrix;
 
-    bool _changed;
-    bool _changedPosition;
-    bool _changedRotation;
-    bool _changedScale;
+    bool changedFlag;
+    bool changedPositionFlag;
+    bool changedRotationFlag;
+    bool changedScaleFlag;
 
     void update();
     //Update controls updates from local vales (changes world and matrices)
@@ -78,11 +78,17 @@ public:
     const Matrix4& getLocalToWorldNormalMatrix() const;
     const Matrix4& getWorldToLocalMatrix() const;
 
-    bool changed() const;
-    bool changedPosition() const;
-    bool changedRotation() const;
-    bool changedScale() const;
+    bool getChangedFlag() const;
+    bool getChangedPositionFlag() const;
+    bool getChangedRotationFlag() const;
+    bool getChangedScaleFlag() const;
     void clearFlags();
+
+private:
+    void setChangedFlag();
+    void setChangedPositionFlag();
+    void setChangedRotationFlag();
+    void setChangedScaleFlag();
 
 };
 

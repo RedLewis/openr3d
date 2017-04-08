@@ -20,7 +20,7 @@ public:
 
     virtual ~Collider2D();
 protected:
-    Collider2D(SceneObject *sceneObject, bool isStatic = false);
+    Collider2D(SceneObject *sceneObject, ColliderType type);
 };
 
 #endif // COLLIDER2D_H

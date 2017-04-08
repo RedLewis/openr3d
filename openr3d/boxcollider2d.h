@@ -7,7 +7,7 @@ class BoxCollider2D : public Collider2D
 {
 public:
 
-    BoxCollider2D(SceneObject *sceneObject, bool isStatic = false);
+    BoxCollider2D(SceneObject *sceneObject, ColliderType type);
 
     void updateCollider();
 

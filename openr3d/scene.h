@@ -14,6 +14,12 @@
 #include "screen.h"
 #include "physics2d.h"
 
+/*
+ * TODO: Stop using new and delete and use an object manager bufferise requests and
+ * create and delete objects between updates.
+ * //TODO: Add fixedUpdate
+*/
+
 class Scene : public Aligned<Alignment::SSE>
 {
 public:
@@ -21,7 +27,7 @@ public:
     Physics2D physics2d;
 
     //TODO Move screen to a openr3d static engine class (screen should not be scene dependent)
-    Screen screen;
+    OpenR3D::Screen screen;
     Lighting lighting;
 
     //TODO: Not use pointers? But reference and actual objects in containers (easy cleanup)

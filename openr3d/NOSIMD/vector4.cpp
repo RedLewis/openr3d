@@ -4,7 +4,8 @@
 // Constructors
 Vector4::Vector4() : data{0} {}
 Vector4::Vector4(const Vector4& v) : data{v.x, v.y, v.z, v.w} {}
-Vector4::Vector4(float a) : data{a} {}
+Vector4::Vector4(const Vector3& v, float wVal) : data{v.x, v.y, v.z, wVal} {}
+Vector4::Vector4(float a) : data{a, a, a, a} {}
 Vector4::Vector4(float a, float b, float c, float d) : data{a, b, c, d} {}
 
 // Assignments

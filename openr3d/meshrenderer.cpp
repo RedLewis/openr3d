@@ -3,7 +3,7 @@
 #include "shaderprogram.h"
 
 MeshRenderer::MeshRenderer(SceneObject* sceneObject)
-    : Component(Component::Type::MESHRENDERER, sceneObject)
+    : Renderer(sceneObject, Renderer::Type::MESH_RENDERER)
 {
 
 }

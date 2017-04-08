@@ -10,7 +10,7 @@ public:
 
     std::vector<b2Vec2> points;
 
-    EdgeCollider2D(SceneObject *sceneObject, const std::vector<Vector3>& points, bool isStatic = false);
+    EdgeCollider2D(SceneObject *sceneObject, ColliderType type, const std::vector<Vector2>& points);
 
     void updateCollider();
 

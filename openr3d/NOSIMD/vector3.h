@@ -10,6 +10,7 @@
 //SIMD: Use SSE on x86 and NEON on ARM
 //Add modulo operation
 
+class Vector2; //TODO: ADD TO SSE
 class Vector4;
 
 class Vector3 : public Aligned<Alignment::SSE>
@@ -28,6 +29,8 @@ public:
     // Constructors
     Vector3();
     Vector3(const Vector3& v);
+    Vector3(const Vector4& v);
+    Vector3(const Vector2& v, float zVal = 0.0f);
     Vector3(float a);
     Vector3(float a, float b, float c);
 

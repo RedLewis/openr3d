@@ -4,6 +4,7 @@
 // Constructors
 Vector4::Vector4() : xmm(_mm_setzero_ps()) {}
 Vector4::Vector4(const Vector4& v) : xmm(v.xmm) {}
+Vector4::Vector4(const Vector3& v, float wVal) : xmm(_mm_set_ps(wVal, v.z, v.y, v.x)) {}
 Vector4::Vector4(const __m128& m) : xmm(m) {}
 Vector4::Vector4(float a) : xmm(_mm_set_ps1(a)) {}
 Vector4::Vector4(float a, float b, float c, float d) : xmm(_mm_set_ps(d, c, b, a)) {}

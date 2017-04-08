@@ -1,13 +1,13 @@
 #ifndef MESHRENDERER_H
 #define MESHRENDERER_H
 
-#include "component.h"
+#include "renderer.h"
 #include "mesh.h"
 #include "texture.h"
 //TODO: MATERIAL ASSETS
 //#include "material.h"
 
-class MeshRenderer : public Component
+class MeshRenderer : public Renderer
 {
 
 public:

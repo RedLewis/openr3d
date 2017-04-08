@@ -152,30 +152,46 @@ int ShaderProgram::link()
     //OPTION2 : GET INDEX AFTER
     this->textureSamplerIndex = gl->glGetUniformLocation(tmpProgram, "textureSampler");
     if (this->textureSamplerIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"textureSampler\" not found." << std::endl;
+
     this->useLightIndex = gl->glGetUniformLocation(tmpProgram, "useLight");
     if (this->useLightIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useLight\" not found." << std::endl;
+
+    this->useLightTwoSideIndex = gl->glGetUniformLocation(tmpProgram, "useLightTwoSide");
+    if (this->useLightTwoSideIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useLightTwoSide\" not found." << std::endl;
+
     this->useTextureIndex = gl->glGetUniformLocation(tmpProgram, "useTexture");
     if (this->useTextureIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useTexture\" not found." << std::endl;
+
     this->useVertexColorIndex = gl->glGetUniformLocation(tmpProgram, "useVertexColor");
     if (this->useVertexColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useVertexColor\" not found." << std::endl;
+
     this->modelMatrixIndex = gl->glGetUniformLocation(tmpProgram, "modelMatrix");
     if (this->modelMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelMatrix\" not found." << std::endl;
+
     this->viewMatrixIndex = gl->glGetUniformLocation(tmpProgram, "viewMatrix");
     if (this->viewMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"viewMatrix\" not found." << std::endl;
+
     this->normalMatrixIndex = gl->glGetUniformLocation(tmpProgram, "normalMatrix");
     if (this->normalMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"normalMatrix\" not found." << std::endl;
+
     this->modelViewProjectionMatrixIndex = gl->glGetUniformLocation(tmpProgram, "modelViewProjectionMatrix");
     if (this->modelViewProjectionMatrixIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"modelViewProjectionMatrix\" not found." << std::endl;
+
     this->lightDirectionIndex = gl->glGetUniformLocation(tmpProgram, "lightDirection");
     if (this->lightDirectionIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightDirection\" not found." << std::endl;
+
     this->lightColorIndex = gl->glGetUniformLocation(tmpProgram, "lightColor");
     if (this->lightColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightColor\" not found." << std::endl;
+
     this->vertexIndex = gl->glGetAttribLocation(tmpProgram, "in_vertex");
     if (this->vertexIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_vertex\" not found." << std::endl;
+
     this->normalIndex = gl->glGetAttribLocation(tmpProgram, "in_normal");
     if (this->normalIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_normal\" not found." << std::endl;
+
     this->textureCoordinateIndex = gl->glGetAttribLocation(tmpProgram, "in_textureCoordinate");
     if (this->textureCoordinateIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_textureCoordinate\" not found." << std::endl;
+
     this->vertexColorIndex = gl->glGetAttribLocation(tmpProgram, "in_vertexColor");
     if (this->vertexColorIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_vertexColor\" not found." << std::endl;
 

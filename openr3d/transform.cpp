@@ -5,6 +5,7 @@
 Transform::Transform(SceneObject* sceneObject)
     : sceneObject(sceneObject), localPosition(0.0f, 0.0f, 0.0f), localRotation(0.0f, 0.0f, 0.0f), localScale(1.0f, 1.0f, 1.0f)
 {
+    clearFlags();
     updateControls();
 }
 
@@ -13,19 +14,19 @@ void Transform::update()
     //Update changes booleans from parent
     if (this->sceneObject->parent != NULL) {
         Transform& parentTransform = this->sceneObject->parent->transform;
-        if (parentTransform._changed) {
-            _changed = true;
-            if (parentTransform._changedPosition) {
-                _changedPosition = true;
+        if (parentTransform.changedFlag) {
+            setChangedFlag();
+            if (parentTransform.changedPositionFlag) {
+                setChangedPositionFlag();
             }
-            if (parentTransform._changedRotation) {
-                _changedPosition = true;
-                _changedRotation = true;
+            if (parentTransform.changedRotationFlag) {
+                setChangedPositionFlag();
+                setChangedRotationFlag();
             }
-            if (parentTransform._changedScale) {
-                _changedPosition = true;
-                _changedRotation = true; //TODO: Check that non-uniform scaling can affect rotation
-                _changedScale = true;
+            if (parentTransform.changedScaleFlag) {
+                setChangedPositionFlag();
+                setChangedRotationFlag(); //TODO: Check that non-uniform scaling can affect rotation
+                setChangedScaleFlag();
             }
         }
     }
@@ -73,19 +74,19 @@ void Transform::physicalUpdate()
     //Update changes booleans from parent
     if (this->sceneObject->parent != NULL) {
         Transform& parentTransform = this->sceneObject->parent->transform;
-        if (parentTransform._changed) {
-            _changed = true;
-            if (parentTransform._changedPosition) {
-                _changedPosition = true;
+        if (parentTransform.changedFlag) {
+            setChangedFlag();
+            if (parentTransform.changedPositionFlag) {
+                setChangedPositionFlag();
             }
-            if (parentTransform._changedRotation) {
-                _changedPosition = true;
-                _changedRotation = true;
+            if (parentTransform.changedRotationFlag) {
+                setChangedPositionFlag();
+                setChangedRotationFlag();
             }
-            if (parentTransform._changedScale) {
-                _changedPosition = true;
-                _changedRotation = true; //TODO: Check that non-uniform scaling can affect rotation
-                _changedScale = true;
+            if (parentTransform.changedScaleFlag) {
+                setChangedPositionFlag();
+                setChangedRotationFlag(); //TODO: Check that non-uniform scaling can affect rotation
+                setChangedScaleFlag();
             }
         }
     }
@@ -133,8 +134,8 @@ void Transform::physicalUpdate()
 
 void Transform::setLocalPosition(const Vector3& position)
 {
-    _changed = true;
-    _changedPosition = true;
+    setChangedFlag();
+    setChangedPositionFlag();
 
     localPosition = position;
     update();
@@ -142,8 +143,8 @@ void Transform::setLocalPosition(const Vector3& position)
 
 void Transform::setLocalRotation(const Vector3& rotation)
 {
-    _changed = true;
-    _changedRotation = true;
+    setChangedFlag();
+    setChangedRotationFlag();
 
     localRotation = rotation;
     update();
@@ -151,8 +152,8 @@ void Transform::setLocalRotation(const Vector3& rotation)
 
 void Transform::setLocalScale(const Vector3& scale)
 {
-    _changed = true;
-    _changedScale = true;
+    setChangedFlag();
+    setChangedScaleFlag();
 
     localScale = scale;
     update();
@@ -160,8 +161,8 @@ void Transform::setLocalScale(const Vector3& scale)
 
 void Transform::setWorldPosition(const Vector3& position)
 {
-    _changed = true;
-    _changedPosition = true;
+    setChangedFlag();
+    setChangedPositionFlag();
 
     if (sceneObject->parent != NULL)
         localPosition = (sceneObject->parent->transform.worldToLocalMatrix * position.toVector4(1.0f)).toVector3();
@@ -173,8 +174,8 @@ void Transform::setWorldPosition(const Vector3& position)
 //TODO: Use quaternions
 void Transform::setWorldRotation(const Vector3& rotation)
 {
-    _changed = true;
-    _changedRotation = true;
+    setChangedFlag();
+    setChangedRotationFlag();
 
     //currentToTargetRotationMatrix is a matrix that takes currentWorldRotationMatrix to targetWorldRotationMatrix
     Matrix4 currentToTargetRotationMatrix;
@@ -193,8 +194,8 @@ void Transform::setWorldRotation(const Vector3& rotation)
 
 void Transform::setWorldScale(const Vector3& scale)
 {
-    _changed = true;
-    _changedScale = true;
+    setChangedFlag();
+    setChangedScaleFlag();
 
     localScale *= scale / worldScale;
     update();
@@ -203,8 +204,8 @@ void Transform::setWorldScale(const Vector3& scale)
 
 void Transform::setPhysicalPosition(const Vector3& position)
 {
-    _changed = true;
-    _changedPosition = true;
+    setChangedFlag();
+    setChangedPositionFlag();
 
     if (sceneObject->parent != NULL)
         localPosition = (sceneObject->parent->transform.worldToLocalMatrix * position.toVector4(1.0f)).toVector3();
@@ -216,8 +217,8 @@ void Transform::setPhysicalPosition(const Vector3& position)
 //TODO: Use quaternions
 void Transform::setPhysicalRotation(const Vector3& rotation)
 {
-    _changed = true;
-    _changedRotation = true;
+    setChangedFlag();
+    setChangedRotationFlag();
 
     //currentToTargetRotationMatrix is a matrix that takes currentWorldRotationMatrix to targetWorldRotationMatrix
     Matrix4 currentToTargetRotationMatrix;
@@ -236,8 +237,8 @@ void Transform::setPhysicalRotation(const Vector3& rotation)
 
 void Transform::setPhysicalScale(const Vector3& scale)
 {
-    _changed = true;
-    _changedPosition = true;
+    setChangedFlag();
+    setChangedScaleFlag();
 
     localScale *= scale / worldScale;
     physicalUpdate();
@@ -289,30 +290,50 @@ const Matrix4& Transform::getWorldToLocalMatrix() const
     return worldToLocalMatrix;
 }
 
-bool Transform::changed() const
+bool Transform::getChangedFlag() const
 {
-    return _changed;
+    return changedFlag;
 }
 
-bool Transform::changedPosition() const
+bool Transform::getChangedPositionFlag() const
 {
-    return _changedPosition;
+    return changedPositionFlag;
 }
 
-bool Transform::changedRotation() const
+bool Transform::getChangedRotationFlag() const
 {
-    return _changedRotation;
+    return changedRotationFlag;
 }
 
-bool Transform::changedScale() const
+bool Transform::getChangedScaleFlag() const
 {
-    return _changedScale;
+    return changedScaleFlag;
 }
 
 void Transform::clearFlags()
 {
-    _changed = false;
-    _changedPosition = false;
-    _changedRotation = false;
-    _changedScale = false;
+    changedFlag = false;
+    changedPositionFlag = false;
+    changedRotationFlag = false;
+    changedScaleFlag = false;
+}
+
+void Transform::setChangedFlag()
+{
+    changedFlag = true;
+}
+
+void Transform::setChangedPositionFlag()
+{
+    changedPositionFlag = true;
+}
+
+void Transform::setChangedRotationFlag()
+{
+    changedRotationFlag = true;
+}
+
+void Transform::setChangedScaleFlag()
+{
+    changedScaleFlag = true;
 }

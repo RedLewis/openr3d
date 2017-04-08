@@ -25,10 +25,11 @@ win32 {
 TARGET = openr3d
 TEMPLATE = app
 
+INCLUDEPATH += SSESIMD/
 
-SOURCES += main.cpp\
-    mainwindow.cpp\
-    glwidget.cpp\
+SOURCES += main.cpp \
+    mainwindow.cpp \
+    glwidget.cpp \
     asset.cpp \
     camera.cpp \
     color.cpp \
@@ -44,8 +45,6 @@ SOURCES += main.cpp\
     shaderprogram.cpp \
     texture.cpp \
     transform.cpp \
-    vector3.cpp \
-    vector4.cpp \
     screen.cpp \
     rectangle.cpp \
     collider.cpp \
@@ -55,12 +54,20 @@ SOURCES += main.cpp\
     edgecollider2d.cpp \
     physics2d.cpp \
     collider2d.cpp \
-    polygon.cpp
+    polygon.cpp \
+    box2dUtilities/b2Polygon.cpp \
+    box2dUtilities/b2Triangle.cpp \
+    SSESIMD/vector3.cpp \
+    SSESIMD/vector4.cpp \
+    color32.cpp \
+    renderer.cpp \
+    spriterenderer.cpp \
+    utilities.cpp \
+    vector2.cpp
 
 HEADERS  += \
     mainwindow.h \
     glwidget.h \
-    aligned.h \
     asset.h \
     camera.h \
     color.h \
@@ -77,8 +84,6 @@ HEADERS  += \
     shaderprogram.h \
     texture.h \
     transform.h \
-    vector3.h \
-    vector4.h \
     screen.h \
     rectangle.h \
     collider.h \
@@ -88,10 +93,22 @@ HEADERS  += \
     edgecollider2d.h \
     physics2d.h \
     collider2d.h \
-    polygon.h
+    polygon.h \
+    box2dUtilities/b2Polygon.h \
+    box2dUtilities/b2Triangle.h \
+    SSESIMD/aligned.h \
+    SSESIMD/vector3.h \
+    SSESIMD/vector4.h \
+    color32.h \
+    renderer.h \
+    spriterenderer.h \
+    utilities.h \
+    vector2.h
 
 FORMS    += mainwindow.ui
 
 DISTFILES += \
     shaders/standard_fragment_shader.fsh \
-    shaders/standard_vertex_shader.vsh
+    shaders/standard_vertex_shader.vsh \
+    shaders/basic_fragment_shader.fsh \
+    shaders/basic_vertex_shader.vsh

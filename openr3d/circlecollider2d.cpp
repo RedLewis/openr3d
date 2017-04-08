@@ -3,8 +3,8 @@
 #include "scene.h"
 #include "physics2d.h"
 
-CircleCollider2D::CircleCollider2D(SceneObject *sceneObject, bool isStatic)
-    : Collider2D(sceneObject, isStatic)
+CircleCollider2D::CircleCollider2D(SceneObject *sceneObject, ColliderType type)
+    : Collider2D(sceneObject, type)
 {
     // Define body fixture
     fixtureDef.density = 1.0f;

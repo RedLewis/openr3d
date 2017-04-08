@@ -1,10 +1,13 @@
 #include "vector3.h"
+#include "vector2.h"
 #include "vector4.h"
 
 // Constructors
 Vector3::Vector3() : data{0} {}
 Vector3::Vector3(const Vector3& v) : data{v.x, v.y, v.z} {}
-Vector3::Vector3(float a) : data{a} {}
+Vector3::Vector3(const Vector4& v) : data{v.x, v.y, v.z} {}
+Vector3::Vector3(const Vector2& v, float zVal) : data{v.x, v.y, zVal} {}
+Vector3::Vector3(float a) : data{a, a, a} {}
 Vector3::Vector3(float a, float b, float c) : data{a, b, c} {}
 
 // Assignments
@@ -90,8 +93,8 @@ Vector3 Vector3::minvec(const Vector3& v) { return Vector3((x < v.x) ? x : v.x, 
 float Vector3::average() { return (x + y + z) / 3.0f; }
 
 // Pointer
-float* Vector3::ptr() { return &(this->x); }
-const float* Vector3::ptr() const { return &(this->x); }
+float* Vector3::ptr() { return this->data; }
+const float* Vector3::ptr() const { return this->data; }
 
 // To Vector4
 Vector4 Vector3::toVector4() const { return Vector4(x, y, z, 0); }

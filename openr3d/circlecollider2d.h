@@ -7,7 +7,7 @@ class CircleCollider2D : public Collider2D
 {
 public:
 
-    CircleCollider2D(SceneObject *sceneObject, bool isStatic = false);
+    CircleCollider2D(SceneObject *sceneObject, ColliderType type);
 
     void updateCollider();
 

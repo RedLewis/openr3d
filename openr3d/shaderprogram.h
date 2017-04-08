@@ -30,6 +30,7 @@ public:
 
     GLint textureSamplerIndex;
     GLint useLightIndex;
+    GLint useLightTwoSideIndex;
     GLint useTextureIndex;
     GLint useVertexColorIndex;
     GLint modelMatrixIndex;

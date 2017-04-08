@@ -2,9 +2,10 @@
 #include "sceneobject.h"
 #include "scene.h"
 #include "physics2d.h"
+#include "vector2.h"
 
-EdgeCollider2D::EdgeCollider2D(SceneObject *sceneObject, const std::vector<Vector3>& paramPoints, bool isStatic)
-    : Collider2D(sceneObject, isStatic)
+EdgeCollider2D::EdgeCollider2D(SceneObject *sceneObject, ColliderType type, const std::vector<Vector2>& paramPoints)
+    : Collider2D(sceneObject, type)
 {
     // Store the points
     points.resize(paramPoints.size());

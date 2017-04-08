@@ -135,12 +135,24 @@ int Texture::load(const std::string& fileName)
     return 0;
 }
 
+// TODO: Remove alternative
+// TODO: Remove TBO if baseDate has been emptied? (careful not to remove it twice) (Does an empty texture make sense?)
+#include "color32.h"
 void Texture::update() {
     if (this->baseData.size() > 0) {
         // Bind to the texture in OpenGL
         gl->glBindTexture(GL_TEXTURE_2D, this->baseTBO);
+        //Specify row alignment or highest power of two the image width can be devided by. Higher row alignment is faster.
+        //TODO: Calculate alignment?
+        gl->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         // Load the data into the bound texture.
-        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_FLOAT, this->baseData.data());
+        //gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_FLOAT, this->baseData.data());
+        // TODO: Remove alternative
+        std::vector<Color32> tmpColor32Data(this->baseData.size());
+        for (unsigned int i = 0; i < tmpColor32Data.size(); ++i) {
+            tmpColor32Data[i].set(this->baseData[i].getHex());
+        }
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmpColor32Data.data());
     }
     // OPTIONAL: Unbind TBO
     gl->glBindTexture(GL_TEXTURE_2D, 0);

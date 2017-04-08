@@ -11,10 +11,12 @@ class GL : public QOpenGLFunctions
 public:
 
     QOpenGLContext& context;
+    GLuint defaultFBO;
 
     GL(QOpenGLContext& context);
+    ~GL();
 
-    void printContext();
+    void printInfo();
     void configure();
 
 };

@@ -2,10 +2,10 @@
 #define PHYSICS2D_H
 
 #include <Box2D/Box2D.h>
-#define BOX2DSCALE 10.f
+#define BOX2DSCALE 20.0f
 
 //TODO: Store scale un Physics2D and ContactListener
-//TODO: Have a Collision2D instead of a general collision
+//TODO: Have a Collision2D instead of a general collision?
 
 class Scene;
 

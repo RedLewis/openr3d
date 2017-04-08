@@ -14,15 +14,6 @@ Scene::Scene(int width, int height)
 {
     //TODO: Functionalize this process (the creation linking of the sceneObject and the component)
 
-    Mesh* mesh1 = new Mesh("assets/sphere.obj");
-    Mesh* mesh2 = new Mesh("assets/cube.obj");
-    Texture* texture1 = new Texture("assets/texture.ppm");
-    Texture* texture2 = new Texture("assets/earth.ppm");
-    this->assets.push_back(mesh1);
-    this->assets.push_back(mesh2);
-    this->assets.push_back(texture1);
-    this->assets.push_back(texture2);
-
     //Setup Camera
     SceneObject* centerofrotation = new SceneObject(this);
     centerofrotation->name = "cameraCenter";
@@ -36,9 +27,18 @@ Scene::Scene(int width, int height)
 
     //Setup Light
     SceneObject* lightObject = new SceneObject(this);
-    lightObject->transform.setLocalRotation({-0.5, 0.5, 0});
+    lightObject->transform.setLocalRotation({-0.4, -0.4, 0});
     Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
     lightComponent->color = {1.0, 1.0, 1.0};
+
+    Mesh* mesh1 = new Mesh("../assets/sphere.obj");
+    Mesh* mesh2 = new Mesh("../assets/cube.obj");
+    Texture* texture1 = new Texture("../assets/texture.ppm");
+    Texture* texture2 = new Texture("../assets/earth.ppm");
+    this->assets.push_back(mesh1);
+    this->assets.push_back(mesh2);
+    this->assets.push_back(texture1);
+    this->assets.push_back(texture2);
 
     {
 
@@ -50,7 +50,7 @@ Scene::Scene(int width, int height)
         MeshRenderer* parentMeshRenderer = new MeshRenderer(parent);
         parentMeshRenderer->mesh = mesh2;
         parentMeshRenderer->texture = texture2;
-        new BoxCollider2D(parent, false);
+        new BoxCollider2D(parent, Collider::DYNAMIC);
 
         {
             SceneObject* cube = new SceneObject(parent);
@@ -60,7 +60,7 @@ Scene::Scene(int width, int height)
             MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
             cubeMeshRenderer->mesh = mesh2;
             cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube);
+            new BoxCollider2D(cube, Collider::DYNAMIC);
 
             /*SceneObject* cubeWorld = new SceneObject(this);
             cubeWorld->transform.setWorldPosition(cube->transform.getWorldPosition());
@@ -76,7 +76,8 @@ Scene::Scene(int width, int height)
             MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
             cubeMeshRenderer->mesh = mesh2;
             cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube);
+            new BoxCollider2D(cube, Collider::DYNAMIC);
+
         }
         {
             SceneObject* cube = new SceneObject(parent);
@@ -85,7 +86,7 @@ Scene::Scene(int width, int height)
             MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
             cubeMeshRenderer->mesh = mesh2;
             cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube);
+            new BoxCollider2D(cube, Collider::DYNAMIC);
         }
         {
             SceneObject* cube = new SceneObject(parent);
@@ -94,7 +95,7 @@ Scene::Scene(int width, int height)
             MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
             cubeMeshRenderer->mesh = mesh2;
             cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube);
+            new BoxCollider2D(cube, Collider::DYNAMIC);
         }
     }
     {
@@ -105,7 +106,7 @@ Scene::Scene(int width, int height)
         MeshRenderer* terrainMeshRenderer = new MeshRenderer(terrain);
         terrainMeshRenderer->mesh = mesh2;
         terrainMeshRenderer->texture = texture1;
-        new BoxCollider2D(terrain, true);
+        new BoxCollider2D(terrain, Collider::STATIC);
     }
     {
         SceneObject* sphere = new SceneObject(this);
@@ -115,27 +116,14 @@ Scene::Scene(int width, int height)
         MeshRenderer* sphereMeshRenderer = new MeshRenderer(sphere);
         sphereMeshRenderer->mesh = mesh1;
         sphereMeshRenderer->texture = texture2;
-        new CircleCollider2D(sphere, true);
-    }
-    {
-        SceneObject* terrain = new SceneObject(this);
-        terrain->transform.setLocalScale({8.0f, 6.0f, 1.0f});
-        terrain->transform.setLocalPosition({0.0f, -1.75f, 0.0f});
-
-        std::vector<Vector3> points = {
-            {-0.5, 0.5, 0},
-            {-0.5, 0, 0},
-            {0.5, 0, 0},
-            {0.5, 0.5, 0}
-        };
-        new EdgeCollider2D(terrain, points, true);
+        new CircleCollider2D(sphere, Collider::STATIC);
     }
 
     //TODO: Clean way of setting up shader
     this->activeCamera = cameraObject;
     this->activeLight = lightObject;
-    standardShader.load("shaders/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
-    standardShader.load("shaders/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
+    standardShader.load("../openr3d/shaders/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
+    standardShader.load("../openr3d/shaders/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
     standardShader.link();
 }
 
@@ -149,9 +137,11 @@ Scene::~Scene() {
 void Scene::draw() const
 {
     standardShader.bind();
+    //Configure shader
+    gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, 1);
+
     if (ShaderProgram::activeShaderProgram == NULL)
         return;
-    gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, 1);
 
     //Add Light
     //TODO Store light direction in light component
@@ -160,7 +150,7 @@ void Scene::draw() const
     rotation.makeEulerRotation(this->activeLight->transform.getLocalRotation());
     lightDirection = (rotation * lightDirection.toVector4(0.0f)).toVector3().normalize();
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
-    gl->glUniform4fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
+    gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
 
     //Draw the scene from the camera' view
     for (auto it = cameras.begin(); it != cameras.end();)
@@ -174,13 +164,16 @@ void Scene::draw() const
 //Update is called after physics and before every frame
 //Multithread?
 
-//TODO: Review update / fixedUpdate / transform update order
+//TODO: Review pre update / update / post update / fixedUpdate / transform update order
+//TODO: Add fixedUpdate
 //If I scale a object and recolor during an update, will both effects be visible at the next draw?
 //Answers: For now no! The color change will be visible but not the scale since the transform update
 //is done before update.
 void Scene::update(float deltaTime)
 {
-    //FixedUpdate
+    //Pre Update
+    for (auto it = sceneObjects.begin(); it != sceneObjects.end();)
+        (*(it++))->preUpdate(deltaTime);
 
     //Physics Update
     physics2d.update(deltaTime);
@@ -188,4 +181,8 @@ void Scene::update(float deltaTime)
     //Update
     for (auto it = sceneObjects.begin(); it != sceneObjects.end();)
         (*(it++))->update(deltaTime);
+
+    //Post Update
+    for (auto it = sceneObjects.begin(); it != sceneObjects.end();)
+        (*(it++))->postUpdate(deltaTime);
 }
