@@ -41,8 +41,6 @@ private slots:
         auto currentTime = std::chrono::high_resolution_clock::now();
         float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastTickTime).count() / 1000000.f;
         lastTickTime = currentTime;
-
-        std::cout << "deltaTime = " << deltaTime << std::endl;
         emit timeout(deltaTime);
     }
 
