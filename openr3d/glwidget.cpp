@@ -1,6 +1,6 @@
 #include "glwidget.h"
 
-GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
+GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     : QOpenGLWidget(parent)
 {
 
@@ -25,7 +25,7 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
     //Used to request a debug context with extra debugging information.
     format.setOption(QSurfaceFormat::DebugContext, false);
 
-    //Set the preferred number of samples per pixel when multisampling is enabled
+    //Set the preferred number of samples per pixel when multisampliQng is enabled
     format.setSamples(4);
 
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
@@ -33,8 +33,8 @@ GLWidget::GLWidget(int framesPerSecond, QWidget *parent)
 
     this->setFormat(format);
 
-    QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()));
-    this->timer.start(1000/framesPerSecond);
+    QObject::connect(&timer, SIGNAL(timeout(float)), this, SLOT(update(float)));
+    this->timer.start(framesPerSecond);
 }
 
 void GLWidget::initializeGL()
@@ -81,11 +81,10 @@ void GLWidget::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
-void GLWidget::timeOutSlot()
+void GLWidget::update(float deltaTime)
 {
     //Update scene (including matrices, positions, physics etc)
-    //TODO: Send time between frames
-    this->scene->update(1.0f/60.0f);
+    this->scene->update(deltaTime);
 
     //Trigger a repaint (paintGL)
     this->QOpenGLWidget::update();

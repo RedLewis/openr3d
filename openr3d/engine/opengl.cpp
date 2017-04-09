@@ -42,11 +42,11 @@ void GL::printInfo()
     else
         std::cout << "GLSL Version:\tNA" << std::endl;
 
-    glstr = this->glGetString(GL_EXTENSIONS);
+    /*glstr = this->glGetString(GL_EXTENSIONS);
     if (glstr != NULL)
         std::cout << "OpenGL Extensions:\t" << glstr << std::endl;
     else
-        std::cout << "OpenGL Extensions:\tNA" << std::endl;
+        std::cout << "OpenGL Extensions:\tNA" << std::endl;*/
 }
 
 void GL::configure()

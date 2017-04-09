@@ -4,7 +4,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLContext>
 #include <QKeyEvent>
-#include <QTimer>
+#include "timer.hpp"
 #include "opengl.h"
 #include "scene.h"
 
@@ -13,18 +13,18 @@ class GLWidget : public QOpenGLWidget
     Q_OBJECT
 
 private:
-    QTimer timer;
+    Timer timer;
     Scene *scene;
 
 public:
-    explicit GLWidget(int framesPerSecond = 0, QWidget *parent = 0);
+    explicit GLWidget(float framesPerSecond = 0, QWidget *parent = 0);
     void initializeGL();
     void resizeGL(int width, int height);
     void paintGL();
     void keyPressEvent(QKeyEvent *keyEvent);
 
 public slots:
-    virtual void timeOutSlot();
+    virtual void update(float deltaTime);
 
 private:
     void printContextInformationGL();

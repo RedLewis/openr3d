@@ -104,7 +104,8 @@ HEADERS  += \
     engine/texture.h \
     engine/transform.h \
     engine/utilities.h \
-    engine/vector2.h
+    engine/vector2.h \
+    timer.hpp
 
 FORMS    += mainwindow.ui
 
