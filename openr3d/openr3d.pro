@@ -25,90 +25,91 @@ win32 {
 TARGET = openr3d
 TEMPLATE = app
 
-INCLUDEPATH += SSESIMD/
+INCLUDEPATH += engine \
+            engine/SSESIMD/
 
 SOURCES += main.cpp \
     mainwindow.cpp \
     glwidget.cpp \
-    asset.cpp \
-    camera.cpp \
-    color.cpp \
-    component.cpp \
-    light.cpp \
-    lighting.cpp \
-    matrix4.cpp \
-    mesh.cpp \
-    meshrenderer.cpp \
-    opengl.cpp \
-    scene.cpp \
-    sceneobject.cpp \
-    shaderprogram.cpp \
-    texture.cpp \
-    transform.cpp \
-    screen.cpp \
-    rectangle.cpp \
-    collider.cpp \
-    boxcollider2d.cpp \
-    circlecollider2d.cpp \
-    polygoncollider2d.cpp \
-    edgecollider2d.cpp \
-    physics2d.cpp \
-    collider2d.cpp \
-    polygon.cpp \
-    box2dUtilities/b2Polygon.cpp \
-    box2dUtilities/b2Triangle.cpp \
-    SSESIMD/vector3.cpp \
-    SSESIMD/vector4.cpp \
-    color32.cpp \
-    renderer.cpp \
-    spriterenderer.cpp \
-    utilities.cpp \
-    vector2.cpp
+    engine/box2dUtilities/b2Polygon.cpp \
+    engine/box2dUtilities/b2Triangle.cpp \
+    engine/SSESIMD/vector3.cpp \
+    engine/SSESIMD/vector4.cpp \
+    engine/asset.cpp \
+    engine/boxcollider2d.cpp \
+    engine/camera.cpp \
+    engine/circlecollider2d.cpp \
+    engine/collider.cpp \
+    engine/collider2d.cpp \
+    engine/color.cpp \
+    engine/color32.cpp \
+    engine/component.cpp \
+    engine/edgecollider2d.cpp \
+    engine/light.cpp \
+    engine/lighting.cpp \
+    engine/matrix4.cpp \
+    engine/mesh.cpp \
+    engine/meshrenderer.cpp \
+    engine/opengl.cpp \
+    engine/physics2d.cpp \
+    engine/polygon.cpp \
+    engine/polygoncollider2d.cpp \
+    engine/rectangle.cpp \
+    engine/renderer.cpp \
+    engine/scene.cpp \
+    engine/sceneobject.cpp \
+    engine/screen.cpp \
+    engine/shaderprogram.cpp \
+    engine/spriterenderer.cpp \
+    engine/texture.cpp \
+    engine/transform.cpp \
+    engine/utilities.cpp \
+    engine/vector2.cpp
 
 HEADERS  += \
     mainwindow.h \
     glwidget.h \
-    asset.h \
-    camera.h \
-    color.h \
-    component.h \
-    light.h \
-    lighting.h \
-    mathtest.h \
-    matrix4.h \
-    mesh.h \
-    meshrenderer.h \
-    opengl.h \
-    scene.h \
-    sceneobject.h \
-    shaderprogram.h \
-    texture.h \
-    transform.h \
-    screen.h \
-    rectangle.h \
-    collider.h \
-    boxcollider2d.h \
-    circlecollider2d.h \
-    polygoncollider2d.h \
-    edgecollider2d.h \
-    physics2d.h \
-    collider2d.h \
-    polygon.h \
-    box2dUtilities/b2Polygon.h \
-    box2dUtilities/b2Triangle.h \
-    SSESIMD/aligned.h \
-    SSESIMD/vector3.h \
-    SSESIMD/vector4.h \
-    color32.h \
-    renderer.h \
-    spriterenderer.h \
-    utilities.h \
-    vector2.h
+    engine/box2dUtilities/b2Polygon.h \
+    engine/box2dUtilities/b2Triangle.h \
+    engine/SSESIMD/aligned.h \
+    engine/SSESIMD/vector3.h \
+    engine/SSESIMD/vector4.h \
+    engine/asset.h \
+    engine/boxcollider2d.h \
+    engine/camera.h \
+    engine/circlecollider2d.h \
+    engine/collider.h \
+    engine/collider2d.h \
+    engine/color.h \
+    engine/color32.h \
+    engine/component.h \
+    engine/edgecollider2d.h \
+    engine/light.h \
+    engine/lighting.h \
+    engine/mathtest.h \
+    engine/matrix4.h \
+    engine/mesh.h \
+    engine/meshrenderer.h \
+    engine/opengl.h \
+    engine/physics2d.h \
+    engine/polygon.h \
+    engine/polygoncollider2d.h \
+    engine/rectangle.h \
+    engine/renderer.h \
+    engine/scene.h \
+    engine/sceneobject.h \
+    engine/screen.h \
+    engine/shaderprogram.h \
+    engine/spriterenderer.h \
+    engine/texture.h \
+    engine/transform.h \
+    engine/utilities.h \
+    engine/vector2.h
 
 FORMS    += mainwindow.ui
 
 DISTFILES += \
-    shaders/standard_fragment_shader.fsh \
-    shaders/standard_vertex_shader.vsh \
-    shaders/basic_fragment_shader.fsh \
-    shaders/basic_vertex_shader.vsh
+    engine/shaders/basic_fragment_shader.fsh \
+    engine/shaders/standard_fragment_shader.fsh \
+    engine/shaders/basic_vertex_shader.vsh \
+    engine/shaders/standard_vertex_shader.vsh

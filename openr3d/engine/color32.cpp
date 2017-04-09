@@ -19,7 +19,7 @@ void Color32::set(unsigned int hex) {
     this->a = (hex & 0x000000ff); }
 void Color32::set(const Color32& color) { this->ui32 = color.ui32; }
 
-Color32& Color32::operator=(const Color32& other) { this->ui32 = other.ui32; }
+Color32& Color32::operator=(const Color32& other) { this->ui32 = other.ui32; return *this; }
 Color32& Color32::operator=(unsigned int hex) {
     this->r = (hex & 0xff000000) >> 24;
     this->g = (hex & 0x00ff0000) >> 16;

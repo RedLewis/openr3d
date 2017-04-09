@@ -122,8 +122,8 @@ Scene::Scene(int width, int height)
     //TODO: Clean way of setting up shader
     this->activeCamera = cameraObject;
     this->activeLight = lightObject;
-    standardShader.load("../openr3d/shaders/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
-    standardShader.load("../openr3d/shaders/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
+    standardShader.load("../openr3d/engine/shaders/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
+    standardShader.load("../openr3d/engine/shaders/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
     standardShader.link();
 }
 
