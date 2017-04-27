@@ -1,4 +1,5 @@
 #include "glwidget.h"
+#include <cmath>
 
 GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     : QOpenGLWidget(parent)
@@ -88,4 +89,13 @@ void GLWidget::update(float deltaTime)
 
     //Trigger a repaint (paintGL)
     this->QOpenGLWidget::update();
+
+    //Calculate and send new FPS value
+    renderedFrames += 1;
+    timeSinceLastFrameRateUpdate += deltaTime;
+    if (timeSinceLastFrameRateUpdate > frameRateUpdateFrequency) {
+        emit frameRateUpdate(std::roundf(renderedFrames / timeSinceLastFrameRateUpdate));
+        timeSinceLastFrameRateUpdate = 0.0f;
+        renderedFrames = 0;
+    }
 }

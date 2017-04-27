@@ -8,7 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->rendererGridLayout->addWidget(new GLWidget(60, this));
+
+    //Create the GLWidget
+    GLWidget* glWidget = new GLWidget(60, this);
+    ui->rendererGridLayout->addWidget(glWidget);
+    QObject::connect(glWidget, SIGNAL(frameRateUpdate(int)),
+                     ui->ioRendererRealTimeFrameratesLcdNumber, SLOT(display(int)));
 }
 
 MainWindow::~MainWindow()

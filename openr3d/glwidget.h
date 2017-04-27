@@ -16,6 +16,10 @@ private:
     Timer timer;
     Scene *scene;
 
+    const float frameRateUpdateFrequency = 0.2f;
+    float timeSinceLastFrameRateUpdate = 0.f;
+    unsigned int renderedFrames = 0;
+
 public:
     explicit GLWidget(float framesPerSecond = 0, QWidget *parent = 0);
     void initializeGL();
@@ -25,6 +29,9 @@ public:
 
 public slots:
     virtual void update(float deltaTime);
+
+signals:
+    void frameRateUpdate(int fps);
 
 private:
     void printContextInformationGL();
