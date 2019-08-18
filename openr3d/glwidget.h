@@ -14,7 +14,7 @@ class GLWidget : public QOpenGLWidget
 
 private:
     Timer timer;
-    Scene *scene;
+    Scene *scene = nullptr;
 
     const float frameRateUpdateFrequency = 0.2f;
     float timeSinceLastFrameRateUpdate = 0.f;
@@ -22,6 +22,7 @@ private:
 
 public:
     explicit GLWidget(float framesPerSecond = 0, QWidget *parent = 0);
+    ~GLWidget();
     void initializeGL();
     void resizeGL(int width, int height);
     void paintGL();

@@ -4,7 +4,6 @@
 GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     : QOpenGLWidget(parent)
 {
-
     /*
     ** Specify Surface Format
     */
@@ -14,9 +13,12 @@ GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     //QSurfaceFormat::DefaultRenderableType	: The default unspecified rendering method
     //QSurfaceFormat::OpenGL : Desktop OpenGL rendering
     //QSurfaceFormat::OpenGLES : OpenGL ES 2.0 rendering
-    format.setRenderableType(QSurfaceFormat::OpenGLES);
-    format.setMajorVersion(2);
-    format.setMinorVersion(0);
+    //format.setRenderableType(QSurfaceFormat::OpenGLES);
+    //format.setMajorVersion(2);
+    //format.setMinorVersion(0);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setMajorVersion(3);
+    format.setMinorVersion(1);
 
     //QSurfaceFormat::CompatibilityProfile : Functionality from earlier OpenGL versions is available.
     //QSurfaceFormat::CoreProfile : Functionality deprecated in OpenGL version 3.0 is not available.
@@ -34,8 +36,14 @@ GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
 
     this->setFormat(format);
 
-    QObject::connect(&timer, SIGNAL(timeout(float)), this, SLOT(update(float)));
+    QObject::connect(&timer, SIGNAL(tick(float)), this, SLOT(update(float)));
     this->timer.start(framesPerSecond);
+}
+
+GLWidget::~GLWidget()
+{
+    if (scene != nullptr)
+        delete scene;
 }
 
 void GLWidget::initializeGL()

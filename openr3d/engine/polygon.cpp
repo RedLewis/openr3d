@@ -142,18 +142,18 @@ bool Triangulate::Process(const std::vector<Vector2> &contour,std::vector<Vector
 
 
 
-Polygon::Polygon()
+R_Polygon::R_Polygon()
     : Asset(Asset::Type::POLYGON)
 {
 }
 
-Polygon::Polygon(const std::vector<Vector2>& outerPoints)
+R_Polygon::R_Polygon(const std::vector<Vector2>& outerPoints)
     : Asset(Asset::Type::POLYGON)
 {
     load(outerPoints);
 }
 
-Polygon::~Polygon()
+R_Polygon::~R_Polygon()
 {
 }
 
@@ -183,7 +183,7 @@ bool inTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3) {
 }
 
 //TODO: Check if aligned points work && Add support for superposed points and crossing edges
-int Polygon::load(const std::vector<Vector2>& outerPoints)
+int R_Polygon::load(const std::vector<Vector2>& outerPoints)
 {
     /* Verify Data
     */
@@ -234,7 +234,7 @@ int Polygon::load(const std::vector<Vector2>& outerPoints)
     return 0;
 }
 
-void Polygon::convexDecomposition()
+void R_Polygon::convexDecomposition()
 {
     std::vector<Vector2> result;
     Triangulate::Process(outerRing, result);
@@ -251,19 +251,19 @@ void Polygon::convexDecomposition()
       }
 }
 
-std::vector<Polygon>& Polygon::substract(const Polygon& other, std::vector<Polygon>& results) const
+std::vector<R_Polygon>& R_Polygon::substract(const R_Polygon& other, std::vector<R_Polygon>& results) const
 {
     boost::geometry::difference(*this, other, results);
     return results;
 }
 
-std::vector<Polygon>& Polygon::merge(const Polygon& other, std::vector<Polygon>& results) const
+std::vector<R_Polygon>& R_Polygon::merge(const R_Polygon& other, std::vector<R_Polygon>& results) const
 {
     boost::geometry::union_(*this, other, results);
     return results;
 }
 
-std::vector<Polygon>& Polygon::intersect(const Polygon& other, std::vector<Polygon>& results) const
+std::vector<R_Polygon>& R_Polygon::intersect(const R_Polygon& other, std::vector<R_Polygon>& results) const
 {
     boost::geometry::intersection(*this, other, results);
     return results;
@@ -272,7 +272,7 @@ std::vector<Polygon>& Polygon::intersect(const Polygon& other, std::vector<Polyg
 
 #include "vector3.h"
 #include "shaderprogram.h"
-void Polygon::draw() const
+void R_Polygon::draw() const
 {
     //TODO: Polygons have no normal data therefor light must be inactive for them to be visible
     // Set Shader Settings
@@ -283,7 +283,7 @@ void Polygon::draw() const
     if (useLightIndexValue != 0)
         gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, 0);
 
-    for (const Polygon::ConvexFace& convexFace : convexFaces)
+    for (const R_Polygon::ConvexFace& convexFace : convexFaces)
         convexFace.draw();
 
     // Reset Shader Settings
@@ -291,19 +291,19 @@ void Polygon::draw() const
         gl->glUniform1i(ShaderProgram::activeShaderProgram->useLightIndex, useLightIndexValue);
 }
 
-Polygon::ConvexFace::ConvexFace() {
+R_Polygon::ConvexFace::ConvexFace() {
     //Create VBOs
     gl->glGenBuffers(1, &(this->verticesVBO));
     gl->glGenBuffers(1, &(this->textureCoordinatesVBO));
 }
 
-Polygon::ConvexFace::~ConvexFace() {
+R_Polygon::ConvexFace::~ConvexFace() {
     //Delete VBOs
     gl->glDeleteBuffers(1, &(this->verticesVBO));
     gl->glDeleteBuffers(1, &(this->textureCoordinatesVBO));
 }
 
-void Polygon::ConvexFace::update() {
+void R_Polygon::ConvexFace::update() {
     //Bind VBO as being the active buffer
     gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVBO);
     //Copy the vertex data to the active buffer
@@ -324,7 +324,7 @@ void Polygon::ConvexFace::update() {
     gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Polygon::ConvexFace::draw() const {
+void R_Polygon::ConvexFace::draw() const {
 
     //Bind VBO as being the active buffer
     gl->glBindBuffer(GL_ARRAY_BUFFER, this->verticesVBO);

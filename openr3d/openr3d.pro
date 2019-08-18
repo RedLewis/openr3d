@@ -10,16 +10,20 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++11
 
 CONFIG += link_pkgconfig
-PKGCONFIG += box2d
 
 win32 {
     LIBS += -lopengl32
+    LIBS += -LC:\Libraries\Box2D-2.3.1-32-Debug\lib -lBox2D
+    INCLUDEPATH += C:\Libraries\Box2D-2.3.1-32-Debug\include
+    INCLUDEPATH += C:\local\boost_1_70_0
+    QMAKE_CXXFLAGS += -fpermissive
 } else {
 # -march=native selects all the SSE/AVX instructions available on the processor.
 # For a Sandy Bridge processor, the flowing flags are selected:
 # -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx
     #QMAKE_CXXFLAGS += -march=native
     QMAKE_CXXFLAGS += -msse4
+    PKGCONFIG += box2d
 }
 
 TARGET = openr3d

@@ -11,14 +11,14 @@ class PolygonCollider2D : public Collider2D
 {
 
     void init();
-    std::list<Polygon*> polygons;
-    std::map<Polygon*, std::list<b2Fixture*>> polygonfixtureLists;
+    std::list<R_Polygon*> polygons;
+    std::map<R_Polygon*, std::list<b2Fixture*>> polygonfixtureLists;
 
 public:
 
     PolygonCollider2D(SceneObject *sceneObject, ColliderType type)
         : Collider2D(sceneObject, type) { init(); }
-    PolygonCollider2D(SceneObject *sceneObject, ColliderType type, Polygon* polygon)
+    PolygonCollider2D(SceneObject *sceneObject, ColliderType type, R_Polygon* polygon)
         : Collider2D(sceneObject, type), polygons(1, polygon) { init(); }
     template <typename C>
     PolygonCollider2D(SceneObject *sceneObject, ColliderType type, C& polygons)
@@ -28,14 +28,14 @@ public:
 
     void updateCollider();
 
-    std::list<Polygon*>::const_iterator addPolygon(Polygon* polygon);
-    const std::list<Polygon*>& getPolygons() const;
-    void removePolygon(std::list<Polygon*>::const_iterator polygonIterator);
-    void removePolygon(Polygon* polygon);
+    std::list<R_Polygon*>::const_iterator addPolygon(R_Polygon* polygon);
+    const std::list<R_Polygon*>& getPolygons() const;
+    void removePolygon(std::list<R_Polygon*>::const_iterator polygonIterator);
+    void removePolygon(R_Polygon* polygon);
 
 private:
 
-    void addPolygonFixtures(Polygon* polygon);
+    void addPolygonFixtures(R_Polygon* polygon);
 
 };
 

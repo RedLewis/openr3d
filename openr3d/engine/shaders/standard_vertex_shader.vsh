@@ -1,18 +1,18 @@
-uniform highp mat4 modelMatrix;
-uniform highp mat4 viewMatrix;
-uniform highp mat4 normalMatrix;
-uniform highp mat4 modelViewProjectionMatrix;
-uniform mediump vec3 lightDirection;
-uniform lowp vec3 lightColor;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 normalMatrix;
+uniform mat4 modelViewProjectionMatrix;
+uniform vec3 lightDirection;
+uniform vec3 lightColor;
 
-attribute highp vec3 in_vertex;
-attribute mediump vec3 in_normal;
-attribute highp vec2 in_textureCoordinate;
-attribute lowp vec4 in_vertexColor;
+attribute vec3 in_vertex;
+attribute vec3 in_normal;
+attribute vec2 in_textureCoordinate;
+attribute vec4 in_vertexColor;
 
-varying mediump vec3 out_normal;
-varying highp vec2 out_textureCoordinate;
-varying lowp vec4 out_vertexColor;
+varying vec3 out_normal;
+varying vec2 out_textureCoordinate;
+varying vec4 out_vertexColor;
 
 void main(void)
 {

@@ -42,7 +42,7 @@ private:
 //TODO: Inner rings not supported. If polygon substractino creates inner rings, they will be ignored.
 //TODO: Implement texture coordinates
 
-class Polygon : public Asset
+class R_Polygon : public Asset
 {
 
 public:
@@ -68,19 +68,19 @@ public:
 
     std::list<ConvexFace> convexFaces;
 
-    Polygon();
+    R_Polygon();
     //TODO: Take generic container of points
-    Polygon(const std::vector<Vector2>& outerPoints);
-    ~Polygon();
+    R_Polygon(const std::vector<Vector2>& outerPoints);
+    ~R_Polygon();
 
     //TODO: Take generic container of points
     int load(const std::vector<Vector2>& outerPoints);
     //TODO: Polygon decomposition unstable
     void convexDecomposition();
 
-    std::vector<Polygon>& substract(const Polygon& other, std::vector<Polygon>& results) const;
-    std::vector<Polygon>& merge(const Polygon& other, std::vector<Polygon>& results) const;
-    std::vector<Polygon>& intersect(const Polygon& other, std::vector<Polygon>& results) const;
+    std::vector<R_Polygon>& substract(const R_Polygon& other, std::vector<R_Polygon>& results) const;
+    std::vector<R_Polygon>& merge(const R_Polygon& other, std::vector<R_Polygon>& results) const;
+    std::vector<R_Polygon>& intersect(const R_Polygon& other, std::vector<R_Polygon>& results) const;
 
     void draw() const;
     //TODO: ability to edit inner and outer rings and use an update function to update gpu data (same as Mesh)
@@ -102,13 +102,13 @@ namespace boost {
     namespace geometry {
         namespace traits {
 
-            template<> struct tag<Polygon::Ring>
+            template<> struct tag<R_Polygon::Ring>
             { typedef ring_tag type; };
 
-            template<> struct point_order<Polygon::Ring>
+            template<> struct point_order<R_Polygon::Ring>
             { static const order_selector value = counterclockwise; };
 
-            template<> struct closure<Polygon::Ring>
+            template<> struct closure<R_Polygon::Ring>
             { static const closure_selector value = open; };
 
         }
@@ -122,24 +122,24 @@ namespace boost {
 
 namespace boost {
 
-    template <> struct range_iterator<Polygon::Ring>
+    template <> struct range_iterator<R_Polygon::Ring>
     { typedef std::vector<Vector2>::iterator type; };
 
-    template<> struct range_const_iterator<Polygon::Ring>
+    template<> struct range_const_iterator<R_Polygon::Ring>
     { typedef std::vector<Vector2>::const_iterator type; };
 
 }
 
-inline std::vector<Vector2>::iterator range_begin(Polygon::Ring& r)
+inline std::vector<Vector2>::iterator range_begin(R_Polygon::Ring& r)
 { return r.begin(); }
 
-inline std::vector<Vector2>::const_iterator range_begin(const Polygon::Ring& r)
+inline std::vector<Vector2>::const_iterator range_begin(const R_Polygon::Ring& r)
 { return r.begin(); }
 
-inline std::vector<Vector2>::iterator range_end(Polygon::Ring& r)
+inline std::vector<Vector2>::iterator range_end(R_Polygon::Ring& r)
 { return r.end(); }
 
-inline std::vector<Vector2>::const_iterator range_end(const Polygon::Ring& r)
+inline std::vector<Vector2>::const_iterator range_end(const R_Polygon::Ring& r)
 { return r.end(); }
 
 /*
@@ -150,28 +150,28 @@ namespace boost {
     namespace geometry {
         namespace traits {
 
-            template<> struct tag<Polygon>
+            template<> struct tag<R_Polygon>
             { typedef polygon_tag type; };
-            template<> struct ring_const_type<Polygon>
-            { typedef const Polygon::Ring& type; };
-            template<> struct ring_mutable_type<Polygon>
-            { typedef Polygon::Ring& type; };
-            template<> struct interior_const_type<Polygon>
-            { typedef const std::vector<Polygon::Ring>& type; };
-            template<> struct interior_mutable_type<Polygon>
-            { typedef std::vector<Polygon::Ring>& type; };
+            template<> struct ring_const_type<R_Polygon>
+            { typedef const R_Polygon::Ring& type; };
+            template<> struct ring_mutable_type<R_Polygon>
+            { typedef R_Polygon::Ring& type; };
+            template<> struct interior_const_type<R_Polygon>
+            { typedef const std::vector<R_Polygon::Ring>& type; };
+            template<> struct interior_mutable_type<R_Polygon>
+            { typedef std::vector<R_Polygon::Ring>& type; };
 
-            template<> struct exterior_ring<Polygon> {
-                static Polygon::Ring& get(Polygon& p)
+            template<> struct exterior_ring<R_Polygon> {
+                static R_Polygon::Ring& get(R_Polygon& p)
                 { return p.outerRing; }
-                static Polygon::Ring const& get(Polygon const& p)
+                static R_Polygon::Ring const& get(R_Polygon const& p)
                 { return p.outerRing; }
             };
 
-            template<> struct interior_rings<Polygon> {
-                static std::vector<Polygon::Ring>& get(Polygon& p)
+            template<> struct interior_rings<R_Polygon> {
+                static std::vector<R_Polygon::Ring>& get(R_Polygon& p)
                 { return p.innerRings; }
-                static const std::vector<Polygon::Ring>& get(Polygon const& p)
+                static const std::vector<R_Polygon::Ring>& get(R_Polygon const& p)
                 { return p.innerRings; }
             };
 

@@ -19,14 +19,14 @@ Scene::Scene(int width, int height)
     centerofrotation->name = "cameraCenter";
     SceneObject* cameraObject = new SceneObject(centerofrotation);
     cameraObject->name = "camera";
-    cameraObject->transform.setLocalPosition({0, 0, 4.0f});
-    cameraObject->transform.setLocalRotation({0, 0, 0});
+    cameraObject->transform.setLocalPosition({0, 0.0f, 3.0f});
+    cameraObject->transform.setLocalRotation({-0.15, 0, 0});
     Camera* cameraComponent = new Camera(cameraObject);
-    cameraComponent->setOrthographic(true);
-    cameraComponent->setFOV(2);
+    cameraComponent->setOrthographic(false);
+    cameraComponent->setFOV(60);
 
     //Setup Light
-    SceneObject* lightObject = new SceneObject(this);
+    SceneObject* lightObject = new SceneObject(centerofrotation); //Rotate light with camera by having the light object a child of centerofrotation
     lightObject->transform.setLocalRotation({-0.4, -0.4, 0});
     Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
     lightComponent->color = {1.0, 1.0, 1.0};
@@ -147,14 +147,15 @@ void Scene::draw() const
     //TODO Store light direction in light component
     Vector3 lightDirection(0, 0, 1);
     Matrix4 rotation;
-    rotation.makeEulerRotation(this->activeLight->transform.getLocalRotation());
+    rotation.makeEulerRotation(this->activeLight->transform.getWorldRotation());
     lightDirection = (rotation * lightDirection.toVector4(0.0f)).toVector3().normalize();
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
 
     //Draw the scene from the camera' view
-    for (auto it = cameras.begin(); it != cameras.end();)
+    for (auto it = cameras.begin(); it != cameras.end();) {
         (*(it++))->drawScene();
+    }
 
     ShaderProgram::unbind();
 }
@@ -185,4 +186,20 @@ void Scene::update(float deltaTime)
     //Post Update
     for (auto it = sceneObjects.begin(); it != sceneObjects.end();)
         (*(it++))->postUpdate(deltaTime);
+
+    //Move camera
+    SceneObject* centerofrotation = NULL;
+    for (auto it = sceneObjects.begin(); it != sceneObjects.end(); ++it) {
+        if ((*it)->name == "cameraCenter") {
+            centerofrotation = *it;
+            break;
+        }
+    }
+    if (centerofrotation != NULL) {
+        Vector3 r = centerofrotation->transform.getLocalRotation();
+        r.set(0, r.y-deltaTime/8, 0);
+        if (r.y < 2*M_PI)
+            r.y += 2*M_PI;
+        centerofrotation->transform.setLocalRotation(r);
+    }
 }

@@ -16,10 +16,10 @@ class Timer : public QObject
 
 public:
 
-    Timer(float cap = 0.f, QObject* parent = NULL) : QObject(parent) {
-        if (cap != 0.f)
-            qTimer.setInterval(std::roundf(1000.f / cap));
-        QObject::connect(&qTimer, SIGNAL(timeout()), this, SLOT(tick()));
+    Timer(float maxTicksPerSecond = 0.f, QObject* parent = NULL) : QObject(parent) {
+        if (maxTicksPerSecond != 0.f)
+            qTimer.setInterval(std::roundf(1000.f / maxTicksPerSecond));
+        QObject::connect(&qTimer, SIGNAL(timeout()), this, SLOT(processTick()));
     }
 
     void start() {
@@ -27,26 +27,26 @@ public:
         lastTickTime = std::chrono::high_resolution_clock::now();
     }
 
-    void start(float cap) {
-        if (cap == 0.f)
+    void start(float maxTicksPerSecond) {
+        if (maxTicksPerSecond == 0.f)
             qTimer.start(0);
         else
-            qTimer.start(std::roundf(1000.f / cap));
+            qTimer.start(std::roundf(1000.f / maxTicksPerSecond));
         lastTickTime = std::chrono::high_resolution_clock::now();
     }
 
 private slots:
 
-    void tick() {
+    void processTick() {
         auto currentTime = std::chrono::high_resolution_clock::now();
         float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastTickTime).count() / 1000000.f;
         lastTickTime = currentTime;
-        emit timeout(deltaTime);
+        emit tick(deltaTime);
     }
 
 signals:
 
-    void timeout(float deltaTime);
+    void tick(float deltaTime);
 
 };
 

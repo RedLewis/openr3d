@@ -28,12 +28,12 @@
 
 namespace Alignment
 {
-    enum Size : std::size_t
-    {
-        NATIVE = sizeof(void*),
-        SSE    = 16,
-        AVX    = 32
-    };
+enum Size : std::size_t
+{
+    NATIVE = sizeof(void*),
+    SSE    = 16,
+    AVX    = 32
+};
 }
 
 class BadAlignment: public std::exception
@@ -51,7 +51,7 @@ public:
             log = std::string("Memory does not meet the requiered ") + std::to_string(alignment_size) + std::string(" bytes alignment!");
     }
 
-    virtual const char* what() const throw() {
+    virtual const char* what() const noexcept {
         return log.c_str();
     }
 
@@ -61,18 +61,20 @@ template <std::size_t ALIGNMENT_SIZE>
 class alignas(ALIGNMENT_SIZE) Aligned
 {
 
-protected:
+    protected:
 
-    template<typename, std::size_t> friend class AlignedAllocator;
-    static const std::size_t alignment_size = ALIGNMENT_SIZE;
+    //template<typename, std::size_t> friend class AlignedAllocator;
 
     Aligned() {
         //std::cout << "Constructing child of Aligned<" << ALIGNMENT_SIZE << ">" << std::endl;
-        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0)
+        if ((reinterpret_cast<std::size_t>(this) % alignment_size) != 0) {
             throw BadAlignment(alignment_size);
+        }
     }
 
-public:
+    public:
+
+    static const std::size_t alignment_size = ALIGNMENT_SIZE;
 
     void* operator new (std::size_t size) {
         //std::cout << "Allocating " << size << " bytes with alignment " << ALIGNMENT_SIZE << std::endl;

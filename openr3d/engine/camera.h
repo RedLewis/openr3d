@@ -13,7 +13,7 @@ private:
 
     bool orthographic = false;
     // ViewPort controls
-    Rectangle viewport;
+    R_Rectangle viewport;
     // Projection controls
     Matrix4 p;          // Perspective Projection Matrix
     float fov;          // Field of View Angle

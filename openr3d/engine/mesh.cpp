@@ -30,18 +30,18 @@ Mesh::~Mesh()
 int Mesh::load(const std::string& fileName)
 {
     std::vector<Face> tmpFaces;
-    std::vector<Vector3> tmpVertices;
-    std::vector<Vector3> tmpNormals;
-    std::vector<Vector3> tmpTextureCoordinates;
+    std::vector<Vector3, AlignedAllocator<Vector3>> tmpVertices;
+    std::vector<Vector3, AlignedAllocator<Vector3>> tmpNormals;
+    std::vector<Vector3, AlignedAllocator<Vector3>> tmpTextureCoordinates;
 
 
     /* Parse File into tmp data
     */
     {
         std::list<Face> faceList;
-        std::list<Vector3> vertexList;
-        std::list<Vector3> normalList;
-        std::list<Vector3> textureCoordinateList;
+        std::list<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> vertexList;
+        std::list<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> normalList;
+        std::list<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> textureCoordinateList;
 
         //Open file
         std::ifstream file(fileName);
@@ -272,9 +272,9 @@ int Mesh::load(const std::string& fileName)
 }
 
 void Mesh::update() {
-    std::vector<Vector3> tmpVerticesBuffer;
-    std::vector<Vector3> tmpNormalsBuffer;
-    std::vector<Vector3> tmpTextureCoordinatesBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3>> tmpVerticesBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3>> tmpNormalsBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3>> tmpTextureCoordinatesBuffer;
 
     if (this->vertices.size() > 0)
         tmpVerticesBuffer.reserve(this->faces.size() * 3);

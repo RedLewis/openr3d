@@ -1,8 +1,7 @@
 #ifndef RECTANGLE_H
 #define RECTANGLE_H
 
-
-class Rectangle
+class R_Rectangle
 {
 public:
     float x;
@@ -10,14 +9,14 @@ public:
     float w;
     float h;
 
-    Rectangle();
-    Rectangle(float x, float y, float w, float h);
-    Rectangle(const Rectangle& rectangle);
+    R_Rectangle();
+    R_Rectangle(float x, float y, float w, float h);
+    R_Rectangle(const R_Rectangle& rectangle);
 
     void set(float x, float y, float w, float h);
-    void set(const Rectangle& rectangle);
+    void set(const R_Rectangle& rectangle);
 
-    Rectangle& operator=(const Rectangle& rectangle);
+    R_Rectangle& operator=(const R_Rectangle& rectangle);
 
 };
 

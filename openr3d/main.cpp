@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include "aligned.h"
+#include "vector3.h"
 
 int main(int argc, char *argv[])
 {

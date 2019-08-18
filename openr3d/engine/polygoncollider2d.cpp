@@ -44,7 +44,7 @@ void PolygonCollider2D::updateCollider()
 
 
     //TOREMOVE (and keep the block above): delete all fixtures that are in map (avoid deleting manually added fixtures)
-    for (std::pair<Polygon*, std::list<b2Fixture*>> polygonFixtures: polygonfixtureLists) {
+    for (std::pair<R_Polygon*, std::list<b2Fixture*>> polygonFixtures: polygonfixtureLists) {
         for (b2Fixture* polygonFixture : polygonFixtures.second) {
             b2Fixture* fixture = body->GetFixtureList();
             b2Fixture* nextFixture;
@@ -65,12 +65,12 @@ void PolygonCollider2D::updateCollider()
 
 
     //Create new fixtures
-    for (Polygon* polygon : polygons) {
+    for (R_Polygon* polygon : polygons) {
         addPolygonFixtures(polygon);
     }
 }
 
-void PolygonCollider2D::addPolygonFixtures(Polygon* polygon)
+void PolygonCollider2D::addPolygonFixtures(R_Polygon* polygon)
 {
     //Create new fixtures
     std::list<b2Fixture*>& polygonfixtureList = polygonfixtureLists[polygon];
@@ -100,7 +100,7 @@ void PolygonCollider2D::addPolygonFixtures(Polygon* polygon)
         //This code replaces the classic polygon convex decomposition method that must be called after having updated the polygon
         {
             polygon->convexFaces.emplace_back();
-            Polygon::ConvexFace& convexFace = polygon->convexFaces.back();
+            R_Polygon::ConvexFace& convexFace = polygon->convexFaces.back();
             convexFace.resize(convexShapes[i].nVertices);
             for (int j = 0; j < convexShapes[i].nVertices; ++j) {
                 convexFace[j].x = convexShapes[i].x[j] / (this->sceneObject->transform.getWorldScale().x * BOX2DSCALE);
@@ -125,19 +125,19 @@ void PolygonCollider2D::addPolygonFixtures(Polygon* polygon)
     }
 }
 
-std::list<Polygon*>::const_iterator PolygonCollider2D::addPolygon(Polygon* polygon)
+std::list<R_Polygon*>::const_iterator PolygonCollider2D::addPolygon(R_Polygon* polygon)
 {
     auto polygonIt = polygons.insert(polygons.end(), polygon);
     addPolygonFixtures(polygon);
     return polygonIt;
 }
 
-const std::list<Polygon*>& PolygonCollider2D::getPolygons() const
+const std::list<R_Polygon*>& PolygonCollider2D::getPolygons() const
 {
     return polygons;
 }
 
-void PolygonCollider2D::removePolygon(std::list<Polygon*>::const_iterator polygonIterator)
+void PolygonCollider2D::removePolygon(std::list<R_Polygon*>::const_iterator polygonIterator)
 {
     auto polygonfixtureListIterator = polygonfixtureLists.find(*polygonIterator);
     for (b2Fixture* fixture : polygonfixtureListIterator->second)
@@ -146,7 +146,7 @@ void PolygonCollider2D::removePolygon(std::list<Polygon*>::const_iterator polygo
     polygons.erase(polygonIterator);
 }
 
-void PolygonCollider2D::removePolygon(Polygon* polygon)
+void PolygonCollider2D::removePolygon(R_Polygon* polygon)
 {
     auto polygonfixtureListIterator = polygonfixtureLists.find(polygon);
     for (b2Fixture* fixture : polygonfixtureListIterator->second)

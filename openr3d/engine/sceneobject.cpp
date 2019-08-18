@@ -47,7 +47,7 @@ void SceneObject::update(float deltaTime)
 
     //Apply Animation
 
-    //Apply Physics last because the physics engine need to be notified of changes in transform
+    //Apply Physics last because the physics engine needs to be notified of changes in transform
     auto it = components.find(Component::COLLIDER);
     if (it != components.end()) {
         static_cast<Collider*>(it->second)->physicsUpdate(deltaTime);

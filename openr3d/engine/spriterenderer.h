@@ -9,7 +9,7 @@ class SpriteRenderer : public Renderer {
 
 public:
 
-    Polygon* polygon = NULL;
+    R_Polygon* polygon = NULL;
     Texture* texture = NULL;
 
     SpriteRenderer(SceneObject* sceneObject);
