@@ -15,18 +15,31 @@ class GLWidget : public QOpenGLWidget
 private:
     Timer timer;
     Scene *scene = nullptr;
+    SceneObject* controlledCameraPtr = nullptr;
 
     const float frameRateUpdateFrequency = 0.2f;
     float timeSinceLastFrameRateUpdate = 0.f;
     unsigned int renderedFrames = 0;
 
+    //Camera ctrl variables
+    bool controlCamera = false;
+    int cameraMouseDeltaX = 0;
+    int cameraMouseDeltaY = 0;
+    bool cameraMoveForward = false;
+    bool cameraMoveBackward = false;
+    bool cameraMoveLeft = false;
+    bool cameraMoveRight = false;
+
 public:
     explicit GLWidget(float framesPerSecond = 0, QWidget *parent = 0);
-    ~GLWidget();
-    void initializeGL();
-    void resizeGL(int width, int height);
-    void paintGL();
-    void keyPressEvent(QKeyEvent *keyEvent);
+    ~GLWidget() override;
+    void initializeGL() override;
+    void resizeGL(int width, int height) override;
+    void paintGL() override;
+    void keyPressEvent(QKeyEvent *keyEvent) override;
+    void keyReleaseEvent(QKeyEvent *keyEvent) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 public slots:
     virtual void update(float deltaTime);
@@ -36,6 +49,7 @@ signals:
 
 private:
     void printContextInformationGL();
+    void setupScene();
 
 };
 

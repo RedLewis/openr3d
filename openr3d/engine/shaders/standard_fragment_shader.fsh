@@ -5,22 +5,22 @@ uniform int useVertexColor;
 uniform int useLight;
 uniform int useLightTwoSide;
 
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 normalMatrix;
-uniform mat4 modelViewProjectionMatrix;
-uniform vec3 lightDirection;
-uniform vec3 lightColor;
+uniform highp mat4 modelMatrix;
+uniform highp mat4 viewMatrix;
+uniform highp mat4 normalMatrix;
+uniform highp mat4 modelViewProjectionMatrix;
+uniform highp vec3 lightDirection;
+uniform highp vec3 lightColor;
 
-varying vec3 out_normal;
-varying vec2 out_textureCoordinate;
-varying vec4 out_vertexColor;
+varying highp vec3 out_normal;
+varying highp vec2 out_textureCoordinate;
+varying highp vec4 out_vertexColor;
 
 void main(void)
 {
     //Calculate light hitting the texel
     if (useLight != 0) {
-        float lightIntensity;
+        highp float lightIntensity;
         if (useLightTwoSide != 0 && gl_FrontFacing == false)
             lightIntensity = max(dot(lightDirection, out_normal), 0.0);
           else

@@ -12,119 +12,11 @@
 Scene::Scene(int width, int height)
     : screen(width, height)
 {
-    //TODO: Functionalize this process (the creation linking of the sceneObject and the component)
+    //TODO: Use more than the standard shader
+    this->standardShader.load("../openr3d/engine/shaders/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
+    this->standardShader.load("../openr3d/engine/shaders/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
+    this->standardShader.link();
 
-    //Setup Camera
-    SceneObject* centerofrotation = new SceneObject(this);
-    centerofrotation->name = "cameraCenter";
-    SceneObject* cameraObject = new SceneObject(centerofrotation);
-    cameraObject->name = "camera";
-    cameraObject->transform.setLocalPosition({0, 0.0f, 3.0f});
-    cameraObject->transform.setLocalRotation({-0.15, 0, 0});
-    Camera* cameraComponent = new Camera(cameraObject);
-    cameraComponent->setOrthographic(false);
-    cameraComponent->setFOV(60);
-
-    //Setup Light
-    SceneObject* lightObject = new SceneObject(centerofrotation); //Rotate light with camera by having the light object a child of centerofrotation
-    lightObject->transform.setLocalRotation({-0.4, -0.4, 0});
-    Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
-    lightComponent->color = {1.0, 1.0, 1.0};
-
-    Mesh* mesh1 = new Mesh("../assets/sphere.obj");
-    Mesh* mesh2 = new Mesh("../assets/cube.obj");
-    Texture* texture1 = new Texture("../assets/texture.ppm");
-    Texture* texture2 = new Texture("../assets/earth.ppm");
-    this->assets.push_back(mesh1);
-    this->assets.push_back(mesh2);
-    this->assets.push_back(texture1);
-    this->assets.push_back(texture2);
-
-    {
-
-        SceneObject* parent = new SceneObject(this);
-        parent->name = "scale";
-        parent->transform.setLocalPosition({0.0f, 0.5f, 0.0f});
-        parent->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-        parent->transform.setLocalRotation({0.0f, 0.0f, 0.25f});
-        MeshRenderer* parentMeshRenderer = new MeshRenderer(parent);
-        parentMeshRenderer->mesh = mesh2;
-        parentMeshRenderer->texture = texture2;
-        new BoxCollider2D(parent, Collider::DYNAMIC);
-
-        {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({0.425f, 0.425f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            cube->transform.setLocalRotation({0.0f, 0.0f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
-
-            /*SceneObject* cubeWorld = new SceneObject(this);
-            cubeWorld->transform.setWorldPosition(cube->transform.getWorldPosition());
-            cubeWorld->transform.setWorldScale(cube->transform.getWorldScale());
-            MeshRenderer* cubeWorldMeshRenderer = new MeshRenderer(cubeWorld);
-            cubeWorldMeshRenderer->mesh = mesh2;
-            cubeWorldMeshRenderer->texture = texture1;*/
-        }
-        {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({0.400f, -0.400f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
-
-        }
-        {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({-0.400f, 0.425f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
-        }
-        {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({-0.425f, -0.400f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
-        }
-    }
-    {
-        SceneObject* terrain = new SceneObject(this);
-        terrain->name = "terrain";
-        terrain->transform.setLocalScale({3.0f, 1.0f, 1.0f});
-        terrain->transform.setLocalPosition({0.0f, -1.25f, 0.0f});
-        MeshRenderer* terrainMeshRenderer = new MeshRenderer(terrain);
-        terrainMeshRenderer->mesh = mesh2;
-        terrainMeshRenderer->texture = texture1;
-        new BoxCollider2D(terrain, Collider::STATIC);
-    }
-    {
-        SceneObject* sphere = new SceneObject(this);
-        sphere->name = "sphere";
-        sphere->transform.setLocalScale({1.0f, 1.0f, 1.0f});
-        sphere->transform.setLocalPosition({1.0f, -0.25f, 0.0f});
-        MeshRenderer* sphereMeshRenderer = new MeshRenderer(sphere);
-        sphereMeshRenderer->mesh = mesh1;
-        sphereMeshRenderer->texture = texture2;
-        new CircleCollider2D(sphere, Collider::STATIC);
-    }
-
-    //TODO: Clean way of setting up shader
-    this->activeCamera = cameraObject;
-    this->activeLight = lightObject;
-    standardShader.load("../openr3d/engine/shaders/standard_vertex_shader.vsh", ShaderProgram::VERTEX);
-    standardShader.load("../openr3d/engine/shaders/standard_fragment_shader.fsh", ShaderProgram::FRAGMENT);
-    standardShader.link();
 }
 
 Scene::~Scene() {
@@ -186,20 +78,4 @@ void Scene::update(float deltaTime)
     //Post Update
     for (auto it = sceneObjects.begin(); it != sceneObjects.end();)
         (*(it++))->postUpdate(deltaTime);
-
-    //Move camera
-    SceneObject* centerofrotation = NULL;
-    for (auto it = sceneObjects.begin(); it != sceneObjects.end(); ++it) {
-        if ((*it)->name == "cameraCenter") {
-            centerofrotation = *it;
-            break;
-        }
-    }
-    if (centerofrotation != NULL) {
-        Vector3 r = centerofrotation->transform.getLocalRotation();
-        r.set(0, r.y-deltaTime/8, 0);
-        if (r.y < 2*M_PI)
-            r.y += 2*M_PI;
-        centerofrotation->transform.setLocalRotation(r);
-    }
 }

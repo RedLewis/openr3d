@@ -12,6 +12,7 @@ class Timer : public QObject
     Q_OBJECT
 
     QTimer qTimer;
+    float lastDeltaTime = 0;
     std::chrono::high_resolution_clock::time_point lastTickTime;
 
 public:
@@ -35,13 +36,17 @@ public:
         lastTickTime = std::chrono::high_resolution_clock::now();
     }
 
+    float getLastDeltaTime() const {
+        return lastDeltaTime;
+    }
+
 private slots:
 
     void processTick() {
         auto currentTime = std::chrono::high_resolution_clock::now();
-        float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastTickTime).count() / 1000000.f;
+        lastDeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastTickTime).count() / 1000000.f;
         lastTickTime = currentTime;
-        emit tick(deltaTime);
+        emit tick(lastDeltaTime);
     }
 
 signals:
