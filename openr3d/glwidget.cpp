@@ -10,7 +10,7 @@
 #include "polygoncollider2d.h"
 #include "edgecollider2d.h"
 
-void GLWidget::setupScene() {
+void GLWidget::createScene() {
     this->scene = new Scene(this->width(), this->height());
 
     //TODO: Functionalize this process (the creation linking of the sceneObject and the component)
@@ -26,7 +26,7 @@ void GLWidget::setupScene() {
 
     //Setup Light
     SceneObject* lightObject = new SceneObject(scene); //Rotate light with camera by having the light object a child of centerofrotation
-    lightObject->transform.setLocalRotation({-0.4, -0.4, 0});
+    lightObject->transform.setLocalRotation({-0.4f, -0.4f, 0});
     Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
     lightComponent->color = {1.0, 1.0, 1.0};
 
@@ -115,6 +115,15 @@ void GLWidget::setupScene() {
     scene->activeLight = lightObject;
 
     this->controlledCameraPtr = scene->activeCamera;
+
+    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>> SCENE CREATED <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+}
+
+void GLWidget::deleteScene() {
+    delete scene;
+    controlledCameraPtr = nullptr;
+    scene = nullptr;
+    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>> SCENE DELETED <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 }
 
 GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
@@ -158,8 +167,8 @@ GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
 
 GLWidget::~GLWidget()
 {
-    if (scene != nullptr)
-        delete scene;
+    if (scene)
+        deleteScene();
 }
 
 void GLWidget::initializeGL()
@@ -175,22 +184,34 @@ void GLWidget::initializeGL()
     gl->printInfo();
     gl->configure();
 
-    this->setupScene();
+    this->createScene();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-    scene->screen.width = width;
-    scene->screen.height = height;
+    if (scene) {
+        scene->screen.width = width;
+        scene->screen.height = height;
+    }
 }
 
 void GLWidget::paintGL()
 {
+    //The scene cannot be created or destroyed outside the render thread (initializeGL, resizeGL and paintGL) as the OpenGL context and version might differ or not be present
+    //Therefore we destroy and rebuilt the scene in paintGL.
+    if (resetScene) {
+        resetScene = false;
+        if (scene)
+            deleteScene();
+        createScene();
+    }
+
     //Clear off-screen buffer
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //Draw Scene
-    this->scene->draw();
+    if (this->scene)
+        this->scene->draw();
 
     //Swap off-screen buffer with on-screen buffer
     //...
@@ -202,6 +223,9 @@ void GLWidget::keyPressEvent(QKeyEvent *keyEvent)
 {
     switch(keyEvent->key())
     {
+        case Qt::Key_R:
+            resetScene = true;
+            break;
         case Qt::Key_W:
             if (controlCamera) cameraMoveForward = true;
             break;
@@ -222,16 +246,16 @@ void GLWidget::keyReleaseEvent(QKeyEvent *keyEvent)
     switch(keyEvent->key())
     {
         case Qt::Key_W:
-            cameraMoveForward = false;
+            if (controlCamera) cameraMoveForward = false;
             break;
         case Qt::Key_A:
-            cameraMoveLeft = false;
+            if (controlCamera) cameraMoveLeft = false;
             break;
         case Qt::Key_S:
-            cameraMoveBackward = false;
+            if (controlCamera) cameraMoveBackward = false;
             break;
         case Qt::Key_D:
-            cameraMoveRight = false;
+            if (controlCamera) cameraMoveRight = false;
             break;
     }
 }
@@ -264,16 +288,19 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
                 this->setCursor(cursor);
             }
             break;
+        default:
+            break;
     }
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (controlCamera) {
+        //Record mouse movement delta to use for camera rotation
         QPoint widgetCenter(this->width()/2, this->height()/2);
         int newCameraMouseDeltaX = event->x() - widgetCenter.x();
         int newCameraMouseDeltaY = event->y() - widgetCenter.y();
-        //If mouse events are faster than GLWidget::update, make sure the largest mouse mouvement is taken into account
+        //If mouse events are faster than GLWidget::update, the largest mouse mouvement is taken into account
         if (fabs(newCameraMouseDeltaX) > fabs(cameraMouseDeltaX))
             cameraMouseDeltaX = newCameraMouseDeltaX;
         if (fabs(newCameraMouseDeltaY) > fabs(cameraMouseDeltaY))
@@ -287,56 +314,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::update(float deltaTime)
 {
-    if (controlledCameraPtr && controlCamera) {
-        //Move camera
-        {
-            float distance = 3.f * deltaTime;
-            if (cameraMoveForward) {
-                Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(0, 0, -1) * distance;
-                controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
-            }
-            if (cameraMoveBackward) {
-                Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(0, 0, 1) * distance;
-                controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
-            }
-            if (cameraMoveLeft) {
-                Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(-1, 0, 0) * distance;
-                controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
-            }
-            if (cameraMoveRight) {
-                Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(1, 0, 0) * distance;
-                controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
-            }
-        }
-        //Rotate camera
-        {
-            Vector3 rotationVector = controlledCameraPtr->transform.getWorldRotation();
-            float rotationSpeed = 0.3f * deltaTime;
-            //Rotate around y axis (left and right)
-            rotationVector.y -= rotationSpeed * cameraMouseDeltaX;
-            if (rotationVector.y < 0.f)
-                rotationVector.y += 2.f*M_PI;
-            if (rotationVector.y >= 2.f*M_PI)
-                rotationVector.y -= 2.f*M_PI;
-            //Rotate around x axis (up and down)
-            rotationVector.x = wrapFloat(rotationVector.x, -M_PI, M_PI); //Wrap rotationVector.x to the range of -M_PI to M_PI (for example the range of 0 to 2*M_PI)
-            float limitDowm = -M_PI/2.f + 0.2f;
-            float limitUp = M_PI/2.f - 0.2f;
-            rotationVector.x -= rotationSpeed * cameraMouseDeltaY;
-            if (rotationVector.x < limitDowm)
-                rotationVector.x = limitDowm;
-            if (rotationVector.x > limitUp)
-                rotationVector.x = limitUp;
-            //Apply rotation
-            controlledCameraPtr->transform.setWorldRotation(rotationVector);
-            //Clear camera mouse deltas
-            cameraMouseDeltaX = 0;
-            cameraMouseDeltaY = 0;
-        }
-    }
+    //Update camera position based on user input
+    if (controlCamera)
+        moveCamera(deltaTime);
 
     //Update scene (including matrices, positions, physics etc)
-    this->scene->update(deltaTime);
+    if (this->scene)
+        this->scene->update(deltaTime);
 
     //Trigger a repaint (paintGL)
     this->QOpenGLWidget::update();
@@ -348,5 +332,57 @@ void GLWidget::update(float deltaTime)
         emit frameRateUpdate(std::roundf(renderedFrames / timeSinceLastFrameRateUpdate));
         timeSinceLastFrameRateUpdate = 0.0f;
         renderedFrames = 0;
+    }
+}
+
+void GLWidget::moveCamera(float deltaTime)
+{
+    if (!controlledCameraPtr)
+        return;
+
+    //Translate camera
+    {
+        float distance = 3.f * deltaTime;
+        if (cameraMoveForward) {
+            Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(0, 0, -1) * distance;
+            controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
+        }
+        if (cameraMoveBackward) {
+            Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(0, 0, 1) * distance;
+            controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
+        }
+        if (cameraMoveLeft) {
+            Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(-1, 0, 0) * distance;
+            controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
+        }
+        if (cameraMoveRight) {
+            Vector3 forwardVector = controlledCameraPtr->transform.getLocalToWorldMatrix() * Vector3(1, 0, 0) * distance;
+            controlledCameraPtr->transform.setWorldPosition(controlledCameraPtr->transform.getWorldPosition() + forwardVector);
+        }
+    }
+    //Rotate camera
+    {
+        Vector3 rotationVector = controlledCameraPtr->transform.getWorldRotation();
+        float rotationSpeed = 0.3f * deltaTime;
+        //Rotate around y axis (left and right)
+        rotationVector.y -= rotationSpeed * cameraMouseDeltaX;
+        if (rotationVector.y < 0.f)
+            rotationVector.y += 2.f*M_PI;
+        if (rotationVector.y >= 2.f*M_PI)
+            rotationVector.y -= 2.f*M_PI;
+        //Rotate around x axis (up and down)
+        rotationVector.x = wrapFloat(rotationVector.x, -M_PI, M_PI); //Wrap rotationVector.x to the range of -M_PI to M_PI (for example the range of 0 to 2*M_PI)
+        float limitDowm = -M_PI/2.f + 0.2f;
+        float limitUp = M_PI/2.f - 0.2f;
+        rotationVector.x -= rotationSpeed * cameraMouseDeltaY;
+        if (rotationVector.x < limitDowm)
+            rotationVector.x = limitDowm;
+        if (rotationVector.x > limitUp)
+            rotationVector.x = limitUp;
+        //Apply rotation
+        controlledCameraPtr->transform.setWorldRotation(rotationVector);
+        //Clear camera mouse deltas
+        cameraMouseDeltaX = 0;
+        cameraMouseDeltaY = 0;
     }
 }

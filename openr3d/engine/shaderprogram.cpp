@@ -12,12 +12,15 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram()
 {
+    if (activeShaderProgram == this) {
+        unbind();
+    }
+    if (this->program != 0)
+        gl->glDeleteProgram(this->program);
     for (auto shader : this->shaders) {
         if (shader != 0)
             gl->glDeleteShader(shader);
     }
-    if (this->program != 0)
-        gl->glDeleteProgram(this->program);
 }
 
 int ShaderProgram::load(std::string shaderFileName, ShaderType type)

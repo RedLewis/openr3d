@@ -15,13 +15,14 @@ class GLWidget : public QOpenGLWidget
 private:
     Timer timer;
     Scene *scene = nullptr;
-    SceneObject* controlledCameraPtr = nullptr;
 
     const float frameRateUpdateFrequency = 0.2f;
     float timeSinceLastFrameRateUpdate = 0.f;
     unsigned int renderedFrames = 0;
+    bool resetScene = false;
 
     //Camera ctrl variables
+    SceneObject* controlledCameraPtr = nullptr;
     bool controlCamera = false;
     int cameraMouseDeltaX = 0;
     int cameraMouseDeltaY = 0;
@@ -49,7 +50,9 @@ signals:
 
 private:
     void printContextInformationGL();
-    void setupScene();
+    void createScene();
+    void deleteScene();
+    void moveCamera(float deltaTime);
 
 };
 
