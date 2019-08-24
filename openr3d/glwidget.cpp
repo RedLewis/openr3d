@@ -138,18 +138,18 @@ GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     //QSurfaceFormat::DefaultRenderableType	: The default unspecified rendering method
     //QSurfaceFormat::OpenGL : Desktop OpenGL rendering
     //QSurfaceFormat::OpenGLES : OpenGL ES 2.0 rendering
-    format.setRenderableType(QSurfaceFormat::OpenGLES);
-    format.setMajorVersion(2);
-    format.setMinorVersion(0);
-    //format.setRenderableType(QSurfaceFormat::OpenGL);
-    //format.setMajorVersion(3);
-    //format.setMinorVersion(1);
+    //format.setRenderableType(QSurfaceFormat::OpenGLES);
+    //format.setMajorVersion(2);
+    //format.setMinorVersion(0);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setMajorVersion(4);
+    format.setMinorVersion(5);
 
     //QSurfaceFormat::CompatibilityProfile : Functionality from earlier OpenGL versions is available.
     //QSurfaceFormat::CoreProfile : Functionality deprecated in OpenGL version 3.0 is not available.
     format.setProfile(QSurfaceFormat::CoreProfile);
     //Used to request that deprecated functions be included in the OpenGL context profile. If not specified, you should get a forward compatible context without support functionality marked as deprecated. This requires OpenGL version 3.0 or higher.
-    format.setOption(QSurfaceFormat::DeprecatedFunctions, true);
+    format.setOption(QSurfaceFormat::DeprecatedFunctions, false);
     //Used to request a debug context with extra debugging information.
     format.setOption(QSurfaceFormat::DebugContext, false);
 
@@ -169,6 +169,7 @@ GLWidget::~GLWidget()
 {
     if (scene)
         deleteScene();
+    GL::destruct();
 }
 
 void GLWidget::initializeGL()
@@ -177,12 +178,12 @@ void GLWidget::initializeGL()
     ** OpenGL rendering context is made current when paintGL(), resizeGL(), or initializeGL() is called.
     ** From this context an already initialized, ready-to-be-used QOpenGLFunctions instance is retrievable by calling QOpenGLContext::functions().
     */
-    //Make OpenGL Context Functions available
-    gl = new GL(*this->context());
+    //Make OpenGL functions available and configure an initial state
+    GL::init([](const char* procName)->void(*)(){ return QOpenGLContext::currentContext()->getProcAddress(procName); });
+
 
     std::cout << "Program compiled for " << sizeof(size_t) * 8 << "bit systems." << std::endl;
     gl->printInfo();
-    gl->configure();
 
     this->createScene();
 }

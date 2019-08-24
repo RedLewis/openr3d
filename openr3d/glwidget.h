@@ -32,8 +32,10 @@ private:
     bool cameraMoveRight = false;
 
 public:
+
     explicit GLWidget(float framesPerSecond = 0, QWidget *parent = 0);
     ~GLWidget() override;
+
     void initializeGL() override;
     void resizeGL(int width, int height) override;
     void paintGL() override;

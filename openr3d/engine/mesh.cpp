@@ -30,9 +30,9 @@ Mesh::~Mesh()
 int Mesh::load(const std::string& fileName)
 {
     std::vector<Face> tmpFaces;
-    std::vector<Vector3, AlignedAllocator<Vector3>> tmpVertices;
-    std::vector<Vector3, AlignedAllocator<Vector3>> tmpNormals;
-    std::vector<Vector3, AlignedAllocator<Vector3>> tmpTextureCoordinates;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpVertices;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpNormals;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpTextureCoordinates;
 
 
     /* Parse File into tmp data
@@ -272,9 +272,9 @@ int Mesh::load(const std::string& fileName)
 }
 
 void Mesh::update() {
-    std::vector<Vector3, AlignedAllocator<Vector3>> tmpVerticesBuffer;
-    std::vector<Vector3, AlignedAllocator<Vector3>> tmpNormalsBuffer;
-    std::vector<Vector3, AlignedAllocator<Vector3>> tmpTextureCoordinatesBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpVerticesBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpNormalsBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpTextureCoordinatesBuffer;
 
     if (this->vertices.size() > 0)
         tmpVerticesBuffer.reserve(this->faces.size() * 3);
@@ -387,9 +387,9 @@ void Mesh::draw() const
 
 
     // Invoke glDrawArrays telling that our data are triangles and we want to draw all the vertexes
-    if (faces.size() > 0)
+    if (faces.size() > 0) {
         gl->glDrawArrays(GL_TRIANGLES, 0, this->faces.size() * 3);
-
+    }
 
     // Disable attribute index as being used
     if (vertices.size() > 0)

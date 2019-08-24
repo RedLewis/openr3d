@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //Create the GLWidget
-    GLWidget* glWidget = new GLWidget();
+    GLWidget* glWidget = new GLWidget(120);
     glWidget->setFocusPolicy(Qt::StrongFocus);
     ui->centralWidget->layout()->addWidget(glWidget);
 

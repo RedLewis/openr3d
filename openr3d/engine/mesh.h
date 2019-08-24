@@ -23,9 +23,9 @@ public:
 
     //Mesh Data
     std::vector<Face> faces;
-    std::vector<Vector3, AlignedAllocator<Vector3>> vertices;
-    std::vector<Vector3, AlignedAllocator<Vector3>> normals;
-    std::vector<Vector3, AlignedAllocator<Vector3>> textureCoordinates;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> vertices;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> normals;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> textureCoordinates;
 
     //Mesh Data gpu memory locations
     GLuint verticesVBO;

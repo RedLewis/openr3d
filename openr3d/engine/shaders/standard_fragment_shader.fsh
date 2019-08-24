@@ -1,3 +1,11 @@
+//OpenGL ES automatically #define GL_ES
+#ifndef GL_ES
+//Ignore precision specifiers when not using OpenGL ES for desktop OpenGL compatibility
+#define lowp
+#define mediump
+#define highp
+#endif
+
 uniform sampler2D textureSampler;
 uniform int useNormal;
 uniform int useTexture;
@@ -9,18 +17,18 @@ uniform highp mat4 modelMatrix;
 uniform highp mat4 viewMatrix;
 uniform highp mat4 normalMatrix;
 uniform highp mat4 modelViewProjectionMatrix;
-uniform highp vec3 lightDirection;
-uniform highp vec3 lightColor;
+uniform mediump vec3 lightDirection;
+uniform lowp vec3 lightColor;
 
-varying highp vec3 out_normal;
+varying mediump vec3 out_normal;
 varying highp vec2 out_textureCoordinate;
-varying highp vec4 out_vertexColor;
+varying lowp vec4 out_vertexColor;
 
 void main(void)
 {
     //Calculate light hitting the texel
     if (useLight != 0) {
-        highp float lightIntensity;
+        mediump float lightIntensity;
         if (useLightTwoSide != 0 && gl_FrontFacing == false)
             lightIntensity = max(dot(lightDirection, out_normal), 0.0);
           else
