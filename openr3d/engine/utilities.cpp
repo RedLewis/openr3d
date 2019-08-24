@@ -1,4 +1,6 @@
 #include "utilities.h"
+
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 float wrapFloat(float num, float min, float max, int* dist) {

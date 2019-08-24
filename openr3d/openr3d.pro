@@ -29,6 +29,8 @@ win32 {
 TARGET = openr3d
 TEMPLATE = app
 
+DEFINES += _USE_MATH_DEFINES
+
 INCLUDEPATH += engine \
             engine/SSESIMD/
 

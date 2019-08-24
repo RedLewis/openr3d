@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <chrono>
 #include <iostream>

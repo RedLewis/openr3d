@@ -1,8 +1,6 @@
 #ifndef OPENGL_H
 #define OPENGL_H
 
-#define _USE_MATH_DEFINES
-#include <cmath>
 //This include is only to expose types (GLint, GLenum, etc)
 #include <QOpenGLContext>
 

@@ -13,7 +13,7 @@
 class Vector2; //TODO: ADD TO SSE
 class Vector4;
 
-class Vector3 : public Aligned<Alignment::SSE>
+class Vector3 : public Aligned<Alignment::NATIVE>
 {
 public:
 
