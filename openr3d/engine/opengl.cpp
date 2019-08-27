@@ -4,7 +4,7 @@
 
 //Uncomment this define to print potential errors when calling opengl functions
 //WARNING: This causes the program to crash when built on windows using MSVC2017
-//#define GL_DEBUG
+#define GL_DEBUG
 
 GL* gl = NULL;
 
@@ -55,8 +55,8 @@ void GL::configure()
     this->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Culling
-    //this->glEnable(GL_CULL_FACE);
-    //this->glCullFace(GL_BACK);
+    this->glEnable(GL_CULL_FACE);
+    this->glCullFace(GL_BACK);
 
     //Buffers
     this->glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Color set in the buffer atfer a glClear

@@ -156,6 +156,9 @@ int ShaderProgram::link()
     this->textureSamplerIndex = gl->glGetUniformLocation(tmpProgram, "textureSampler");
     if (this->textureSamplerIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"textureSampler\" not found." << std::endl;
 
+    this->normalMapSamplerIndex = gl->glGetUniformLocation(tmpProgram, "normalMapSampler");
+    if (this->normalMapSamplerIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"normalMapSampler\" not found." << std::endl;
+
     this->useLightIndex = gl->glGetUniformLocation(tmpProgram, "useLight");
     if (this->useLightIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useLight\" not found." << std::endl;
 
@@ -164,6 +167,9 @@ int ShaderProgram::link()
 
     this->useTextureIndex = gl->glGetUniformLocation(tmpProgram, "useTexture");
     if (this->useTextureIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useTexture\" not found." << std::endl;
+
+    this->useNormalMapIndex = gl->glGetUniformLocation(tmpProgram, "useNormalMap");
+    if (this->useNormalMapIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useNormalMap\" not found." << std::endl;
 
     this->useVertexColorIndex = gl->glGetUniformLocation(tmpProgram, "useVertexColor");
     if (this->useVertexColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"useVertexColor\" not found." << std::endl;
@@ -191,6 +197,12 @@ int ShaderProgram::link()
 
     this->normalIndex = gl->glGetAttribLocation(tmpProgram, "in_normal");
     if (this->normalIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_normal\" not found." << std::endl;
+
+    this->tangentIndex = gl->glGetAttribLocation(tmpProgram, "in_tangent");
+    if (this->tangentIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_tangent\" not found." << std::endl;
+
+    this->bitangentIndex = gl->glGetAttribLocation(tmpProgram, "in_bitangent");
+    if (this->bitangentIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_bitangent\" not found." << std::endl;
 
     this->textureCoordinateIndex = gl->glGetAttribLocation(tmpProgram, "in_textureCoordinate");
     if (this->textureCoordinateIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_textureCoordinate\" not found." << std::endl;

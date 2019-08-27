@@ -1,20 +1,20 @@
-#include "texture.h"
+#include "normalmap.h"
 #include "shaderprogram.h"
 #include <iostream>
 #include <string>
 
-Texture::Texture()
-    : Asset(Asset::Type::TEXTURE)
+NormalMap::NormalMap()
+    : Asset(Asset::Type::NORMAL_MAP)
 {
 }
 
-Texture::Texture(const std::string& fileName)
-    : Asset(Asset::Type::TEXTURE)
+NormalMap::NormalMap(const std::string& fileName)
+    : Asset(Asset::Type::NORMAL_MAP)
 {
     this->load(fileName);
 }
 
-Texture::~Texture()
+NormalMap::~NormalMap()
 {
     if (baseData.size() > 0) {
         gl->glDeleteTextures(1, &baseTBO);
@@ -41,7 +41,7 @@ static unsigned char* loadPPM(const char* filename, unsigned int& width, unsigne
     //Open the texture file
     if ((fp = fopen(filename, "rb")) == NULL)
     {
-        std::cerr << "Texture::load(\"" << filename << "\")\tFile not found." << std::endl;
+        std::cerr << "NormalMap::load(\"" << filename << "\")\tFile not found." << std::endl;
         width = 0;
         height = 0;
         return NULL;
@@ -75,7 +75,7 @@ static unsigned char* loadPPM(const char* filename, unsigned int& width, unsigne
     //If the read was a failure, error
     if (read != 1)
     {
-        std::cerr << "Texture::load(\"" << filename << "\")\tInvalid file." << std::endl;
+        std::cerr << "NormalMap::load(\"" << filename << "\")\tInvalid file." << std::endl;
         delete[] rawData;
         width = 0;
         height = 0;
@@ -86,14 +86,14 @@ static unsigned char* loadPPM(const char* filename, unsigned int& width, unsigne
 }
 
 //TODO: Use a C++ loader for PPM with error managmenet and store texture data in Texture class
-int Texture::load(const std::string& fileName)
+int NormalMap::load(const std::string& fileName)
 {
     std::vector<Color> tmpBaseData;
 
     unsigned char *rawData = loadPPM(fileName.c_str(), this->width, this->height);
     if (rawData == NULL)
         return -1;
-    std::cout << "Texture::load(\"" << fileName << "\")\tLoading file..." << std::endl;
+    std::cout << "NormalMap::load(\"" << fileName << "\")\tLoading file..." << std::endl;
 
     /* Convert raw data to base data
     */
@@ -138,7 +138,7 @@ int Texture::load(const std::string& fileName)
 // TODO: Remove alternative
 // TODO: Remove TBO if baseDate has been emptied? (careful not to remove it twice) (Does an empty texture make sense?)
 #include "color32.h"
-void Texture::update() {
+void NormalMap::update() {
     if (this->baseData.size() > 0) {
         // Bind to the texture in OpenGL
         gl->glBindTexture(GL_TEXTURE_2D, this->baseTBO);
@@ -159,15 +159,15 @@ void Texture::update() {
 
 }
 
-void Texture::draw() const
+void NormalMap::draw() const
 {
     if (this->baseData.size() > 0) {
-        gl->glUniform1i(ShaderProgram::activeShaderProgram->useTextureIndex, 1);
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->useNormalMapIndex, 1);
 
-        // Tell the shader's texture uniform sampler to use texture unit 0
-        gl->glUniform1i(ShaderProgram::activeShaderProgram->textureSamplerIndex, 0);
-        // Set the active texture unit to texture unit 0
-        gl->glActiveTexture(GL_TEXTURE0);
+        // Tell the shader's texture uniform sampler to use texture unit 1
+        gl->glUniform1i(ShaderProgram::activeShaderProgram->normalMapSamplerIndex, 1);
+        // Set the active texture unit to texture unit 1
+        gl->glActiveTexture(GL_TEXTURE1);
         // Bind the texture to this unit
         gl->glBindTexture(GL_TEXTURE_2D, this->baseTBO);
 

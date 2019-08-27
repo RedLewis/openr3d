@@ -1,5 +1,5 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef NORMALMAP_H
+#define NORMALMAP_H
 
 #include "asset.h"
 #include "color.h"
@@ -7,9 +7,10 @@
 #include <vector>
 
 
-//TODO: Use 4*1 byte unsigned char textures instead of 4*4 bytes float
+//TODO: Use RGB colors instead of RGBA colors
+//TODO: Use 3*1 byte unsigned char textures instead of 3*4 bytes float
 //That applies to the TBO
-class Texture : public Asset
+class NormalMap : public Asset
 {
 
 public:
@@ -27,18 +28,18 @@ public:
     //GLuint refractionTBO;
     //...
 
-    Texture();
-    Texture(const std::string& fileName);
-    //TODO: Handle the destruction case when no texture have been loaded
-    ~Texture();
+    NormalMap();
+    NormalMap(const std::string& fileName);
+    //TODO: Handle the destruction case when no normal map have been loaded
+    ~NormalMap();
 
     //Supports PPM Files
     int load(const std::string& fileName);
 
-    //Upload data to gpu, call after texture modifications
+    //Upload data to gpu, call after normal map modifications
     void update();
     void draw() const;
 
 };
 
-#endif // TEXTURE_H
+#endif // NORMALMAP_H

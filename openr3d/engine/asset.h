@@ -13,7 +13,8 @@ public:
         MESH,
         POLYGON,
         TEXTURE,
-        MATERIAL
+        MATERIAL,
+        NORMAL_MAP
     };
 
     const Asset::Type type;

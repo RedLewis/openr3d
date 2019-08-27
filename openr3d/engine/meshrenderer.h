@@ -4,6 +4,7 @@
 #include "renderer.h"
 #include "mesh.h"
 #include "texture.h"
+#include "normalmap.h"
 //TODO: MATERIAL ASSETS
 //#include "material.h"
 
@@ -14,6 +15,7 @@ public:
 
     Mesh* mesh = NULL;
     Texture* texture = NULL;
+    NormalMap* normalMap = NULL;
 
     MeshRenderer(SceneObject* sceneObject);
 

@@ -29,9 +29,11 @@ public:
     GLuint program;
 
     GLint textureSamplerIndex;
+    GLint normalMapSamplerIndex;
     GLint useLightIndex;
     GLint useLightTwoSideIndex;
     GLint useTextureIndex;
+    GLint useNormalMapIndex;
     GLint useVertexColorIndex;
     GLint modelMatrixIndex;
     GLint viewMatrixIndex;
@@ -41,6 +43,8 @@ public:
     GLint lightColorIndex;
     GLint vertexIndex;
     GLint normalIndex;
+    GLint tangentIndex;
+    GLint bitangentIndex;
     GLint textureCoordinateIndex;
     GLint vertexColorIndex;
 

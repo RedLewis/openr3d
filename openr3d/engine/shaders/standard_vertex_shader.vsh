@@ -15,16 +15,22 @@ uniform lowp vec3 lightColor;
 
 attribute highp vec3 in_vertex;
 attribute mediump vec3 in_normal;
+attribute mediump vec3 in_tangent;
+attribute mediump vec3 in_bitangent;
 attribute highp vec2 in_textureCoordinate;
 attribute lowp vec4 in_vertexColor;
 
 varying mediump vec3 out_normal;
+varying mediump vec3 out_tangent;
+varying mediump vec3 out_bitangent;
 varying highp vec2 out_textureCoordinate;
 varying lowp vec4 out_vertexColor;
 
 void main(void)
 {
     out_normal = normalize((normalMatrix * vec4(in_normal, 0.0)).xyz);
+    out_tangent = normalize((normalMatrix * vec4(in_tangent, 0.0)).xyz);
+    out_bitangent = normalize((normalMatrix * vec4(in_bitangent, 0.0)).xyz);
     out_textureCoordinate = in_textureCoordinate;
     out_vertexColor = in_vertexColor;
     gl_Position = modelViewProjectionMatrix * vec4(in_vertex, 1.0);

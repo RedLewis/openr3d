@@ -5,6 +5,7 @@
 #include <list>
 #include <sstream>
 #include <stdexcept>
+#include "vector2.h"
 
 Mesh::Mesh()
    : Asset(Asset::Type::MESH)
@@ -23,6 +24,10 @@ Mesh::~Mesh()
         gl->glDeleteBuffers(1, &verticesVBO);
     if (normals.size() > 0)
         gl->glDeleteBuffers(1, &normalsVBO);
+    if (tangents.size() > 0)
+        gl->glDeleteBuffers(1, &tangentsVBO);
+    if (bitangents.size() > 0)
+        gl->glDeleteBuffers(1, &bitangentsVBO);
     if (textureCoordinates.size() > 0)
         gl->glDeleteBuffers(1, &textureCoordinatesVBO);
 }
@@ -33,6 +38,8 @@ int Mesh::load(const std::string& fileName)
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpVertices;
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpNormals;
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpTextureCoordinates;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpTangents; //orthogonals to normals and bitangents
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpBitangents; //orthogonals to normals and tangents
 
 
     /* Parse File into tmp data
@@ -95,7 +102,7 @@ int Mesh::load(const std::string& fileName)
                 ssLine >> normal.x;
                 ssLine >> normal.y;
                 ssLine >> normal.z;
-                normalList.push_back(normal);
+                normalList.push_back(normal.normalized());
                 //std::cout << "normal = " << normal << std::endl;
             }
             //Load face
@@ -231,10 +238,134 @@ int Mesh::load(const std::string& fileName)
             vi[0] = tmpFaces[i].vertexIndex[0];
             vi[1] = tmpFaces[i].vertexIndex[1];
             vi[2] = tmpFaces[i].vertexIndex[2];
-            tmpNormals[i] = ((tmpVertices[vi[1]] - tmpVertices[vi[0]]).cross(tmpVertices[vi[2]] - tmpVertices[vi[0]])).normalize();
+            tmpNormals[i] = ((tmpVertices[vi[1]] - tmpVertices[vi[0]]).cross(tmpVertices[vi[2]] - tmpVertices[vi[0]])).normalized();
             tmpFaces[i].normalIndex[0] = i;
             tmpFaces[i].normalIndex[1] = i;
             tmpFaces[i].normalIndex[2] = i;
+        }
+    }
+
+    // Generate tangent and bitangent for each normal (orthogonals to normals), this requieres normals and t exture coordinates
+    if (tmpNormals.size() > 0 && tmpTextureCoordinates.size() > 0) {
+        tmpTangents.resize(tmpNormals.size());
+        tmpBitangents.resize(tmpNormals.size());
+        for (Face& face : tmpFaces) {
+            //Face vertices
+            const Vector3& v0 = tmpVertices[face.vertexIndex[0]];
+            const Vector3& v1 = tmpVertices[face.vertexIndex[1]];
+            const Vector3& v2 = tmpVertices[face.vertexIndex[2]];
+
+            // Edges of the triangle
+            Vector3 edge1 = v1-v0;
+            Vector3 edge2 = v2-v0;;
+
+            //Face texture coordinates
+            const Vector2& uv0(tmpTextureCoordinates[face.textureCoordinateIndex[0]]);
+            const Vector2& uv1(tmpTextureCoordinates[face.textureCoordinateIndex[1]]);
+            const Vector2& uv2(tmpTextureCoordinates[face.textureCoordinateIndex[2]]);
+
+            //Face texture coordinates deltas
+            Vector2 deltaUV1 = uv1 - uv0;
+            Vector2 deltaUV2 = uv2 - uv0;
+
+            float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+            //For each face's normal: compute tangent and bitangent
+            //TODO: Avoid recalculating tangent and bitangent for normals shared by multiple faces
+            for (int normalIndex : face.normalIndex) {
+
+                Vector3 faceTangent = ((edge1 * deltaUV2.y   - edge2 * deltaUV1.y)*f);
+                Vector3 faceBitangent = ((edge2 * deltaUV1.x   - edge1 * deltaUV2.x)*f);
+
+                //Tangent and bitangent are calculated based on triangle vertices, they are orthogonal to the face's normal, but not to the loaded vertex normals which can differ from the face's normal.
+                //Therefore we make the tangent and bitangent orthogonal the loaded normals and not the face's normal by applying the rotation from face normal to vertex normal.
+                const Vector3& vertexNormal = tmpNormals[normalIndex];
+                Vector3 faceNormal = edge1.cross(edge2).normalized();
+                //Test if faceNormal and vertexNormal are on the same line (pointing the same direction or opposite direction) using the mangitude of their cross product:
+                //Greater than zero: they are not parallel => calculate a new vertexTangent and vertexBitangent orthogonal to vertexNormal
+                //Equal to zero: they are parallel => faceTangent and faceBitangent already orthogonal to vertexNormal (and faceNormal)
+                if (std::fabs(faceNormal.cross(vertexNormal).magnitude()) > 0.002f) {
+                    //Find rotation axis and rotation angle to rotate faceNormal onto vertexNormal
+                    float rotationAngle = std::acos( (faceNormal.dot(vertexNormal)) / (faceNormal.magnitude()*vertexNormal.magnitude()) );
+                    Vector3 rotationAxis = faceNormal.cross(vertexNormal).normalized();
+                    //Rotate faceTangent and faceBitangent to vertexTangent and vertexBitangent
+                    Vector3 vertexTangent = faceTangent.rotated(rotationAngle, rotationAxis).normalized();
+                    Vector3 vertexBitangent = faceBitangent.rotated(rotationAngle, rotationAxis).normalized();
+                    //Save vertexTangent and vertexBitangent
+                    tmpTangents[normalIndex] = vertexTangent;
+                    tmpBitangents[normalIndex] = vertexBitangent;
+
+                    /*
+                    std::cout << "--- New tangent and bitangent! ---" << std::endl;
+                    std::cout << "vertexNormal.cross(faceNormal)=" << vertexNormal.cross(faceNormal) << std::endl;
+                    std::cout << "vertexNormal.cross(faceNormal).magnitude()=" << vertexNormal.cross(faceNormal) << std::endl;
+                    std::cout << "vertexNormal =" << vertexNormal << std::endl;
+                    std::cout << "faceNormal =" << faceNormal << std::endl;
+                    std::cout << "faceTangent =" << faceTangent << std::endl;
+                    std::cout << "faceBitangent =" << faceBitangent << std::endl;
+                    std::cout << "vertexTangent =" << vertexTangent << std::endl;
+                    std::cout << "vertexBitangent =" << vertexBitangent << std::endl;
+
+                    if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
+                        std::cout << "faceTangent ORTO faceNormal" << std::endl;
+                    else
+                        std::cout << "faceTangent NOT ORTO faceNormal" << std::endl;
+                    if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
+                        std::cout << "faceBitangent ORTO faceNormal" << std::endl;
+                    else
+                        std::cout << "faceBitangent NOT ORTO faceNormal" << std::endl;
+                    if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
+                        std::cout << "faceTangent ORTO faceBitangent" << std::endl;
+                    else
+                        std::cout << "faceTangent NOT ORTO faceBitangent" << std::endl;
+
+                    if (std::fabs(vertexTangent.dot(vertexNormal)) < 0.001)
+                        std::cout << "vertexTangent ORTO vertexNormal" << std::endl;
+                    else
+                        std::cout << "vertexTangent NOT ORTO vertexNormal" << std::endl;
+                    if (std::fabs(vertexBitangent.dot(vertexNormal)) < 0.001)
+                        std::cout << "vertexBitangent ORTO vertexNormal" << std::endl;
+                    else
+                        std::cout << "vertexBitangent NOT ORTO vertexNormal" << std::endl;
+                    if (std::fabs(vertexTangent.dot(vertexBitangent)) < 0.001)
+                        std::cout << "vertexTangent ORTO vertexBitangent" << std::endl;
+                    else
+                        std::cout << "vertexTangent NOT ORTO vertexBitangent" << std::endl;
+
+                    std::cout << "---------------------------------" << std::endl;
+                    */
+
+                }
+                else {
+                    //Save faceTangent and faceBitangent
+                    tmpTangents[normalIndex] = faceTangent;
+                    tmpBitangents[normalIndex] = faceBitangent;
+
+                    /*
+                    std::cout << "--- New tangent and bitangent! ---" << std::endl;
+                    std::cout << "faceNormal =" << faceNormal << std::endl;
+                    std::cout << "faceTangent =" << faceTangent << std::endl;
+                    std::cout << "faceBitangent =" << faceBitangent << std::endl;
+
+                    if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
+                        std::cout << "faceTangent ORTO faceNormal" << std::endl;
+                    else
+                        std::cout << "faceTangent NOT ORTO faceNormal" << std::endl;
+                    if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
+                        std::cout << "faceBitangent ORTO faceNormal" << std::endl;
+                    else
+                        std::cout << "faceBitangent NOT ORTO faceNormal" << std::endl;
+                    if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
+                        std::cout << "faceTangent ORTO faceBitangent" << std::endl;
+                    else
+                        std::cout << "faceTangent NOT ORTO faceBitangent" << std::endl;
+
+                    std::cout << "---------------------------------" << std::endl;
+                    */
+
+                }
+
+            }
         }
     }
 
@@ -251,6 +382,16 @@ int Mesh::load(const std::string& fileName)
     else if (tmpNormals.size() == 0 && this->normals.size() > 0)
         gl->glDeleteBuffers(1, &(this->normalsVBO));
 
+    if (tmpTangents.size() > 0 && this->tangents.size() == 0)
+        gl->glGenBuffers(1, &(this->tangentsVBO));
+    else if (tmpTangents.size() == 0 && this->tangents.size() > 0)
+        gl->glDeleteBuffers(1, &(this->tangentsVBO));
+
+    if (tmpBitangents.size() > 0 && this->bitangents.size() == 0)
+        gl->glGenBuffers(1, &(this->bitangentsVBO));
+    else if (tmpBitangents.size() == 0 && this->bitangents.size() > 0)
+        gl->glDeleteBuffers(1, &(this->bitangentsVBO));
+
     if (tmpTextureCoordinates.size() > 0 && this->textureCoordinates.size() == 0)
         gl->glGenBuffers(1, &(this->textureCoordinatesVBO));
     else if (tmpTextureCoordinates.size() == 0 && this->textureCoordinates.size() > 0)
@@ -260,6 +401,8 @@ int Mesh::load(const std::string& fileName)
     this->faces = std::move(tmpFaces);
     this->vertices = std::move(tmpVertices);
     this->normals = std::move(tmpNormals);
+    this->tangents = std::move(tmpTangents);
+    this->bitangents = std::move(tmpBitangents);
     this->textureCoordinates = std::move(tmpTextureCoordinates);
 
     //Update opengl data
@@ -274,12 +417,18 @@ int Mesh::load(const std::string& fileName)
 void Mesh::update() {
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpVerticesBuffer;
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpNormalsBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpTangentsBuffer;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpBitangentsBuffer;
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tmpTextureCoordinatesBuffer;
 
     if (this->vertices.size() > 0)
         tmpVerticesBuffer.reserve(this->faces.size() * 3);
     if (this->normals.size() > 0)
         tmpNormalsBuffer.reserve(this->faces.size() * 3);
+    if (this->tangents.size() > 0)
+        tmpTangentsBuffer.reserve(this->faces.size() * 3);
+    if (this->bitangents.size() > 0)
+        tmpBitangentsBuffer.reserve(this->faces.size() * 3);
     if (this->textureCoordinates.size() > 0)
         tmpTextureCoordinatesBuffer.reserve(this->faces.size() * 3);
 
@@ -304,6 +453,7 @@ void Mesh::update() {
             throw std::out_of_range("Face texture coordinate index out of range.");
         }
 
+        //Copy face data into tmp buffers
         if (this->vertices.size() > 0) {
             tmpVerticesBuffer.push_back(this->vertices[face.vertexIndex[0]]);
             tmpVerticesBuffer.push_back(this->vertices[face.vertexIndex[1]]);
@@ -313,6 +463,16 @@ void Mesh::update() {
             tmpNormalsBuffer.push_back(this->normals[face.normalIndex[0]]);
             tmpNormalsBuffer.push_back(this->normals[face.normalIndex[1]]);
             tmpNormalsBuffer.push_back(this->normals[face.normalIndex[2]]);
+        }
+        if (this->tangents.size() > 0) {
+            tmpTangentsBuffer.push_back(this->tangents[face.normalIndex[0]]);
+            tmpTangentsBuffer.push_back(this->tangents[face.normalIndex[1]]);
+            tmpTangentsBuffer.push_back(this->tangents[face.normalIndex[2]]);
+        }
+        if (this->bitangents.size() > 0) {
+            tmpBitangentsBuffer.push_back(this->bitangents[face.normalIndex[0]]);
+            tmpBitangentsBuffer.push_back(this->bitangents[face.normalIndex[1]]);
+            tmpBitangentsBuffer.push_back(this->bitangents[face.normalIndex[2]]);
         }
         if (this->textureCoordinates.size() > 0) {
             tmpTextureCoordinatesBuffer.push_back(this->textureCoordinates[face.textureCoordinateIndex[0]]);
@@ -339,10 +499,24 @@ void Mesh::update() {
         gl->glBufferData(GL_ARRAY_BUFFER, tmpNormalsBuffer.size() * sizeof(Vector3), tmpNormalsBuffer.data(), GL_STATIC_DRAW);
     }
 
+    if (this->tangents.size() > 0) {
+        // Bind VBO as being the active buffer and storing tangent attributes
+        gl->glBindBuffer(GL_ARRAY_BUFFER, this->tangentsVBO);
+        // Copy the vertex data to our buffer
+        gl->glBufferData(GL_ARRAY_BUFFER, tmpTangentsBuffer.size() * sizeof(Vector3), tmpTangentsBuffer.data(), GL_STATIC_DRAW);
+    }
+
+    if (this->bitangents.size() > 0) {
+        // Bind VBO as being the active buffer and storing bitangent attributes
+        gl->glBindBuffer(GL_ARRAY_BUFFER, this->bitangentsVBO);
+        // Copy the vertex data to our buffer
+        gl->glBufferData(GL_ARRAY_BUFFER, tmpBitangentsBuffer.size() * sizeof(Vector3), tmpBitangentsBuffer.data(), GL_STATIC_DRAW);
+    }
+
     if (this->textureCoordinates.size() > 0) {
         //TODO: Why regenerate a buffer? Already generated by constructor! Now it is commented, make sure it still works.
         //gl->glGenBuffers(1, &(this->textureCoordinatesVBO));
-        // Bind VBO as being the active buffer and storing normal attributes
+        // Bind VBO as being the active buffer and storing texture coordinate attributes
         gl->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordinatesVBO);
         // Copy the vertex data to our buffer
         gl->glBufferData(GL_ARRAY_BUFFER, tmpTextureCoordinatesBuffer.size() * sizeof(Vector3), tmpTextureCoordinatesBuffer.data(), GL_STATIC_DRAW);
@@ -372,6 +546,22 @@ void Mesh::draw() const
         // Enable attribute index as being used
         gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->normalIndex);
     }
+    if (tangents.size() > 0) {
+        // Bind VBO as being the active buffer and storing vertex attributes
+        gl->glBindBuffer(GL_ARRAY_BUFFER, this->tangentsVBO);
+        // Specify that our coordinate data is going into attribute index, and contains two floats per vertex
+        gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->tangentIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 4th element of the vector3
+        // Enable attribute index as being used
+        gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->tangentIndex);
+    }
+    if (bitangents.size() > 0) {
+        // Bind VBO as being the active buffer and storing vertex attributes
+        gl->glBindBuffer(GL_ARRAY_BUFFER, this->bitangentsVBO);
+        // Specify that our coordinate data is going into attribute index, and contains two floats per vertex
+        gl->glVertexAttribPointer(ShaderProgram::activeShaderProgram->bitangentIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0); //Specify a stride to avoid using the 4th element of the vector3
+        // Enable attribute index as being used
+        gl->glEnableVertexAttribArray(ShaderProgram::activeShaderProgram->bitangentIndex);
+    }
     if (textureCoordinates.size() > 0) {
         // Bind VBO as being the active buffer and storing vertex attributes
         gl->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordinatesVBO);
@@ -397,6 +587,12 @@ void Mesh::draw() const
     // Disable attribute index as being used
     if (normals.size() > 0)
         gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->normalIndex);
+    // Disable attribute index as being used
+    if (tangents.size() > 0)
+        gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->tangentIndex);
+    // Disable attribute index as being used
+    if (bitangents.size() > 0)
+        gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->bitangentIndex);
     // Disable attribute index as being used
     if (textureCoordinates.size() > 0)
         gl->glDisableVertexAttribArray(ShaderProgram::activeShaderProgram->textureCoordinateIndex);

@@ -19,8 +19,8 @@ void GLWidget::createScene() {
     //Setup Camera
     SceneObject* cameraObject = new SceneObject(scene);
     cameraObject->name = "camera";
-    cameraObject->transform.setLocalPosition({0, 0.0f, 3.0f});
-    cameraObject->transform.setLocalRotation({-0.2f, 0, 0});
+    cameraObject->transform.setLocalPosition({0, 2.0f, 3.0f});
+    cameraObject->transform.setLocalRotation({-0.4f, 0, 0});
     Camera* cameraComponent = new Camera(cameraObject);
     cameraComponent->setOrthographic(false);
     cameraComponent->setFOV(60);
@@ -31,92 +31,124 @@ void GLWidget::createScene() {
     Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
     lightComponent->color = {1.0, 1.0, 1.0};
 
-    Mesh* mesh1 = new Mesh("../assets/sphere.obj");
-    Mesh* mesh2 = new Mesh("../assets/cube.obj");
-    Texture* texture1 = new Texture("../assets/texture.ppm");
-    Texture* texture2 = new Texture("../assets/earth.ppm");
-    scene->assets.push_back(mesh1);
-    scene->assets.push_back(mesh2);
-    scene->assets.push_back(texture1);
-    scene->assets.push_back(texture2);
+    Mesh* cubeMesh = new Mesh("../assets/cube.obj");
+    scene->assets.push_back(cubeMesh);
+    Mesh* quadMesh = new Mesh("../assets/quad.obj");
+    scene->assets.push_back(quadMesh);
+    Mesh* sphereMesh = new Mesh("../assets/sphere.obj");
+    scene->assets.push_back(sphereMesh);
+    Texture* terrainTexture = new Texture("../assets/rocks_texture.ppm");
+    scene->assets.push_back(terrainTexture);
+    NormalMap* terrainNormalMap = new NormalMap("../assets/rocks_normals.ppm");
+    scene->assets.push_back(terrainNormalMap);
 
+    //Create a plane
+    SceneObject* terrainSceneObject = new SceneObject(scene);
+    terrainSceneObject->transform.setWorldPosition({0.0f, 0.0f, 0.0f});
+    terrainSceneObject->transform.setWorldRotation({0.0f, 0.0f, 0.0f});
+    terrainSceneObject->transform.setWorldScale(2.0f);
+    MeshRenderer* terrainMeshRenderer = new MeshRenderer(terrainSceneObject);
+    terrainMeshRenderer->mesh = quadMesh;
+    terrainMeshRenderer->texture = terrainTexture;
+    terrainMeshRenderer->normalMap = terrainNormalMap;
+
+    //Create a sphere
+    SceneObject* boulderSceneObject = new SceneObject(scene);
+    boulderSceneObject->transform.setWorldPosition({0.75f, 0.25f, -0.75f});
+    boulderSceneObject->transform.setWorldScale(0.5f);
+    MeshRenderer* boulderMeshRenderer = new MeshRenderer(boulderSceneObject);
+    boulderMeshRenderer->mesh = sphereMesh;
+    //boulderMeshRenderer->texture = terrainTexture;
+
+    //Box2D test scene
+    /*
     {
+        Mesh* mesh1 = new Mesh("../assets/sphere.obj");
+        Mesh* mesh2 = new Mesh("../assets/cube.obj");
+        Texture* texture1 = new Texture("../assets/texture.ppm");
+        Texture* texture2 = new Texture("../assets/earth.ppm");
+        scene->assets.push_back(mesh1);
+        scene->assets.push_back(mesh2);
+        scene->assets.push_back(texture1);
+        scene->assets.push_back(texture2);
 
         SceneObject* parent = new SceneObject(scene);
         parent->name = "scale";
-        parent->transform.setLocalPosition({0.0f, 0.5f, 0.0f});
+        parent->transform.setLocalPosition({0.0f, 2.5f, 0.0f});
         parent->transform.setLocalScale({0.25f, 0.25f, 0.25f});
         parent->transform.setLocalRotation({0.0f, 0.0f, 0.25f});
         MeshRenderer* parentMeshRenderer = new MeshRenderer(parent);
         parentMeshRenderer->mesh = mesh2;
         parentMeshRenderer->texture = texture2;
         new BoxCollider2D(parent, Collider::DYNAMIC);
+        {
 
-        {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({0.425f, 0.425f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            cube->transform.setLocalRotation({0.0f, 0.0f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
-        }
-        {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({0.400f, -0.400f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
+            {
+                SceneObject* cube = new SceneObject(parent);
+                cube->transform.setLocalPosition({0.425f, 0.425f, 0.0f});
+                cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
+                cube->transform.setLocalRotation({0.0f, 0.0f, 0.25f});
+                MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
+                cubeMeshRenderer->mesh = mesh2;
+                cubeMeshRenderer->texture = texture1;
+                new BoxCollider2D(cube, Collider::DYNAMIC);
+            }
+            {
+                SceneObject* cube = new SceneObject(parent);
+                cube->transform.setLocalPosition({0.400f, -0.400f, 0.0f});
+                cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
+                MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
+                cubeMeshRenderer->mesh = mesh2;
+                cubeMeshRenderer->texture = texture1;
+                new BoxCollider2D(cube, Collider::DYNAMIC);
 
+            }
+            {
+                SceneObject* cube = new SceneObject(parent);
+                cube->transform.setLocalPosition({-0.400f, 0.425f, 0.0f});
+                cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
+                MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
+                cubeMeshRenderer->mesh = mesh2;
+                cubeMeshRenderer->texture = texture1;
+                new BoxCollider2D(cube, Collider::DYNAMIC);
+            }
+            {
+                SceneObject* cube = new SceneObject(parent);
+                cube->transform.setLocalPosition({-0.425f, -0.400f, 0.0f});
+                cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
+                MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
+                cubeMeshRenderer->mesh = mesh2;
+                cubeMeshRenderer->texture = texture1;
+                new BoxCollider2D(cube, Collider::DYNAMIC);
+            }
         }
         {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({-0.400f, 0.425f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
+            SceneObject* terrain = new SceneObject(scene);
+            terrain->name = "terrain";
+            terrain->transform.setLocalScale({3.0f, 1.0f, 1.0f});
+            terrain->transform.setLocalPosition({0.0f, 0.5f, 0.0f});
+            MeshRenderer* terrainMeshRenderer = new MeshRenderer(terrain);
+            terrainMeshRenderer->mesh = mesh2;
+            terrainMeshRenderer->texture = texture1;
+            new BoxCollider2D(terrain, Collider::STATIC);
         }
         {
-            SceneObject* cube = new SceneObject(parent);
-            cube->transform.setLocalPosition({-0.425f, -0.400f, 0.0f});
-            cube->transform.setLocalScale({0.25f, 0.25f, 0.25f});
-            MeshRenderer* cubeMeshRenderer = new MeshRenderer(cube);
-            cubeMeshRenderer->mesh = mesh2;
-            cubeMeshRenderer->texture = texture1;
-            new BoxCollider2D(cube, Collider::DYNAMIC);
+            SceneObject* sphere = new SceneObject(scene);
+            sphere->name = "sphere";
+            sphere->transform.setLocalScale({1.0f, 1.0f, 1.0f});
+            sphere->transform.setLocalPosition({1.0f, 1.5f, 0.0f});
+            MeshRenderer* sphereMeshRenderer = new MeshRenderer(sphere);
+            sphereMeshRenderer->mesh = mesh1;
+            sphereMeshRenderer->texture = texture2;
+            new CircleCollider2D(sphere, Collider::STATIC);
         }
     }
-    {
-        SceneObject* terrain = new SceneObject(scene);
-        terrain->name = "terrain";
-        terrain->transform.setLocalScale({3.0f, 1.0f, 1.0f});
-        terrain->transform.setLocalPosition({0.0f, -1.25f, 0.0f});
-        MeshRenderer* terrainMeshRenderer = new MeshRenderer(terrain);
-        terrainMeshRenderer->mesh = mesh2;
-        terrainMeshRenderer->texture = texture1;
-        new BoxCollider2D(terrain, Collider::STATIC);
-    }
-    {
-        SceneObject* sphere = new SceneObject(scene);
-        sphere->name = "sphere";
-        sphere->transform.setLocalScale({1.0f, 1.0f, 1.0f});
-        sphere->transform.setLocalPosition({1.0f, -0.25f, 0.0f});
-        MeshRenderer* sphereMeshRenderer = new MeshRenderer(sphere);
-        sphereMeshRenderer->mesh = mesh1;
-        sphereMeshRenderer->texture = texture2;
-        new CircleCollider2D(sphere, Collider::STATIC);
-    }
+    */
 
     scene->activeCamera = cameraObject;
     scene->activeLight = lightObject;
 
     this->controlledCameraPtr = scene->activeCamera;
-
     std::cout << ">>>>>>>>>>>>>>>>>>>>>>>> SCENE CREATED <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 }
 
@@ -139,12 +171,12 @@ GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     //QSurfaceFormat::DefaultRenderableType	: The default unspecified rendering method
     //QSurfaceFormat::OpenGL : Desktop OpenGL rendering
     //QSurfaceFormat::OpenGLES : OpenGL ES 2.0 rendering
-    //format.setRenderableType(QSurfaceFormat::OpenGLES);
-    //format.setMajorVersion(2);
-    //format.setMinorVersion(0);
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setMajorVersion(4);
-    format.setMinorVersion(5);
+    format.setRenderableType(QSurfaceFormat::OpenGLES);
+    format.setMajorVersion(2);
+    format.setMinorVersion(0);
+    //format.setRenderableType(QSurfaceFormat::OpenGL);
+    //format.setMajorVersion(4);
+    //format.setMinorVersion(5);
 
     //QSurfaceFormat::CompatibilityProfile : Functionality from earlier OpenGL versions is available.
     //QSurfaceFormat::CoreProfile : Functionality deprecated in OpenGL version 3.0 is not available.
@@ -314,8 +346,25 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+static bool reverse = false;
+
 void GLWidget::update(float deltaTime)
 {
+    //Rotate light
+    {
+        Vector3 currentRot = scene->activeLight->transform.getWorldRotation();
+        currentRot.y += reverse ? -deltaTime : deltaTime;
+        if (currentRot.y > M_PI/2.5) {
+            currentRot.y = M_PI/2.5;
+            reverse = true;
+        }
+        if (currentRot.y < -M_PI/2.5) {
+            currentRot.y = -M_PI/2.5;
+            reverse = false;
+        }
+        scene->activeLight->transform.setWorldRotation(currentRot);
+    }
+
     //Update camera position based on user input
     if (controlCamera)
         moveCamera(deltaTime);

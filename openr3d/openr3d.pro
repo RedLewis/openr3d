@@ -68,6 +68,7 @@ SOURCES += main.cpp \
     engine/shaderprogram.cpp \
     engine/spriterenderer.cpp \
     engine/texture.cpp \
+    engine/normalmap.cpp \
     engine/transform.cpp \
     engine/utilities.cpp \
     engine/vector2.cpp
@@ -108,6 +109,7 @@ HEADERS  += \
     engine/shaderprogram.h \
     engine/spriterenderer.h \
     engine/texture.h \
+    engine/normalmap.h \
     engine/transform.h \
     engine/utilities.h \
     engine/vector2.h \

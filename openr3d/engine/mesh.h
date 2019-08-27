@@ -25,11 +25,15 @@ public:
     std::vector<Face> faces;
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> vertices;
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> normals;
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> tangents; //orthogonals to normals and bitangents
+    std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> bitangents; //orthogonals to normals and tangents
     std::vector<Vector3, AlignedAllocator<Vector3, Vector3::alignment_size>> textureCoordinates;
 
     //Mesh Data gpu memory locations
     GLuint verticesVBO;
     GLuint normalsVBO;
+    GLuint tangentsVBO;
+    GLuint bitangentsVBO;
     GLuint textureCoordinatesVBO;
 
     Mesh();
