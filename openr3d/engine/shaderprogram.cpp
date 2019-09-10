@@ -192,6 +192,9 @@ int ShaderProgram::link()
     this->lightColorIndex = gl->glGetUniformLocation(tmpProgram, "lightColor");
     if (this->lightColorIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"lightColor\" not found." << std::endl;
 
+    this->viewPositionIndex = gl->glGetUniformLocation(tmpProgram, "viewPosition");
+    if (this->viewPositionIndex < 0) std::cerr << "ShaderProgram::link()\tUniform \"viewPosition\" not found." << std::endl;
+
     this->vertexIndex = gl->glGetAttribLocation(tmpProgram, "in_vertex");
     if (this->vertexIndex < 0) std::cerr << "ShaderProgram::link()\tAttribute \"in_vertex\" not found." << std::endl;
 

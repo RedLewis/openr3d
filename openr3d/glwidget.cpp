@@ -33,35 +33,46 @@ void GLWidget::createScene() {
 
     //Mesh* cubeMesh = new Mesh("../assets/cube.obj");
     //scene->assets.push_back(cubeMesh);
-    //Mesh* quadMesh = new Mesh("../assets/quad.obj");
-    //scene->assets.push_back(quadMesh);
-    Mesh* testMesh = new Mesh("../assets/sphere.obj");
+    Mesh* quadMesh = new Mesh("../assets/quad.obj");
+    scene->assets.push_back(quadMesh);
+    Mesh* sphereMesh = new Mesh("../assets/highres_icosphere.obj");
+    scene->assets.push_back(sphereMesh);
+    Mesh* testMesh = new Mesh("../assets/cyborg.obj");
     scene->assets.push_back(testMesh);
-    Texture* testTexture = new Texture("../assets/sphere.ppm");
+    Texture* testTexture = new Texture("../assets/cyborg_texture.ppm");
     scene->assets.push_back(testTexture);
     NormalMap* testNormalMap = new NormalMap("../assets/cyborg_normals.ppm");
     scene->assets.push_back(testNormalMap);
     NormalMap* plainNormalMap = new NormalMap("../assets/simple_normals.ppm");
     scene->assets.push_back(plainNormalMap);
 
-    //Create a plane
+    //Create a test object
     SceneObject* testSceneObject = new SceneObject(scene);
-    testSceneObject->transform.setWorldPosition({-2.0f, 0.0f, 0.0f});
+    testSceneObject->transform.setWorldPosition({-2.0f, -2.0f, 0.0f});
     testSceneObject->transform.setWorldRotation({0.0f, 0.0f, 0.0f});
     testSceneObject->transform.setWorldScale(2.0f);
     MeshRenderer* testMeshRenderer = new MeshRenderer(testSceneObject);
     testMeshRenderer->mesh = testMesh;
-    //testMeshRenderer->texture = testTexture;
-    testMeshRenderer->normalMap = plainNormalMap;
+    testMeshRenderer->texture = testTexture;
+    testMeshRenderer->normalMap = testNormalMap;
 
     //Create a sphere
     SceneObject* boulderSceneObject = new SceneObject(scene);
     boulderSceneObject->transform.setWorldPosition({2.0f, 0.0f, 0.0f});
+    boulderSceneObject->transform.setWorldRotation({0.0f, 0.0f, 0.0f});
     boulderSceneObject->transform.setWorldScale(2.0f);
     MeshRenderer* boulderMeshRenderer = new MeshRenderer(boulderSceneObject);
-    boulderMeshRenderer->mesh = testMesh;
+    boulderMeshRenderer->mesh = sphereMesh;
     //boulderMeshRenderer->texture = testTexture;
-    //terrainMeshRenderer->normalMap = simpleNormalMap;
+    //boulderMeshRenderer->normalMap = plainNormalMap;
+
+    //Create a plane
+    SceneObject* planeObject = new SceneObject(scene);
+    planeObject->transform.setWorldPosition({0.0f, -2.0f, 0.0f});
+    planeObject->transform.setWorldRotation({0.0f, 0.0f, 0.0f});
+    planeObject->transform.setWorldScale(10000.0f);
+    MeshRenderer* planeMeshRenderer = new MeshRenderer(planeObject);
+    planeMeshRenderer->mesh = quadMesh;
 
     //Box2D test scene
     /*
@@ -354,7 +365,7 @@ static bool reverse = false;
 void GLWidget::update(float deltaTime)
 {
     //Rotate light
-    {
+    /*{
         Vector3 currentRot = scene->activeLight->transform.getWorldRotation();
         currentRot.y += reverse ? -deltaTime : deltaTime;
         if (currentRot.y > M_PI/2.5) {
@@ -366,7 +377,7 @@ void GLWidget::update(float deltaTime)
             reverse = false;
         }
         scene->activeLight->transform.setWorldRotation(currentRot);
-    }
+    }*/
 
     //Update camera position based on user input
     if (controlCamera)

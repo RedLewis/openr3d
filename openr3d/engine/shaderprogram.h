@@ -41,6 +41,7 @@ public:
     GLint modelViewProjectionMatrixIndex;
     GLint lightDirectionIndex;
     GLint lightColorIndex;
+    GLint viewPositionIndex;
     GLint vertexIndex;
     GLint normalIndex;
     GLint tangentIndex;

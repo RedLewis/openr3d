@@ -35,7 +35,7 @@ void Scene::draw() const
     if (ShaderProgram::activeShaderProgram == NULL)
         return;
 
-    //Add Light
+    //Feed light direction and color to shader program
     //TODO Store light direction in light component
     Vector3 lightDirection(0, 0, 1);
     Matrix4 rotation;
@@ -43,6 +43,9 @@ void Scene::draw() const
     lightDirection = (rotation * lightDirection.toVector4(0.0f)).toVector3().normalize();
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightDirectionIndex, 1, lightDirection.ptr());
     gl->glUniform3fv(ShaderProgram::activeShaderProgram->lightColorIndex, 1, static_cast<Light*>(activeLight->components[Component::LIGHT])->color.ptr());
+
+    //Feed camera position to shader program
+    gl->glUniform3fv(ShaderProgram::activeShaderProgram->viewPositionIndex, 1, this->activeCamera->transform.getWorldPosition().ptr());
 
     //Draw the scene from the camera' view
     for (auto it = cameras.begin(); it != cameras.end();) {
