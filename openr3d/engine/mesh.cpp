@@ -249,38 +249,108 @@ int Mesh::load(const std::string& fileName)
     if (tmpNormals.size() > 0 && tmpTextureCoordinates.size() > 0) {
         tmpTangents.resize(tmpNormals.size());
         tmpBitangents.resize(tmpNormals.size());
+        //For each face: compute faceTangent and faceBitangent
         for (Face& face : tmpFaces) {
+
             //Face vertices
             const Vector3& v0 = tmpVertices[face.vertexIndex[0]];
             const Vector3& v1 = tmpVertices[face.vertexIndex[1]];
             const Vector3& v2 = tmpVertices[face.vertexIndex[2]];
-
-            // Edges of the triangle
-            Vector3 edge1 = v1-v0;
-            Vector3 edge2 = v2-v0;;
 
             //Face texture coordinates
             const Vector2& uv0(tmpTextureCoordinates[face.textureCoordinateIndex[0]]);
             const Vector2& uv1(tmpTextureCoordinates[face.textureCoordinateIndex[1]]);
             const Vector2& uv2(tmpTextureCoordinates[face.textureCoordinateIndex[2]]);
 
+            // Edges of the triangle
+            Vector3 deltaPos1 = v1-v0;
+            Vector3 deltaPos2 = v2-v0;
+
             //Face texture coordinates deltas
             Vector2 deltaUV1 = uv1 - uv0;
             Vector2 deltaUV2 = uv2 - uv0;
 
-            float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+            float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
 
-            //For each face's normal: compute tangent and bitangent
+            Vector3 faceTangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y)*r;
+            faceTangent.normalize();
+            Vector3 faceBitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x)*r;
+            faceBitangent.normalize();
+            //TODO: Instead of rotating faceTangent and faceBitangent to using rotation from faceNormal to vertexNormal
+            //Use Gram-Schmidt process to calculate vertexTangent and vertexBitangent and garantee orthogonal vectors,
+            //without calculating faceNormal and without rotation of faceTangent and faceBitangent vectors from face to vertex
+            Vector3 faceNormal = deltaPos1.cross(deltaPos2).normalized();
+
+            //Due to texture sheering, it is possible that the faceBitangent is not orthogonal to the faceTangent
+            //To avoid this we calculate the faceBitangent from the cross product oof the faceNormal and the faceTangent:
+            faceBitangent = faceNormal.cross(faceTangent);
+
+            //Code below not needed since calculating the faceBitangent from the cross product oof the faceNormal and the faceTangent creates a right handed TBN
+            //-------------------------------------------------------------------------------------------------------------------------------------
+            //Check if TBN is right handed doing a dot product between the face normal and the orthogonal of the faceTangent and faceBitangent:
+            //They should point in the same direction (angle < 90 <=> dot product > 0).
+            //If they do not (angle > 90 <=> dot product < 0): negate the faceBitangent to make the vector point in the opposite direction.
+            //if (faceNormal.dot(faceTangent.cross(faceBitangent)) < 0) {
+            //    faceBitangent *= -1;
+            //}
+
+            /*
+            //
+            //DEBUG OUTPUT
+            //
+
+            std::cout << "################ FACE ################" << std::endl;
+
+            if (faceNormal.dot(faceTangent.cross(faceBitangent)) < 0)
+                std::cout << "faceNormal \e[91mOPPOSITE\e[39m T cross B" << std::endl;
+
+            std::cout << "v0="<<v0<<std::endl;
+            std::cout << "v1="<<v1<<std::endl;
+            std::cout << "v2="<<v2<<std::endl;
+
+            std::cout << "deltaPos1="<<deltaPos1<<std::endl;
+            std::cout << "deltaPos2="<<deltaPos2<<std::endl;
+
+            std::cout << "uv0="<<uv0<<std::endl;
+            std::cout << "uv1="<<uv1<<std::endl;
+            std::cout << "uv2="<<uv2<<std::endl;
+
+            std::cout << "deltaUV1=" << deltaUV1 << std::endl;
+            std::cout << "deltaUV2=" << deltaUV2 << std::endl;
+
+            std::cout << "r="<<r<<std::endl;
+
+            std::cout << "faceNormal=" << faceNormal << std::endl;
+            std::cout << "faceTangent=" << faceTangent << std::endl;
+            std::cout << "faceBitangent=" << faceBitangent << std::endl;
+
+            if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
+                std::cout << "faceTangent \e[92mORTO\e[39m faceBitangent =(dot)= " << faceTangent.dot(faceBitangent) << std::endl;
+            else
+                std::cout << "faceTangent \e[91mNOT ORTO\e[39m faceBitangent =(dot)= " << faceTangent.dot(faceBitangent) << std::endl;
+            if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
+                std::cout << "faceNormal \e[92mORTO\e[39m faceTangent =(dot)= " << faceTangent.dot(faceNormal) << std::endl;
+            else
+                std::cout << "faceNormal \e[91mNOT ORTO\e[39m faceTangent =(dot)= " << faceTangent.dot(faceNormal) << std::endl;
+            if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
+                std::cout << "faceNormal \e[92mORTO\e[39m faceBitangent =(dot)= " << faceBitangent.dot(faceNormal) << std::endl;
+            else
+                std::cout << "faceNormal \e[91mNOT ORTO\e[39m faceBitangent =(dot)= " << faceBitangent.dot(faceNormal) << std::endl;
+
+            std::cout << "######################################" << std::endl;
+            */
+
+
+            //For each face vertex: compute vertexTangent and vertexBitangent
             //TODO: Avoid recalculating tangent and bitangent for normals shared by multiple faces
             for (int normalIndex : face.normalIndex) {
-
-                Vector3 faceTangent = ((edge1 * deltaUV2.y   - edge2 * deltaUV1.y)*f);
-                Vector3 faceBitangent = ((edge2 * deltaUV1.x   - edge1 * deltaUV2.x)*f);
 
                 //Tangent and bitangent are calculated based on triangle vertices, they are orthogonal to the face's normal, but not to the loaded vertex normals which can differ from the face's normal.
                 //Therefore we make the tangent and bitangent orthogonal the loaded normals and not the face's normal by applying the rotation from face normal to vertex normal.
                 const Vector3& vertexNormal = tmpNormals[normalIndex];
-                Vector3 faceNormal = edge1.cross(edge2).normalized();
+                //std::cout << "vertexNormal =" << vertexNormal << std::endl;
+                //std::cout << "faceNormal = " << faceNormal << std::endl;
+                //std::cout << "resultFaceNormal = " << resultFaceNormal << std::endl;
                 //Test if faceNormal and vertexNormal are on the same line (pointing the same direction or opposite direction) using the mangitude of their cross product:
                 //Greater than zero: they are not parallel => calculate a new vertexTangent and vertexBitangent orthogonal to vertexNormal
                 //Equal to zero: they are parallel => faceTangent and faceBitangent already orthogonal to vertexNormal (and faceNormal)
@@ -295,74 +365,68 @@ int Mesh::load(const std::string& fileName)
                     tmpTangents[normalIndex] = vertexTangent;
                     tmpBitangents[normalIndex] = vertexBitangent;
 
-                    /*
-                    std::cout << "--- New tangent and bitangent! ---" << std::endl;
-                    std::cout << "vertexNormal.cross(faceNormal)=" << vertexNormal.cross(faceNormal) << std::endl;
-                    std::cout << "vertexNormal.cross(faceNormal).magnitude()=" << vertexNormal.cross(faceNormal) << std::endl;
-                    std::cout << "vertexNormal =" << vertexNormal << std::endl;
-                    std::cout << "faceNormal =" << faceNormal << std::endl;
-                    std::cout << "faceTangent =" << faceTangent << std::endl;
-                    std::cout << "faceBitangent =" << faceBitangent << std::endl;
-                    std::cout << "vertexTangent =" << vertexTangent << std::endl;
-                    std::cout << "vertexBitangent =" << vertexBitangent << std::endl;
+//                    std::cout << "--- New tangent and bitangent! ---" << std::endl;
+//                    std::cout << "vertexNormal.cross(faceNormal)=" << vertexNormal.cross(faceNormal) << std::endl;
+//                    std::cout << "vertexNormal.cross(faceNormal).magnitude()=" << vertexNormal.cross(faceNormal).magnitude() << std::endl;
+//                    std::cout << "vertexNormal =" << vertexNormal << std::endl;
+//                    std::cout << "faceNormal =" << faceNormal << std::endl;
+//                    std::cout << "faceTangent =" << faceTangent << std::endl;
+//                    std::cout << "faceBitangent =" << faceBitangent << std::endl;
+//                    std::cout << "vertexTangent =" << vertexTangent << std::endl;
+//                    std::cout << "vertexBitangent =" << vertexBitangent << std::endl;
 
-                    if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
-                        std::cout << "faceTangent ORTO faceNormal" << std::endl;
-                    else
-                        std::cout << "faceTangent NOT ORTO faceNormal" << std::endl;
-                    if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
-                        std::cout << "faceBitangent ORTO faceNormal" << std::endl;
-                    else
-                        std::cout << "faceBitangent NOT ORTO faceNormal" << std::endl;
-                    if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
-                        std::cout << "faceTangent ORTO faceBitangent" << std::endl;
-                    else
-                        std::cout << "faceTangent NOT ORTO faceBitangent" << std::endl;
+//                    if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
+//                        std::cout << "faceTangent ORTO faceNormal" << std::endl;
+//                    else
+//                        std::cout << "faceTangent NOT ORTO faceNormal" << std::endl;
+//                    if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
+//                        std::cout << "faceBitangent ORTO faceNormal" << std::endl;
+//                    else
+//                        std::cout << "faceBitangent NOT ORTO faceNormal" << std::endl;
+//                    if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
+//                        std::cout << "faceTangent ORTO faceBitangent" << std::endl;
+//                    else
+//                        std::cout << "faceTangent NOT ORTO faceBitangent" << std::endl;
 
-                    if (std::fabs(vertexTangent.dot(vertexNormal)) < 0.001)
-                        std::cout << "vertexTangent ORTO vertexNormal" << std::endl;
-                    else
-                        std::cout << "vertexTangent NOT ORTO vertexNormal" << std::endl;
-                    if (std::fabs(vertexBitangent.dot(vertexNormal)) < 0.001)
-                        std::cout << "vertexBitangent ORTO vertexNormal" << std::endl;
-                    else
-                        std::cout << "vertexBitangent NOT ORTO vertexNormal" << std::endl;
-                    if (std::fabs(vertexTangent.dot(vertexBitangent)) < 0.001)
-                        std::cout << "vertexTangent ORTO vertexBitangent" << std::endl;
-                    else
-                        std::cout << "vertexTangent NOT ORTO vertexBitangent" << std::endl;
+//                    if (std::fabs(vertexTangent.dot(vertexNormal)) < 0.001)
+//                        std::cout << "vertexTangent ORTO vertexNormal" << std::endl;
+//                    else
+//                        std::cout << "vertexTangent NOT ORTO vertexNormal" << std::endl;
+//                    if (std::fabs(vertexBitangent.dot(vertexNormal)) < 0.001)
+//                        std::cout << "vertexBitangent ORTO vertexNormal" << std::endl;
+//                    else
+//                        std::cout << "vertexBitangent NOT ORTO vertexNormal" << std::endl;
+//                    if (std::fabs(vertexTangent.dot(vertexBitangent)) < 0.001)
+//                        std::cout << "vertexTangent ORTO vertexBitangent" << std::endl;
+//                    else
+//                        std::cout << "vertexTangent NOT ORTO vertexBitangent" << std::endl;
 
-                    std::cout << "---------------------------------" << std::endl;
-                    */
-
+//                    std::cout << "---------------------------------" << std::endl;
                 }
                 else {
                     //Save faceTangent and faceBitangent
                     tmpTangents[normalIndex] = faceTangent;
                     tmpBitangents[normalIndex] = faceBitangent;
 
-                    /*
-                    std::cout << "--- New tangent and bitangent! ---" << std::endl;
-                    std::cout << "faceNormal =" << faceNormal << std::endl;
-                    std::cout << "faceTangent =" << faceTangent << std::endl;
-                    std::cout << "faceBitangent =" << faceBitangent << std::endl;
+//                    std::cout << "--- New tangent and bitangent! ---" << std::endl;
+//                    std::cout << "faceNormal =\t" << faceNormal << std::endl;
+//                    std::cout << "faceTangent =\t" << faceTangent << std::endl;
+//                    std::cout << "faceBitangent =\t" << faceBitangent << std::endl;
 
-                    if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
-                        std::cout << "faceTangent ORTO faceNormal" << std::endl;
-                    else
-                        std::cout << "faceTangent NOT ORTO faceNormal" << std::endl;
-                    if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
-                        std::cout << "faceBitangent ORTO faceNormal" << std::endl;
-                    else
-                        std::cout << "faceBitangent NOT ORTO faceNormal" << std::endl;
-                    if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
-                        std::cout << "faceTangent ORTO faceBitangent" << std::endl;
-                    else
-                        std::cout << "faceTangent NOT ORTO faceBitangent" << std::endl;
+//                    if (std::fabs(faceTangent.dot(faceNormal)) < 0.001)
+//                        std::cout << "faceTangent ORTO faceNormal" << std::endl;
+//                    else
+//                        std::cout << "faceTangent NOT ORTO faceNormal" << std::endl;
+//                    if (std::fabs(faceBitangent.dot(faceNormal)) < 0.001)
+//                        std::cout << "faceBitangent ORTO faceNormal" << std::endl;
+//                    else
+//                        std::cout << "faceBitangent NOT ORTO faceNormal" << std::endl;
+//                    if (std::fabs(faceTangent.dot(faceBitangent)) < 0.001)
+//                        std::cout << "faceTangent ORTO faceBitangent" << std::endl;
+//                    else
+//                        std::cout << "faceTangent NOT ORTO faceBitangent" << std::endl;
 
-                    std::cout << "---------------------------------" << std::endl;
-                    */
-
+//                    std::cout << "---------------------------------" << std::endl;
                 }
 
             }

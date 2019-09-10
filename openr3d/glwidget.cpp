@@ -19,8 +19,8 @@ void GLWidget::createScene() {
     //Setup Camera
     SceneObject* cameraObject = new SceneObject(scene);
     cameraObject->name = "camera";
-    cameraObject->transform.setLocalPosition({0, 2.0f, 3.0f});
-    cameraObject->transform.setLocalRotation({-0.4f, 0, 0});
+    cameraObject->transform.setLocalPosition({0, 0.0f, 8.0f});
+    cameraObject->transform.setLocalRotation({0, 0, 0});
     Camera* cameraComponent = new Camera(cameraObject);
     cameraComponent->setOrthographic(false);
     cameraComponent->setFOV(60);
@@ -31,34 +31,37 @@ void GLWidget::createScene() {
     Light* lightComponent = new Light(lightObject, Light::Type::DIRECTIONAL);
     lightComponent->color = {1.0, 1.0, 1.0};
 
-    Mesh* cubeMesh = new Mesh("../assets/cube.obj");
-    scene->assets.push_back(cubeMesh);
-    Mesh* quadMesh = new Mesh("../assets/quad.obj");
-    scene->assets.push_back(quadMesh);
-    Mesh* sphereMesh = new Mesh("../assets/sphere.obj");
-    scene->assets.push_back(sphereMesh);
-    Texture* terrainTexture = new Texture("../assets/rocks_texture.ppm");
-    scene->assets.push_back(terrainTexture);
-    NormalMap* terrainNormalMap = new NormalMap("../assets/rocks_normals.ppm");
-    scene->assets.push_back(terrainNormalMap);
+    //Mesh* cubeMesh = new Mesh("../assets/cube.obj");
+    //scene->assets.push_back(cubeMesh);
+    //Mesh* quadMesh = new Mesh("../assets/quad.obj");
+    //scene->assets.push_back(quadMesh);
+    Mesh* testMesh = new Mesh("../assets/sphere.obj");
+    scene->assets.push_back(testMesh);
+    Texture* testTexture = new Texture("../assets/sphere.ppm");
+    scene->assets.push_back(testTexture);
+    NormalMap* testNormalMap = new NormalMap("../assets/cyborg_normals.ppm");
+    scene->assets.push_back(testNormalMap);
+    NormalMap* plainNormalMap = new NormalMap("../assets/simple_normals.ppm");
+    scene->assets.push_back(plainNormalMap);
 
     //Create a plane
-    SceneObject* terrainSceneObject = new SceneObject(scene);
-    terrainSceneObject->transform.setWorldPosition({0.0f, 0.0f, 0.0f});
-    terrainSceneObject->transform.setWorldRotation({0.0f, 0.0f, 0.0f});
-    terrainSceneObject->transform.setWorldScale(2.0f);
-    MeshRenderer* terrainMeshRenderer = new MeshRenderer(terrainSceneObject);
-    terrainMeshRenderer->mesh = quadMesh;
-    terrainMeshRenderer->texture = terrainTexture;
-    terrainMeshRenderer->normalMap = terrainNormalMap;
+    SceneObject* testSceneObject = new SceneObject(scene);
+    testSceneObject->transform.setWorldPosition({-2.0f, 0.0f, 0.0f});
+    testSceneObject->transform.setWorldRotation({0.0f, 0.0f, 0.0f});
+    testSceneObject->transform.setWorldScale(2.0f);
+    MeshRenderer* testMeshRenderer = new MeshRenderer(testSceneObject);
+    testMeshRenderer->mesh = testMesh;
+    //testMeshRenderer->texture = testTexture;
+    testMeshRenderer->normalMap = plainNormalMap;
 
     //Create a sphere
     SceneObject* boulderSceneObject = new SceneObject(scene);
-    boulderSceneObject->transform.setWorldPosition({0.75f, 0.25f, -0.75f});
-    boulderSceneObject->transform.setWorldScale(0.5f);
+    boulderSceneObject->transform.setWorldPosition({2.0f, 0.0f, 0.0f});
+    boulderSceneObject->transform.setWorldScale(2.0f);
     MeshRenderer* boulderMeshRenderer = new MeshRenderer(boulderSceneObject);
-    boulderMeshRenderer->mesh = sphereMesh;
-    //boulderMeshRenderer->texture = terrainTexture;
+    boulderMeshRenderer->mesh = testMesh;
+    //boulderMeshRenderer->texture = testTexture;
+    //terrainMeshRenderer->normalMap = simpleNormalMap;
 
     //Box2D test scene
     /*
@@ -171,12 +174,12 @@ GLWidget::GLWidget(float framesPerSecond, QWidget *parent)
     //QSurfaceFormat::DefaultRenderableType	: The default unspecified rendering method
     //QSurfaceFormat::OpenGL : Desktop OpenGL rendering
     //QSurfaceFormat::OpenGLES : OpenGL ES 2.0 rendering
-    format.setRenderableType(QSurfaceFormat::OpenGLES);
-    format.setMajorVersion(2);
-    format.setMinorVersion(0);
-    //format.setRenderableType(QSurfaceFormat::OpenGL);
-    //format.setMajorVersion(4);
-    //format.setMinorVersion(5);
+    //format.setRenderableType(QSurfaceFormat::OpenGLES);
+    //format.setMajorVersion(2);
+    //format.setMinorVersion(0);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setMajorVersion(4);
+    format.setMinorVersion(5);
 
     //QSurfaceFormat::CompatibilityProfile : Functionality from earlier OpenGL versions is available.
     //QSurfaceFormat::CoreProfile : Functionality deprecated in OpenGL version 3.0 is not available.

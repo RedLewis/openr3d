@@ -93,7 +93,7 @@ Vector2 maxvec(const Vector2& a, const Vector2& b) { return Vector2((a.x > b.x) 
 Vector2 minvec(const Vector2& a, const Vector2& b) { return Vector2((a.x < b.x) ? a.x : b.x, (a.y < b.y) ? a.y : b.y); }
 
 // Output Vector2
-std::ostream& operator<<(std::ostream& out, const Vector2& v) { return out << v.x << " " << v.y; }
+std::ostream& operator<<(std::ostream& out, const Vector2& v) { return out << "(" << v.x << "," << v.y << ")"; }
 
 // Average value of Vector
 float average(const Vector2& v) { return (v.x + v.y) / 2.0f; }

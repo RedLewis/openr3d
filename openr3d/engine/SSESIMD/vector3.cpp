@@ -126,7 +126,7 @@ Vector3 maxvec(const Vector3& a, const Vector3& b) { return _mm_max_ps(a.xmm, b.
 Vector3 minvec(const Vector3& a, const Vector3& b) { return _mm_min_ps(a.xmm, b.xmm); }
 
 // Output Vector3
-std::ostream& operator<<(std::ostream& out, const Vector3& v) { return out << v.x << " " << v.y << " " << v.z; }
+std::ostream& operator<<(std::ostream& out, const Vector3& v) { return out << "(" << v.x << "," << v.y << "," << v.z << ")"; }
 
 // Average value of Vector
 float average(const Vector3& v) { return (v.x + v.y + v.z) / 3.0f; }

@@ -4,7 +4,7 @@
 
 //Uncomment this define to print potential errors when calling opengl functions
 //WARNING: This causes the program to crash when built on windows using MSVC2017
-#define GL_DEBUG
+//#define GL_DEBUG
 
 GL* gl = NULL;
 

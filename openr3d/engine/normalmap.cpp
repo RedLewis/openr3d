@@ -99,11 +99,14 @@ int NormalMap::load(const std::string& fileName)
     */
 
     tmpBaseData.resize(this->width * this->height);
-    for (unsigned int i = 0; i < tmpBaseData.size(); ++i) {
-        tmpBaseData[i].set((float)(rawData[0]) / 255.f, (float)(rawData[1]) / 255.f, (float)(rawData[2]) / 255.f);
-        rawData += 3;
+    for (unsigned int y = 0; y < this->height; ++y) {
+        for (unsigned int x = 0; x < this->width; ++x) {
+            //The origin of textures in OpenGL is the lower-left corner. We need to vertically flip the rawData image:
+            unsigned int rawDataIndex = 3 * (y * this->width + x);
+            unsigned int tmpBaseDataIndex = ((this->height - 1) - y) * this->width + x;
+            tmpBaseData[tmpBaseDataIndex].set(float(rawData[rawDataIndex+0]) / 255.f, float(rawData[rawDataIndex+1]) / 255.f, float(rawData[rawDataIndex+2]) / 255.f);
+        }
     }
-    rawData -= tmpBaseData.size() * 3;
     delete[] rawData;
 
     //Init opengl data
@@ -130,7 +133,7 @@ int NormalMap::load(const std::string& fileName)
     this->update();
 
     //Finish
-    std::cout << "Texture::load(\"" << fileName << "\")\tFile loaded." << std::endl;
+    std::cout << "NormalMap::load(\"" << fileName << "\")\tFile loaded." << std::endl;
     this->fileName = fileName;
     return 0;
 }

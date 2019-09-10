@@ -33,12 +33,10 @@ void main(void)
 
     if (useNormalMap != 0) {
         mediump mat3 TBN = mat3(out_tangent, out_bitangent, out_normal);
-        surfaceNormal = texture2D(normalMapSampler, out_textureCoordinate).xyz;
-        //Transform from range [0, 1] (used for colors) to [-1, 1] (used for vectors)
-        //and normalize the vector because the color representing the normal might not be a unit vector
-        surfaceNormal = normalize(surfaceNormal * 2.0 - 1.0);
-        //Move the normal from the texture space to world space using the TBN rotation matrix
-        surfaceNormal = TBN * surfaceNormal;
+        //Get texel representing surface normal and transform from range [0, 1] (used for colors) to [-1, 1] (used for vectors)
+        surfaceNormal = texture2D(normalMapSampler, out_textureCoordinate).rgb * 2.0 - 1.0;
+        //Move the normal from the texture space to world space using the TBN rotation matrix and normalize the vector (the color representing the normal might not be a unit vector)
+        surfaceNormal = normalize(TBN * surfaceNormal);
     }
     else {
         surfaceNormal = out_normal;

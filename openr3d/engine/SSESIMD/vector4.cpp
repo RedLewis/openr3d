@@ -106,7 +106,7 @@ Vector4 maxvec(const Vector4& a, const Vector4& b) { return _mm_max_ps(a.xmm, b.
 Vector4 minvec(const Vector4& a, const Vector4& b) { return _mm_min_ps(a.xmm, b.xmm); }
 
 // Output Vector4
-std::ostream& operator<<(std::ostream& out, const Vector4& v) { return out << v.x << " " << v.y << " " << v.z << " " << v.w; }
+std::ostream& operator<<(std::ostream& out, const Vector4& v) { return out << "(" << v.x << "," << v.y << "," << v.z << "," << v.w << ")"; }
 
 // Average value of Vector
 float average(const Vector4& v) { return (v.x + v.y + v.z + v.w) / 4.0f; }
